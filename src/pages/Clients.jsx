@@ -58,40 +58,51 @@ const Clients = () => {
         setSelectedClient(null);
     };
 
-    // Extract unique clients from projects data safely
+    // Calculate derived data exclusively for registered Database Clients
     const uniqueClientsMap = useMemo(() => {
         const map = new Map();
 
-        // Map manually added clients first
+        // 1. Map ONLY explicitly registered clients from the postgres database
         clients.forEach(c => {
-            const name = c.name || c.companyName || 'Unknown';
-            map.set(name, { ...c, name });
+            map.set(c.id, { 
+                ...c, 
+                activeProjectNames: [],
+                totalProjectsCount: 0,
+                accumulatedValue: 0,
+                // Ensure display fallbacks
+                contact: c.contact || 'No Contact Given',
+                email: c.email || 'No Email',
+                phone: c.phone || 'No Phone'
+            });
         });
 
+        // 2. Cross-reference Projects to find matching clients
         projects.forEach(p => {
-            const pClient = p.client || 'Unknown';
-            if (!map.has(pClient)) {
-                map.set(pClient, {
-                    id: `client-${pClient.replace(/\s+/g, '-').toLowerCase()}`,
-                    name: pClient,
-                    contact: p.assignee === 'PT' ? 'Account Team' : p.assignee,
-                    email: `contact@${pClient.replace(/[^a-zA-Z0-9]/g, '').toLowerCase()}.com`,
-                    phone: '+357 ' + (20000000 + (pClient.length * 123456) + pClient.charCodeAt(0)), // Deterministic Mock CY numbers
-                    activeProjects: [p.name],
-                    totalProjects: 1,
-                    totalValue: `€${p.totalAmount?.toLocaleString() || 0}`
-                });
-            } else {
-                const clientInfo = map.get(pClient);
-                if (!Array.isArray(clientInfo.activeProjects)) {
-                    clientInfo.activeProjects = [];
+            // Find if this project physically belongs to one of our registered clients by comparing names
+            let registeredClientId = null;
+            map.forEach((clientData, clientId) => {
+                if (clientData.name.toLowerCase() === (p.client || '').toLowerCase()) {
+                    registeredClientId = clientId;
                 }
-                if (!clientInfo.activeProjects.includes(p.name)) {
-                    clientInfo.activeProjects.push(p.name);
+            });
+
+            if (registeredClientId) {
+                const clientInfo = map.get(registeredClientId);
+                if (p.status !== 'Completed') {
+                    if (!clientInfo.activeProjectNames.includes(p.name)) {
+                        clientInfo.activeProjectNames.push(p.name);
+                    }
                 }
-                clientInfo.totalProjects = (clientInfo.totalProjects || 1) + 1;
-                // Optional: summarize value if needed, for now just using the first or simple logic 
+                clientInfo.totalProjectsCount += 1;
+                clientInfo.accumulatedValue += (Number(p.totalAmount) || 0);
             }
+        });
+
+        // Format final display outputs
+        map.forEach((clientData, clientId) => {
+            clientData.totalProjects = clientData.totalProjectsCount;
+            clientData.activeProjects = clientData.activeProjectNames;
+            clientData.totalValue = `€${clientData.accumulatedValue.toLocaleString()}`;
         });
 
         return map;

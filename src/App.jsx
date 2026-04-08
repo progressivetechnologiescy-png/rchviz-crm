@@ -81,6 +81,8 @@ function App() {
   const role = useStore(state => state.userRole) || 'guest';
   const fetchProjects = useStore(state => state.fetchProjects);
   const fetchLeads = useStore(state => state.fetchLeads);
+  const fetchClients = useStore(state => state.fetchClients);
+  const fetchTasks = useStore(state => state.fetchTasks);
 
   // Global Data Re-hydration
   // If the user refreshes the page, pull down fresh cloud data automatically.
@@ -88,8 +90,10 @@ function App() {
     if (currentUser) {
       fetchProjects();
       fetchLeads();
+      fetchClients();
+      fetchTasks();
     }
-  }, [currentUser, fetchProjects, fetchLeads]);
+  }, [currentUser, fetchProjects, fetchLeads, fetchClients, fetchTasks]);
 
   // Render auth outside of the layout and router when not logged in
   if (!currentUser) {

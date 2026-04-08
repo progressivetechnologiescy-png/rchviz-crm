@@ -132,6 +132,8 @@ export const useStore = create(
                 // Fetch fresh DB data into local store on login
                 get().fetchProjects();
                 get().fetchLeads();
+                get().fetchClients();
+                get().fetchTasks();
             },
 
             updateProfile: (updates) => set((state) => ({
@@ -381,18 +383,63 @@ export const useStore = create(
             // Clients State
             clients: initialClients,
             setClients: (clients) => set({ clients }),
-            addClient: (client) => set((state) => ({ clients: [{ ...client, id: `client-${Date.now()}` }, ...state.clients] })),
-            updateClient: (id, updatedClient) => set((state) => {
-                const exists = state.clients.some(c => c.id === id);
-                if (exists) {
-                    return { clients: state.clients.map(c => c.id === id ? { ...c, ...updatedClient } : c) };
-                } else {
+            
+            fetchClients: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/clients`);
+                    const json = await res.json();
+                    if (json.success) set({ clients: json.data });
+                } catch(e) { console.error("API Error fetchClients", e); }
+            },
+            
+            addClient: async (client) => {
+                try {
+                    const reqObj = {
+                        name: client.name || 'Unnamed Client',
+                        contact: client.contact || '',
+                        email: client.email || '',
+                        phone: client.phone || ''
+                    };
+                    const res = await fetch(`${API_BASE}/api/v1/clients`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reqObj)
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                        set(state => ({ clients: [json.data, ...state.clients] }));
+                    }
+                } catch(e) { console.error("API Error addClient", e); }
+            },
+            
+            updateClient: async (id, updatedClient) => {
+                // Optimistic UI update
+                set((state) => {
+                    const exists = state.clients.some(c => c.id === id);
+                    if (exists) return { clients: state.clients.map(c => c.id === id ? { ...c, ...updatedClient } : c) };
                     return { clients: [{ ...updatedClient, id }, ...state.clients] };
-                }
-            }),
-            deleteClient: (id) => set((state) => ({
-                clients: state.clients.filter(c => c.id !== id)
-            })),
+                });
+                try {
+                     await fetch(`${API_BASE}/api/v1/clients/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: updatedClient.name,
+                            contact: updatedClient.contact,
+                            email: updatedClient.email,
+                            phone: updatedClient.phone
+                        })
+                    });
+                } catch(e) { console.error("API Error updateClient", e); }
+            },
+            
+            deleteClient: async (id) => {
+                // Optimistic UI update
+                set((state) => ({ clients: state.clients.filter(c => c.id !== id) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/clients/${id}`, { method: 'DELETE' });
+                } catch(e) { console.error("API Error deleteClient", e); }
+            },
 
             // Assets State
             folders: initialFolders,
@@ -427,33 +474,81 @@ export const useStore = create(
 
             // Tasks State
             tasks: initialTasks,
-            addTask: (task) => set((state) => ({
-                tasks: [{ ...task, id: `task-${Date.now()}`, status: 'Pending' }, ...state.tasks]
-            })),
-            updateTaskStatus: (id, newStatus) => set((state) => {
-                const updatedTasks = state.tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
-                const task = state.tasks.find(t => t.id === id);
+            
+            fetchTasks: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/tasks`);
+                    const json = await res.json();
+                    if (json.success) set({ tasks: json.data });
+                } catch(e) { console.error("API Error fetchTasks", e); }
+            },
 
-                // If a task is completed by an employee, notify the admin
-                if (newStatus === 'Completed' && task && task.status !== 'Completed' && state.userRole === 'employee') {
-                    const newNotification = {
-                        id: `ntf-${Date.now()}`,
-                        title: 'Task Completed',
-                        desc: `${state.currentUser?.name} completed task: "${task.title}"`,
-                        read: false,
-                        link: '/tasks'
+            addTask: async (task) => {
+                try {
+                    const reqObj = {
+                        title: task.title || 'Untitled Task',
+                        assignee: task.assignee || 'Unassigned',
+                        dueDate: task.dueDate || null,
+                        priority: task.priority || 'Medium',
+                        status: task.status || 'Pending',
+                        projectId: task.projectId || null
                     };
-                    return { tasks: updatedTasks, notifications: [newNotification, ...state.notifications] };
-                }
+                    const res = await fetch(`${API_BASE}/api/v1/tasks`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reqObj)
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                        set(state => ({ tasks: [json.data, ...state.tasks] }));
+                    }
+                } catch(e) { console.error("API Error addTask", e); }
+            },
 
-                return { tasks: updatedTasks };
-            }),
-            updateTask: (id, updates) => set((state) => ({
-                tasks: state.tasks.map(t => t.id === id ? { ...t, ...updates } : t)
-            })),
-            deleteTask: (id) => set((state) => ({
-                tasks: state.tasks.filter(t => t.id !== id)
-            })),
+            updateTaskStatus: async (id, newStatus) => {
+                set((state) => {
+                    const updatedTasks = state.tasks.map(t => t.id === id ? { ...t, status: newStatus } : t);
+                    const task = state.tasks.find(t => t.id === id);
+
+                    // If a task is completed by an employee, notify the admin
+                    if (newStatus === 'Completed' && task && task.status !== 'Completed' && state.userRole === 'employee') {
+                        const newNotification = {
+                            id: `ntf-${Date.now()}`,
+                            title: 'Task Completed',
+                            desc: `${state.currentUser?.name} completed task: "${task.title}"`,
+                            read: false,
+                            link: '/tasks'
+                        };
+                        return { tasks: updatedTasks, notifications: [newNotification, ...state.notifications] };
+                    }
+                    return { tasks: updatedTasks };
+                });
+                try {
+                    await fetch(`${API_BASE}/api/v1/tasks/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                } catch(e) { console.error("API Error updateTaskStatus", e); }
+            },
+
+            updateTask: async (id, updates) => {
+                set((state) => ({ tasks: state.tasks.map(t => t.id === id ? { ...t, ...updates } : t) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/tasks/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updates)
+                    });
+                } catch(e) { console.error("API Error updateTask", e); }
+            },
+
+            deleteTask: async (id) => {
+                set((state) => ({ tasks: state.tasks.filter(t => t.id !== id) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/tasks/${id}`, { method: 'DELETE' });
+                } catch(e) { console.error("API Error deleteTask", e); }
+            },
 
             // Employees State
             employees: initialEmployees,
