@@ -2,6 +2,9 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+
+
 // --- INITIAL PIPELINE DATA ---
 const initialLeadsData = { tasks: {}, columns: { "column-1": { id: "column-1", title: "Inbox", taskIds: [] }, "column-2": { id: "column-2", title: "Contacted", taskIds: [] }, "column-3": { id: "column-3", title: "Proposal Sent", taskIds: [] }, "column-4": { id: "column-4", title: "Won", taskIds: [] } }, columnOrder: ["column-1", "column-2", "column-3", "column-4"] };
 
@@ -40,7 +43,7 @@ const initialEmployees = [];
 
 export const useStore = create(
     persist(
-        (set) => ({
+        (set, get) => ({
             // Auth State
             currentUser: null,
             userRole: null, // Initial role
@@ -116,15 +119,20 @@ export const useStore = create(
             })),
 
             // --- ACTIONS ---
-            login: (email, role) => set({
-                currentUser: {
-                    email,
-                    name: role === 'admin' ? 'Koss' : role === 'client' ? 'Client Partner' : 'Production Team',
-                    avatar: ''
-                },
-                userRole: role,
-                isAuthenticated: true
-            }),
+            login: (email, role) => {
+                set({
+                    currentUser: {
+                        email,
+                        name: role === 'admin' ? 'Koss' : role === 'client' ? 'Client Partner' : 'Production Team',
+                        avatar: ''
+                    },
+                    userRole: role,
+                    isAuthenticated: true
+                });
+                // Fetch fresh DB data into local store on login
+                get().fetchProjects();
+                get().fetchLeads();
+            },
 
             updateProfile: (updates) => set((state) => ({
                 currentUser: state.currentUser ? { ...state.currentUser, ...updates } : null
@@ -167,57 +175,123 @@ export const useStore = create(
             pipelineData: initialLeadsData,
             setPipelineData: (pipelineData) => set({ pipelineData }),
 
-            // Push an emailed lead directly into the 'Contacted' column (column-2)
-            addPipelineLead: (lead) => set((state) => {
-                const newTaskId = `task-${Date.now()}`;
+            // Fetch ALL leads and re-distribute them into the pipeline UI
+            fetchLeads: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/leads`);
+                    const json = await res.json();
+                    if (json.success && json.data) {
+                        const dbLeads = json.data;
+                        
+                        // Map them into the pipeline structure
+                        let newTasks = {};
+                        let newCols = {
+                            "column-1": { id: "column-1", title: "Inbox", taskIds: [] },
+                            "column-2": { id: "column-2", title: "Contacted", taskIds: [] },
+                            "column-3": { id: "column-3", title: "Proposal Sent", taskIds: [] },
+                            "column-4": { id: "column-4", title: "Won", taskIds: [] }
+                        };
 
-                // Construct the task card from the lead data
-                const newTask = {
-                    id: newTaskId,
-                    client: lead.company,
-                    project: 'Outreach',
-                    value: 'TBD',
-                    added: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-                };
+                        dbLeads.forEach(lead => {
+                            newTasks[lead.id] = {
+                                id: lead.id,
+                                client: lead.company,
+                                project: 'Outreach', // Default
+                                value: lead.value || 'TBD',
+                                added: lead.addedDate || new Date(lead.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                            };
+                            
+                            // Sort logic
+                            if (lead.status === 'Contacted') newCols['column-2'].taskIds.push(lead.id);
+                            else if (lead.status === 'Proposal Sent') newCols['column-3'].taskIds.push(lead.id);
+                            else if (lead.status === 'Won') newCols['column-4'].taskIds.push(lead.id);
+                            else newCols['column-1'].taskIds.push(lead.id);
+                        });
 
-                // Add task to task map and to column-2 taskIds array
-                return {
-                    pipelineData: {
-                        ...state.pipelineData,
-                        tasks: {
-                            ...state.pipelineData.tasks,
-                            [newTaskId]: newTask
-                        },
-                        columns: {
-                            ...state.pipelineData.columns,
-                            'column-2': {
-                                ...state.pipelineData.columns['column-2'],
-                                taskIds: [newTaskId, ...state.pipelineData.columns['column-2'].taskIds]
+                        set({
+                            pipelineData: {
+                                tasks: newTasks,
+                                columns: newCols,
+                                columnOrder: ["column-1", "column-2", "column-3", "column-4"]
                             }
-                        }
+                        });
                     }
-                };
-            }),
+                } catch (e) { console.error("Failed to fetch leads", e); }
+            },
+
+            // Push an emailed lead directly into the 'Contacted' column (column-2)
+            addPipelineLead: async (lead) => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/leads`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            company: lead.company,
+                            website: lead.website || null,
+                            email: lead.email || null,
+                            status: 'Contacted',
+                            addedDate: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                        const newTaskId = json.data.id;
+                        const newTask = {
+                            id: newTaskId,
+                            client: json.data.company,
+                            project: 'Outreach',
+                            value: 'TBD',
+                            added: json.data.addedDate
+                        };
+                        set((state) => ({
+                            pipelineData: {
+                                ...state.pipelineData,
+                                tasks: { ...state.pipelineData.tasks, [newTaskId]: newTask },
+                                columns: {
+                                    ...state.pipelineData.columns,
+                                    'column-2': {
+                                        ...state.pipelineData.columns['column-2'],
+                                        taskIds: [newTaskId, ...state.pipelineData.columns['column-2'].taskIds]
+                                    }
+                                }
+                            }
+                        }));
+                    }
+                } catch(e) { console.error("API error", e); }
+            },
 
             // Update a specific task/card in the pipeline
-            addLead: (lead) => set((state) => {
-                const newTaskId = `task-${Date.now()}`;
-                const newLead = { ...lead, id: newTaskId };
-                const updatedTasks = { ...state.pipelineData.tasks, [newTaskId]: newLead };
-                const inboxCol = state.pipelineData.columns["column-1"];
-                const updatedInbox = { ...inboxCol, taskIds: [newTaskId, ...inboxCol.taskIds] };
-
-                return {
-                    pipelineData: {
-                        ...state.pipelineData,
-                        tasks: updatedTasks,
-                        columns: {
-                            ...state.pipelineData.columns,
-                            "column-1": updatedInbox
-                        }
+            addLead: async (lead) => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/leads`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            company: lead.client || 'Unknown Client',
+                            status: 'Discovered',
+                            value: lead.value || 'TBD',
+                            addedDate: lead.added || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                        const newTaskId = json.data.id;
+                        const newLead = { ...lead, id: newTaskId };
+                        set((state) => {
+                            const updatedTasks = { ...state.pipelineData.tasks, [newTaskId]: newLead };
+                            const inboxCol = state.pipelineData.columns["column-1"];
+                            const updatedInbox = { ...inboxCol, taskIds: [newTaskId, ...inboxCol.taskIds] };
+                            return {
+                                pipelineData: {
+                                    ...state.pipelineData,
+                                    tasks: updatedTasks,
+                                    columns: { ...state.pipelineData.columns, "column-1": updatedInbox }
+                                }
+                            };
+                        });
                     }
-                };
-            }),
+                } catch(e) { console.error("Add Lead error", e); }
+            },
             updatePipelineData: (newData) => set({ pipelineData: newData }),
 
             // Metrics State
@@ -225,32 +299,68 @@ export const useStore = create(
 
             // Production State
             projects: initialProjects,
-            addProject: (project) => set((state) => ({
-                projects: [{
-                    ...project,
-                    id: project.id || `proj-${Date.now()}`,
-                    totalAmount: project.totalAmount || 0,
-                    deposit: project.deposit || 0,
-                    balance: (project.totalAmount || 0) - (project.deposit || 0),
-                    revisionCount: 0,
-                    feedbackHistory: []
-                }, ...state.projects]
-            })),
-            updateProjectStatus: (id, newStatus) => set((state) => ({
-                projects: state.projects.map(p => {
-                    if (p.id === id) {
-                        return {
-                            ...p,
-                            status: newStatus,
-                            progress: newStatus === 'Completed' ? 100 : (newStatus === 'Queue' ? 0 : p.progress)
-                        };
+            fetchProjects: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/projects`);
+                    const json = await res.json();
+                    if (json.success) {
+                        set({ projects: json.data });
                     }
-                    return p;
-                })
-            })),
-            updateProjectField: (id, field, value) => set((state) => ({
-                projects: state.projects.map(p => p.id === id ? { ...p, [field]: value } : p)
-            })),
+                } catch (e) { console.error("Failed to fetch projects frontend", e); }
+            },
+            addProject: async (project) => {
+                try {
+                    const reqObj = {
+                        name: project.name || 'Unnamed Project',
+                        clientId: null,
+                        totalAmount: Number(project.totalAmount || 0),
+                        deposit: Number(project.deposit || 0),
+                        assignee: project.assignee || 'Unassigned',
+                        status: project.status || 'Queue'
+                    };
+                    const res = await fetch(`${API_BASE}/api/v1/projects`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(reqObj)
+                    });
+                    const json = await res.json();
+                    if (json.success) {
+                        set(state => ({ projects: [json.data, ...state.projects] }));
+                    }
+                } catch (e) { console.error("Failed to add project", e); }
+            },
+            updateProjectStatus: async (id, newStatus) => {
+                // Optimistic UI update
+                set((state) => ({
+                    projects: state.projects.map(p => {
+                        if (p.id === id) {
+                            return { ...p, status: newStatus, progress: newStatus === 'Completed' ? 100 : (newStatus === 'Queue' ? 0 : p.progress) };
+                        }
+                        return p;
+                    })
+                }));
+                // Update Backend
+                const progressVal = newStatus === 'Completed' ? 100 : (newStatus === 'Queue' ? 0 : undefined);
+                try {
+                    await fetch(`${API_BASE}/api/v1/projects/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(progressVal !== undefined ? { status: newStatus, progress: progressVal } : { status: newStatus })
+                    });
+                } catch (e) { console.error(e); }
+            },
+            updateProjectField: async (id, field, value) => {
+                set((state) => ({
+                    projects: state.projects.map(p => p.id === id ? { ...p, [field]: value } : p)
+                }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/projects/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ [field]: field.includes('Amount') || field.includes('deposit') ? Number(value) : value })
+                    });
+                } catch (e) { console.error(e); }
+            },
             addProjectFeedback: (id, feedback) => set((state) => ({
                 projects: state.projects.map(p => {
                     if (p.id === id) {
