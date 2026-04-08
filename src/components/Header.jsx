@@ -235,8 +235,8 @@ const Header = () => {
                     </div>
                 </div>
 
-                <button className="action-btn" onClick={toggleLanguage} title={i18n.language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}>
-                    <span className="text-lg leading-none">{i18n.language.startsWith('el') ? '🇬🇷' : '🇬🇧'}</span>
+                <button className="action-btn flex items-center justify-center" onClick={toggleLanguage} title={i18n.language === 'el' ? 'Switch to English' : 'Αλλαγή σε Ελληνικά'}>
+                    <Globe size={18} />
                     <span className="text-xs font-bold ml-1.5">{toGreekCaps(i18n.language.substring(0, 2))}</span>
                 </button>
 
