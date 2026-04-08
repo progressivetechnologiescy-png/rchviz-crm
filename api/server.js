@@ -493,7 +493,7 @@ app.post('/api/send-email', async (req, res) => {
     }
 });
 
-const PORT = 3001;
-app.listen(PORT, () => {
-    console.log(`🚀 Automated Puppeteer Scraper running on http://localhost:${PORT}`);
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Automated Puppeteer Scraper running on port ${PORT}`);
 });
