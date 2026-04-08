@@ -53,37 +53,68 @@ export const useStore = create(
             notifications: [],
 
             // --- CHAT CHANNELS & MESSAGES ---
-            channels: [
-                { id: 'channel-general', name: 'general', type: 'channel' },
-                { id: 'channel-design', name: 'design', type: 'channel' },
-                { id: 'channel-announcements', name: 'announcements', type: 'channel' },
-                { id: 'channel-task-2372', name: 'deal-oikogenesis', type: 'deal', referenceId: 'task-2372' }
-            ],
-            addChannel: (channel) => set(state => ({ channels: [...state.channels, channel] })),
+            channels: [],
+            fetchChannels: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/channels`);
+                    const json = await res.json();
+                    if (json.success) set({ channels: json.data });
+                } catch(e) { console.error("API Error fetchChannels", e) }
+            },
+            addChannel: async (channel) => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/channels`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: channel.name, type: channel.type, referenceId: channel.referenceId })
+                    });
+                    const json = await res.json();
+                    if (json.success) set(state => ({ channels: [...state.channels, json.data] }));
+                } catch(e) { console.error("API Error addChannel", e) }
+            },
+            
             messages: [],
-            addMessage: (channelId, msg) => {
+            fetchMessages: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/messages`);
+                    const json = await res.json();
+                    if (json.success) set({ messages: json.data });
+                } catch(e) { console.error("API Error fetchMessages", e) }
+            },
+            addMessage: async (channelId, msg) => {
+                const tempId = `msg-${Date.now()}`;
                 set(state => {
                     const isNewMessageFromOther = msg.sender !== state.currentUser?.name;
-
                     if (isNewMessageFromOther && 'Notification' in window && Notification.permission === 'granted') {
                         new Notification(`New message from ${msg.sender}`, {
                             body: msg.text || 'Sent an image attachment.',
                             icon: 'https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png'
                         });
                     }
-
                     return {
-                        messages: [...state.messages, { ...msg, channelId, id: `msg-${Date.now()}`, reactions: {}, read: false }]
+                        messages: [...state.messages, { ...msg, channelId, id: tempId, reactions: {}, read: false }]
                     };
                 });
+
+                try {
+                    await fetch(`${API_BASE}/api/v1/messages`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            channelId,
+                            sender: msg.sender,
+                            text: msg.text || null,
+                            imageUrl: msg.imageUrl || null
+                        })
+                    });
+                } catch(e) { console.error("API Error addMessage", e) }
             },
             markMessagesAsRead: (channelId) => set(state => {
                 const hasUnread = state.messages.some(m =>
                     m.channelId === channelId && m.sender !== state.currentUser?.name && !m.read
                 );
-
-                if (!hasUnread) return state; // Break the infinite render loop
-
+                if (!hasUnread) return state; 
+                // Note: For a live environment, a batch PUT request should be emitted to `/api/v1/messages` but optimistic state is fine for now
                 return {
                     messages: state.messages.map(m =>
                         m.channelId === channelId && m.sender !== state.currentUser?.name && !m.read ? { ...m, read: true } : m
@@ -134,6 +165,11 @@ export const useStore = create(
                 get().fetchLeads();
                 get().fetchClients();
                 get().fetchTasks();
+                get().fetchFolders();
+                get().fetchAssets();
+                get().fetchChannels();
+                get().fetchMessages();
+                get().fetchEmployees();
             },
 
             updateProfile: (updates) => set((state) => ({
@@ -443,34 +479,113 @@ export const useStore = create(
 
             // Assets State
             folders: initialFolders,
-            addFolder: (folder) => set((state) => ({ folders: [{ ...folder, id: `folder-${Date.now().toString() + Math.random().toString(36).substr(2, 9)}` }, ...state.folders] })),
-            deleteFolder: (folderId) => set((state) => ({
-                folders: state.folders.filter(f => f.id !== folderId)
-            })),
+            fetchFolders: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/folders`);
+                    const json = await res.json();
+                    if (json.success) set({ folders: json.data });
+                } catch(e) { console.error(e); }
+            },
+            addFolder: async (folder) => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/folders`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: folder.name, parentId: folder.parentId || null })
+                    });
+                    const json = await res.json();
+                    if (json.success) set(state => ({ folders: [json.data, ...state.folders] }));
+                } catch(e) { console.error(e); }
+            },
+            deleteFolder: async (folderId) => {
+                set((state) => ({ folders: state.folders.filter(f => f.id !== folderId) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/folders/${folderId}`, { method: 'DELETE' });
+                } catch(e) { console.error(e); }
+            },
 
             assets: initialAssets,
             setAssets: (assets) => set({ assets }),
-            addAsset: (asset) => set((state) => ({ assets: [{ ...asset, id: `asset-${Date.now()}` }, ...state.assets] })),
-            deleteAsset: (assetId) => set((state) => ({
-                assets: state.assets.filter(a => a.id !== assetId)
-            })),
-            addAssetComment: (assetId, comment) => set((state) => ({
-                assets: state.assets.map(a => a.id === assetId ? { ...a, comments: [...(a.comments || []), comment] } : a)
-            })),
-            addAnnotation: (assetId, annotation) => set((state) => ({
-                assets: state.assets.map(a =>
-                    a.id === assetId
-                        ? { ...a, annotations: [...(a.annotations || []), { ...annotation, id: `ann-${Date.now()}`, timestamp: new Date().toISOString(), status: 'open' }] }
-                        : a
-                )
-            })),
-            resolveAnnotation: (assetId, annotationId) => set((state) => ({
-                assets: state.assets.map(a =>
-                    a.id === assetId
-                        ? { ...a, annotations: (a.annotations || []).map(ann => ann.id === annotationId ? { ...ann, status: 'resolved' } : ann) }
-                        : a
-                )
-            })),
+            fetchAssets: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/assets`);
+                    const json = await res.json();
+                    if (json.success) set({ assets: json.data });
+                } catch(e) { console.error(e); }
+            },
+            addAsset: async (asset) => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/assets`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: asset.name,
+                            type: asset.type,
+                            folderId: asset.folderId || null,
+                            size: asset.size || null,
+                            url: asset.url || null
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.success) set(state => ({ assets: [json.data, ...state.assets] }));
+                } catch(e) { console.error(e); }
+            },
+            deleteAsset: async (assetId) => {
+                set((state) => ({ assets: state.assets.filter(a => a.id !== assetId) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/assets/${assetId}`, { method: 'DELETE' });
+                } catch(e) { console.error(e); }
+            },
+            addAssetComment: async (assetId, comment) => {
+                set((state) => ({
+                    assets: state.assets.map(a => a.id === assetId ? { ...a, comments: [...(a.comments || []), comment] } : a)
+                }));
+                // Realistically, to sync this we'd GET the asset, mutate JSON, and PUT.
+                const asset = get().assets.find(a => a.id === assetId);
+                if (asset) {
+                    try {
+                        await fetch(`${API_BASE}/api/v1/assets/${assetId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ comments: [...(asset.comments || []), comment] })
+                        });
+                    } catch(e){}
+                }
+            },
+            addAnnotation: async (assetId, annotation) => {
+                const newAnn = { ...annotation, id: `ann-${Date.now()}`, timestamp: new Date().toISOString(), status: 'open' };
+                set((state) => ({
+                    assets: state.assets.map(a => a.id === assetId ? { ...a, annotations: [...(a.annotations || []), newAnn] } : a)
+                }));
+                const asset = get().assets.find(a => a.id === assetId);
+                if (asset) {
+                    try {
+                        await fetch(`${API_BASE}/api/v1/assets/${assetId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ annotations: [...(asset.annotations || []), newAnn] })
+                        });
+                    } catch(e){}
+                }
+            },
+            resolveAnnotation: async (assetId, annotationId) => {
+                set((state) => ({
+                    assets: state.assets.map(a =>
+                        a.id === assetId ? { ...a, annotations: (a.annotations || []).map(ann => ann.id === annotationId ? { ...ann, status: 'resolved' } : ann) } : a
+                    )
+                }));
+                const asset = get().assets.find(a => a.id === assetId);
+                if (asset) {
+                    const newAnnotations = (asset.annotations || []).map(ann => ann.id === annotationId ? { ...ann, status: 'resolved' } : ann);
+                    try {
+                        await fetch(`${API_BASE}/api/v1/assets/${assetId}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ annotations: newAnnotations })
+                        });
+                    } catch(e){}
+                }
+            },
 
             // Tasks State
             tasks: initialTasks,
@@ -552,12 +667,40 @@ export const useStore = create(
 
             // Employees State
             employees: initialEmployees,
-            addEmployee: (employee) => set((state) => ({
-                employees: [...state.employees, { ...employee, id: `emp-${Date.now()}` }]
-            })),
-            updateEmployee: (id, updates) => set((state) => ({
-                employees: state.employees.map(e => e.id === id ? { ...e, ...updates } : e)
-            })),
+            fetchEmployees: async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/employees`);
+                    const json = await res.json();
+                    if (json.success) set({ employees: json.data });
+                } catch(e) { console.error(e); }
+            },
+            addEmployee: async (employee) => {
+                try {
+                    const res = await fetch(`${API_BASE}/api/v1/employees`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: employee.name,
+                            email: employee.email,
+                            role: employee.role,
+                            status: employee.status || 'active',
+                            avatar: employee.avatar || null
+                        })
+                    });
+                    const json = await res.json();
+                    if (json.success) set(state => ({ employees: [...state.employees, json.data] }));
+                } catch(e) { console.error(e); }
+            },
+            updateEmployee: async (id, updates) => {
+                set((state) => ({ employees: state.employees.map(e => e.id === id ? { ...e, ...updates } : e) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/employees/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updates)
+                    });
+                } catch(e) { console.error(e); }
+            },
 
             // CRM Lead Generation Banning
             bannedLeads: [],

@@ -83,6 +83,11 @@ function App() {
   const fetchLeads = useStore(state => state.fetchLeads);
   const fetchClients = useStore(state => state.fetchClients);
   const fetchTasks = useStore(state => state.fetchTasks);
+  const fetchFolders = useStore(state => state.fetchFolders);
+  const fetchAssets = useStore(state => state.fetchAssets);
+  const fetchChannels = useStore(state => state.fetchChannels);
+  const fetchMessages = useStore(state => state.fetchMessages);
+  const fetchEmployees = useStore(state => state.fetchEmployees);
 
   // Global Data Re-hydration
   // If the user refreshes the page, pull down fresh cloud data automatically.
@@ -92,8 +97,13 @@ function App() {
       fetchLeads();
       fetchClients();
       fetchTasks();
+      fetchFolders();
+      fetchAssets();
+      fetchChannels();
+      fetchMessages();
+      fetchEmployees();
     }
-  }, [currentUser, fetchProjects, fetchLeads, fetchClients, fetchTasks]);
+  }, [currentUser, fetchProjects, fetchLeads, fetchClients, fetchTasks, fetchFolders, fetchAssets, fetchChannels, fetchMessages, fetchEmployees]);
 
   // Render auth outside of the layout and router when not logged in
   if (!currentUser) {
