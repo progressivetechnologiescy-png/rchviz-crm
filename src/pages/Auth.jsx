@@ -81,16 +81,7 @@ const Auth = ({ onLogin }) => {
                     </p>
                 </div>
 
-                <div className="auth-sso-container">
-                    <button className="auth-sso-btn text-sm" type="button" onClick={() => handleSubmit({ preventDefault: () => { } })}>
-                        <Chrome size={18} className="text-secondary" />
-                        {isLogin ? t('sign_in_google', 'Sign in with Google') : t('sign_up_google', 'Sign up with Google')}
-                    </button>
-                </div>
 
-                <div className="auth-divider">
-                    <span>{t('or_continue_email', 'or continue with email')}</span>
-                </div>
 
                 <form className="auth-form" onSubmit={handleSubmit}>
                     <AnimatePresence mode="popLayout">
