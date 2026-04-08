@@ -79,6 +79,17 @@ const AnimatedRoutes = ({ role }) => {
 function App() {
   const currentUser = useStore(state => state.currentUser);
   const role = useStore(state => state.userRole) || 'guest';
+  const fetchProjects = useStore(state => state.fetchProjects);
+  const fetchLeads = useStore(state => state.fetchLeads);
+
+  // Global Data Re-hydration
+  // If the user refreshes the page, pull down fresh cloud data automatically.
+  useEffect(() => {
+    if (currentUser) {
+      fetchProjects();
+      fetchLeads();
+    }
+  }, [currentUser, fetchProjects, fetchLeads]);
 
   // Render auth outside of the layout and router when not logged in
   if (!currentUser) {
