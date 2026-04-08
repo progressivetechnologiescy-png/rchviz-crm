@@ -67,7 +67,8 @@ const LeadGenerator = () => {
         `;
 
         try {
-            const response = await fetch('http://localhost:3001/api/send-email', {
+            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${API_BASE}/api/send-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -98,8 +99,8 @@ const LeadGenerator = () => {
         setIsScanning(true);
         setHasScanned(false);
         setLeads([]);
-
-        const endpoint = searchMode === 'x-radar' ? 'http://localhost:3001/api/scrape-x' : 'http://localhost:3001/api/scrape';
+        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const endpoint = searchMode === 'x-radar' ? `${API_BASE}/api/scrape-x` : `${API_BASE}/api/scrape`;
         const payload = searchMode === 'x-radar' ? { limit: 6, banned: [...bannedLeads, ...sentLeads] } : { industry, location, limit: parseInt(limit, 10), banned: [...bannedLeads, ...sentLeads] };
 
         // Fetch from the real Puppeteer Scraper API
