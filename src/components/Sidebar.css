@@ -1,0 +1,205 @@
+.sidebar {
+    width: 260px;
+    background-color: var(--bg-secondary);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: width var(--transition-normal);
+    z-index: 10;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar.collapsed {
+    width: 80px;
+}
+
+.sidebar-brand {
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--glass-border);
+    position: relative;
+}
+
+.brand-logo-img {
+    width: 100%;
+    max-width: 180px;
+    max-height: 56px;
+    object-fit: contain;
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.5rem 1rem;
+    flex: 1;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius-md);
+    color: var(--text-secondary);
+    transition: all var(--transition-normal);
+    position: relative;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.nav-link:hover {
+    background: var(--hover-bg);
+    color: var(--text-primary);
+}
+
+.nav-link.active {
+    background: var(--glass-bg);
+    color: var(--accent-cyan);
+    border-color: var(--glass-border);
+    box-shadow: inset 0 0 20px var(--hover-bg);
+}
+
+.nav-link.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10%;
+    height: 80%;
+    width: 3px;
+    background: var(--accent-cyan);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 10px var(--accent-cyan);
+}
+
+.nav-icon {
+    flex-shrink: 0;
+    transition: transform var(--transition-fast), margin var(--transition-normal);
+}
+
+.nav-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    margin-left: 0.75rem;
+    opacity: 1;
+    max-width: 200px;
+    transition: opacity var(--transition-fast), max-width var(--transition-normal), margin var(--transition-normal);
+    overflow: hidden;
+}
+
+.sidebar-footer {
+    padding: 1.5rem 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+
+.w-full {
+    width: 100%;
+}
+
+.justify-start {
+    justify-content: flex-start;
+}
+
+.mt-auto {
+    margin-top: auto;
+}
+
+.select-none {
+    user-select: none;
+}
+
+.sidebar.collapsed .nav-link {
+    padding: 0.75rem 0;
+    justify-content: center;
+}
+
+.sidebar.collapsed .nav-label {
+    opacity: 0;
+    max-width: 0;
+    margin-left: 0;
+}
+
+.sidebar.collapsed .sidebar-nav {
+    padding: 1.5rem 0.5rem;
+}
+
+.sidebar.collapsed .sidebar-footer {
+    padding: 1.5rem 0.5rem;
+}
+
+/* Brand Logo Container for smooth toggle */
+.brand-logo-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-logo-full {
+    width: 100%;
+    max-width: 180px;
+    max-height: 56px;
+    object-fit: contain;
+    position: absolute;
+    opacity: 1;
+    transition: opacity var(--transition-fast);
+}
+
+.brand-logo-icon {
+    position: absolute;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.sidebar.collapsed .brand-logo-full {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar.collapsed .brand-logo-icon {
+    opacity: 1;
+}
+
+/* Messenger Badges */
+.messenger-badge-full {
+    margin-left: auto;
+    background-color: #ef4444;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 9999px;
+    opacity: 1;
+    transition: opacity var(--transition-fast);
+}
+
+.sidebar.collapsed .messenger-badge-full {
+    opacity: 0;
+    display: none;
+}
+
+.messenger-badge-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ef4444;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+    pointer-events: none;
+}
+
+.sidebar.collapsed .messenger-badge-dot {
+    opacity: 1;
+}

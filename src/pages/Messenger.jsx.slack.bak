@@ -1,0 +1,492 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useStore } from '../store';
+import { Send, MessageSquare, Smile, Paperclip, Bold, Italic, Hash, ChevronDown, Search, Info, Briefcase, User, Calendar, DollarSign, Target, Plus, X, Strikethrough, Link, List, Code as CodeIcon, PlusCircle, AtSign } from 'lucide-react';
+import EmojiPicker from 'emoji-picker-react';
+import './Messenger.css';
+
+const pageVariants = {
+    initial: { opacity: 0, scale: 0.98 },
+    in: { opacity: 1, scale: 1 },
+    out: { opacity: 0, scale: 0.98 }
+};
+
+const getDmId = (user1, user2) => [user1, user2].sort().join('-');
+
+const Messenger = () => {
+    const { messages, addMessage, addReaction, currentUser, userRole, channels, employees, pipelineData, addChannel } = useStore();
+    const [activeChannelId, setActiveChannelId] = useState('channel-general');
+    const [newMessage, setNewMessage] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+    const [showSidebar, setShowSidebar] = useState(true);
+    const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+    const [showAddChannel, setShowAddChannel] = useState(false);
+    const [newChannelName, setNewChannelName] = useState('');
+    const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
+
+    const activeMessages = messages.filter(m => m.channelId === activeChannelId);
+
+    // Get active channel details
+    const isDM = !activeChannelId.startsWith('channel-');
+    let activeTitle = '';
+    let activeContext = null;
+
+    if (isDM) {
+        const otherUserName = activeChannelId.replace(currentUser.name, '').replace('-', '');
+        activeTitle = otherUserName;
+        activeContext = employees.find(e => e.name === otherUserName);
+    } else {
+        const chan = channels.find(c => c.id === activeChannelId);
+        activeTitle = chan ? chan.name : 'channel';
+        if (chan && chan.type === 'deal') {
+            activeContext = pipelineData.tasks[chan.referenceId];
+        }
+    }
+
+    // Filter Channels and DMs based on search
+    const filteredChannels = channels.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredEmployees = employees.filter(e => e.name !== currentUser.name && e.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [activeMessages.length, activeChannelId]);
+
+    const handleSendMessage = (e) => {
+        if (e) e.preventDefault();
+        if (!newMessage.trim()) return;
+
+        addMessage(activeChannelId, {
+            sender: currentUser.name,
+            role: userRole,
+            text: newMessage,
+            timestamp: new Date().toISOString()
+        });
+        setNewMessage('');
+        if (textareaRef.current) textareaRef.current.style.height = '52px';
+    };
+
+    const handleInput = (e) => {
+        setNewMessage(e.target.value);
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${Math.min(textareaRef.current.scrollHeight, 150)}px`;
+        }
+    };
+
+    return (
+        <motion.div
+            className="messenger-container w-full h-full flex flex-col overflow-hidden rounded-xl border border-white/10 shadow-2xl"
+            style={{ backgroundColor: '#1A1D21' }}
+            initial="initial"
+            animate="in"
+            exit="out"
+            variants={pageVariants}
+        >
+            {/* Top Slack Header (containing search) */}
+            <div className="h-12 border-b border-white/5 shrink-0 flex items-center justify-center px-4 relative z-20" style={{ backgroundColor: '#121016' }}>
+                <div className="absolute left-4 opacity-0"></div> {/* Spacer */}
+                <div className="w-full max-w-xl relative group">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-white transition-colors" size={14} />
+                    <input
+                        type="text"
+                        placeholder="Search Protech Chat"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full border border-transparent rounded-md py-1 pl-8 pr-3 text-sm text-white focus:outline-none focus:border-white/20 transition-colors placeholder:text-gray-400"
+                        style={{ backgroundColor: '#2A2B32' }}
+                    />
+                </div>
+            </div>
+
+            <div className="flex-1 flex flex-row min-h-0 relative h-full">
+                {/* 1. LEFT SIDEBAR (Navigation) */}
+                <div className="w-[260px] shrink-0 flex flex-col py-3 px-2 custom-scrollbar overflow-y-auto border-r border-white/5 z-10 transition-all h-full" style={{ backgroundColor: '#19171D' }}>
+                    <div className="mb-4 px-2">
+                        <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                            Protech Chat <ChevronDown size={16} className="text-gray-400 cursor-pointer hover:text-white mt-1" />
+                        </h2>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto">
+                        {/* Channels */}
+                        <div className="mb-6">
+                            <div className="flex items-center justify-between text-secondary px-2 mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider">Channels & Deals</span>
+                                {userRole === 'admin' && (
+                                    <button onClick={() => setShowAddChannel(true)} className="hover:text-white transition-colors p-1 rounded-full hover:bg-white/10" title="Create Channel">
+                                        <Plus size={14} />
+                                    </button>
+                                )}
+                            </div>
+                            <div className="space-y-1">
+                                {filteredChannels.map(chan => {
+                                    const isDeal = chan.type === 'deal';
+                                    return (
+                                        <button
+                                            key={chan.id}
+                                            onClick={() => setActiveChannelId(chan.id)}
+                                            className={`w-full flex items-center justify-between px-2 py-1.5 rounded-lg text-sm transition-colors ${activeChannelId === chan.id ? 'bg-accent-cyan/20 text-accent-cyan font-semibold shadow-inner' : 'text-gray-300 hover:bg-white/5 border border-transparent'}`}
+                                        >
+                                            <div className="flex items-center gap-2 truncate whitespace-nowrap">
+                                                {isDeal ? <Target size={14} className={activeChannelId === chan.id ? 'text-white' : 'text-gray-400'} /> : <Hash size={14} className={activeChannelId === chan.id ? 'text-white' : 'text-gray-400'} />}
+                                                <span className="truncate">{chan.name}</span>
+                                            </div>
+                                            {isDeal && <span className="text-[9px] bg-indigo-500/20 text-indigo-300 px-1.5 py-0.5 rounded shrink-0">DEAL</span>}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        {/* Direct Messages */}
+                        <div>
+                            <div className="flex items-center justify-between text-secondary px-2 mb-2">
+                                <span className="text-xs font-bold uppercase tracking-wider">Direct Messages</span>
+                            </div>
+                            <div className="space-y-1">
+                                {filteredEmployees.map(emp => {
+                                    const dmId = getDmId(currentUser.name, emp.name);
+                                    const isActive = activeChannelId === dmId;
+                                    return (
+                                        <button
+                                            key={emp.id}
+                                            onClick={() => setActiveChannelId(dmId)}
+                                            className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-sm transition-colors ${isActive ? 'bg-indigo-500/20 text-indigo-400 font-semibold shadow-inner' : 'text-gray-300 hover:bg-white/5 border border-transparent'}`}
+                                        >
+                                            <div className="relative shrink-0">
+                                                <div className={`w-5 h-5 rounded flex items-center justify-center text-[9px] font-bold ${isActive ? 'bg-indigo-500/30' : 'bg-white/10'}`}>
+                                                    {emp.initials}
+                                                </div>
+                                                {emp.isOnline && <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-dark"></div>}
+                                            </div>
+                                            <span className="truncate">{emp.name}</span>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. MIDDLE CHAT AREA */}
+                <div className="flex-1 flex flex-col overflow-hidden relative min-w-0" style={{ backgroundColor: '#1A1D21' }}>
+                    {/* Active Chat Header */}
+                    <div className="h-14 border-b border-white/5 flex items-center justify-between px-6 shrink-0 z-10" style={{ backgroundColor: '#1A1D21' }}>
+                        <div className="flex items-center gap-4">
+                            <h3 className="font-bold text-white flex items-center gap-1.5 cursor-pointer hover:bg-white/5 px-2 py-1 -ml-2 rounded transition-colors">
+                                {!isDM ? (activeTitle.startsWith('deal-') ? <Target size={18} className="text-gray-400" /> : <Hash size={18} className="text-gray-400" />) : null}
+                                {activeTitle} <ChevronDown size={14} className="text-gray-400 mt-0.5" />
+                            </h3>
+                            {!isDM && activeContext && activeContext.client && (
+                                <span className="text-sm text-gray-400 hidden md:inline-block border-l border-white/10 pl-4">{activeContext.client} · {activeContext.project} Opportunity</span>
+                            )}
+                        </div>
+                        <button onClick={() => setShowSidebar(!showSidebar)} className={`p-1.5 rounded transition-colors ${showSidebar ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white hover:bg-white/5'}`} title="Toggle Details">
+                            <Info size={18} />
+                        </button>
+                    </div>
+
+                    {/* Messages List */}
+                    <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-1 custom-scrollbar scroll-smooth">
+                        {activeMessages.length === 0 ? (
+                            <div className="h-full flex flex-col items-center justify-center text-secondary/50">
+                                <MessageSquare size={48} className="mb-4 opacity-50 transition-opacity" />
+                                <p>This is the beginning of your history with <strong>{isDM ? '@' : '#'}{activeTitle}</strong>.</p>
+                            </div>
+                        ) : (
+                            activeMessages.map((msg, index) => {
+                                const prevMsg = index > 0 ? activeMessages[index - 1] : null;
+                                const isConsecutive = prevMsg && prevMsg.sender === msg.sender && (new Date(msg.timestamp) - new Date(prevMsg.timestamp)) < 60000;
+
+                                return (
+                                    <div key={msg.id} className={`flex w-full hover:bg-white/5 px-2 md:px-4 py-2 rounded-lg transition-colors group ${!isConsecutive ? 'mt-4' : ''}`}>
+                                        <div className="flex items-start gap-3 md:gap-4 max-w-5xl w-full relative">
+                                            {/* Avatar Column */}
+                                            <div className="w-8 md:w-10 flex-shrink-0 flex justify-center mt-0.5">
+                                                {!isConsecutive ? (
+                                                    <div className={`w-8 h-8 md:w-10 md:h-10 rounded-xl flex items-center justify-center text-xs md:text-sm font-bold shadow-lg 
+                                                    ${msg.role === 'admin' ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30' :
+                                                            'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                                        }`}>
+                                                        {msg.sender.substring(0, 2).toUpperCase()}
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-8 md:w-10 h-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <span className="text-[9px] md:text-[10px] text-tertiary">
+                                                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Content Column */}
+                                            <div className="flex flex-col flex-1 min-w-0 pt-0.5">
+                                                {!isConsecutive && (
+                                                    <div className="flex items-baseline gap-2 mb-1">
+                                                        <span className="font-semibold text-white text-sm md:text-base">{msg.sender}</span>
+                                                        <span className="text-xs text-secondary font-medium">
+                                                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <div className="text-sm text-gray-200 leading-relaxed whitespace-pre-wrap break-words">
+                                                    {msg.text}
+                                                </div>
+
+                                                {/* Reactions Display */}
+                                                {msg.reactions && Object.keys(msg.reactions).length > 0 && (
+                                                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                                                        {Object.entries(msg.reactions).map(([emoji, users]) => users.length > 0 && (
+                                                            <button
+                                                                key={emoji}
+                                                                onClick={() => addReaction(msg.id, emoji)}
+                                                                className={`flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium transition-colors border
+                                                                ${users.includes(currentUser.name) ? 'bg-accent-cyan/20 border-accent-cyan/40 text-accent-cyan' : 'bg-black/20 border-white/10 text-secondary hover:bg-white/10'}`}
+                                                                title={users.join(', ')}
+                                                            >
+                                                                <span>{emoji}</span>
+                                                                <span className="opacity-80">{users.length}</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Hover Actions */}
+                                            <div className="absolute right-0 top-0 opacity-0 group-hover:opacity-100 transition-opacity bg-glass border border-white/10 rounded-lg shadow-xl flex items-center p-1 backdrop-blur-md -translate-y-1/2 z-10">
+                                                <button onClick={() => addReaction(msg.id, '👍')} className="p-1.5 hover:bg-white/10 rounded transition-colors text-lg lead-none" title="React 👍">👍</button>
+                                                <button onClick={() => addReaction(msg.id, '🔥')} className="p-1.5 hover:bg-white/10 rounded transition-colors text-lg lead-none" title="React 🔥">🔥</button>
+                                                <button onClick={() => addReaction(msg.id, '✅')} className="p-1.5 hover:bg-white/10 rounded transition-colors text-lg lead-none" title="React ✅">✅</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
+                            })
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+
+                    {/* Rich Input Area matching Slack */}
+                    <div className="px-5 pb-5 pt-2 shrink-0" style={{ backgroundColor: '#1A1D21' }}>
+                        <form onSubmit={handleSendMessage} className="max-w-7xl mx-auto flex flex-col relative w-full">
+                            <div className="flex-1 border border-white/20 rounded-xl flex flex-col focus-within:border-gray-400 transition-colors overflow-hidden box-border max-w-full" style={{ backgroundColor: '#222529' }}>
+
+                                {/* Top Toolbar (Formatting) */}
+                                <div className="flex items-center gap-1 px-2 py-1.5 flex-wrap rounded-t-xl" style={{ backgroundColor: '#222529' }}>
+                                    <button type="button" className="p-1 px-[5px] text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded font-bold transition-colors"><Bold size={15} /></button>
+                                    <button type="button" className="p-1 px-[5px] text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded italic transition-colors"><Italic size={15} /></button>
+                                    <button type="button" className="p-1 px-[5px] text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded line-through transition-colors"><Strikethrough size={15} /></button>
+                                    <div className="w-px h-3 bg-white/10 mx-1"></div>
+                                    <button type="button" className="p-1 px-[5px] text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded transition-colors"><Link size={15} /></button>
+                                    <button type="button" className="p-1 px-[5px] text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded transition-colors"><List size={15} /></button>
+                                    <div className="w-px h-3 bg-white/10 mx-1"></div>
+                                    <button type="button" className="p-1 px-[5px] text-gray-400 hover:text-gray-200 hover:bg-white/5 rounded transition-colors border border-white/10 ml-1"><CodeIcon size={13} /></button>
+                                </div>
+                                <textarea
+                                    ref={textareaRef}
+                                    style={{ backgroundColor: '#222529', minHeight: '52px', maxHeight: '150px' }}
+                                    className="w-full border-none outline-none text-white px-3 py-2 text-[15px] resize-none custom-scrollbar"
+                                    placeholder={`Message ${isDM ? '@' : '#'}${activeTitle}`}
+                                    rows={1}
+                                    value={newMessage}
+                                    onChange={handleInput}
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter' && !e.shiftKey) {
+                                            e.preventDefault();
+                                            handleSendMessage(e);
+                                        }
+                                    }}
+                                />
+
+                                {/* Bottom Toolbar (Actions) */}
+                                <div className="flex items-center justify-between px-2 py-1.5 rounded-b-xl" style={{ backgroundColor: '#222529' }}>
+                                    <div className="flex items-center gap-1">
+                                        <button type="button" className="p-1 bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 rounded-full transition-colors mr-1 shadow-sm"><Plus size={14} /></button>
+                                        <div className="relative">
+                                            <button type="button" onClick={() => setShowEmojiPicker(!showEmojiPicker)} className={`p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors flex items-center justify-center ${showEmojiPicker ? 'bg-white/10 text-white' : ''}`}>
+                                                <Smile size={16} />
+                                            </button>
+                                            {showEmojiPicker && (
+                                                <div className="absolute bottom-full left-0 mb-2 z-50 shadow-2xl">
+                                                    <EmojiPicker theme="dark" onEmojiClick={(e) => { setNewMessage(prev => prev + e.emoji); setShowEmojiPicker(false); textareaRef.current?.focus(); }} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <button type="button" className="p-1.5 text-gray-400 hover:text-white hover:bg-white/5 rounded transition-colors font-bold"><AtSign size={16} /></button>
+                                    </div>
+                                    <div className="flex items-center gap-2 pr-1">
+                                        <button
+                                            type="submit"
+                                            disabled={!newMessage.trim()}
+                                            className={`h-7 w-8 rounded flex items-center justify-center transition-all ${newMessage.trim() ? 'bg-emerald-700 hover:bg-emerald-600 text-white shadow-sm' : 'bg-white/5 text-gray-500 cursor-not-allowed'}`}
+                                        >
+                                            <Send size={14} className={newMessage.trim() ? "ml-0.5" : ""} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                {/* 3. RIGHT SIDEBAR (Context/CRM Data) */}
+                <AnimatePresence>
+                    {showSidebar && (
+                        <motion.div
+                            initial={{ opacity: 0, width: 0 }}
+                            animate={{ opacity: 1, width: '320px' }}
+                            exit={{ opacity: 0, width: 0 }}
+                            className="w-[320px] shrink-0 flex flex-col border-l border-white/5 hidden xl:flex overflow-hidden z-10 h-full"
+                            style={{ backgroundColor: '#19171D' }}
+                        >
+                            <div className="h-14 border-b border-white/5 flex items-center px-6 shrink-0" style={{ backgroundColor: '#19171D' }}>
+                                <h3 className="font-bold text-white text-sm tracking-wide">Details</h3>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                                {/* IF DEAL CHANNEL */}
+                                {activeTitle.startsWith('deal-') && activeContext ? (
+                                    <div className="space-y-6">
+                                        <div className="text-center">
+                                            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-orange-400/20 to-red-500/20 border border-orange-500/30 flex items-center justify-center shadow-lg mb-4">
+                                                <Target size={28} className="text-orange-400" />
+                                            </div>
+                                            <h4 className="text-lg font-bold text-white mb-1">{activeContext.client}</h4>
+                                            <p className="text-sm text-secondary bg-black/20 py-1 px-3 rounded-full inline-block border border-white/5">{activeContext.project}</p>
+                                        </div>
+
+                                        <div className="space-y-3 pt-6 border-t border-glass text-sm">
+                                            <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-glass">
+                                                <span className="text-tertiary flex items-center gap-2"><DollarSign size={14} /> Value</span>
+                                                <span className="font-semibold text-emerald-400">{activeContext.value}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center px-2">
+                                                <span className="text-tertiary flex items-center gap-2"><Calendar size={14} /> Added</span>
+                                                <span className="font-medium text-white">{activeContext.added}</span>
+                                            </div>
+                                            <div className="flex justify-between items-center px-2">
+                                                <span className="text-tertiary flex items-center gap-2"><Briefcase size={14} /> Pipeline ID</span>
+                                                <span className="font-mono text-xs text-secondary bg-black/30 px-2 py-0.5 rounded">{activeContext.id}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-6 border-t border-glass mt-6">
+                                            <button className="w-full py-2.5 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 transition-colors flex items-center justify-center gap-2">
+                                                View in Pipeline
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) :
+                                    /* IF DIRECT MESSAGE */
+                                    isDM && activeContext ? (
+                                        <div className="space-y-6">
+                                            <div className="text-center">
+                                                <div className="w-24 h-24 mx-auto rounded-3xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-4xl font-bold shadow-xl mb-4 text-indigo-300">
+                                                    {activeContext.initials}
+                                                </div>
+                                                <h4 className="text-lg font-bold text-white flex items-center justify-center gap-2">
+                                                    {activeContext.name}
+                                                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] border border-dark"></div>
+                                                </h4>
+                                                <p className="text-xs text-secondary uppercase tracking-wider font-semibold mt-2 bg-white/5 py-1 px-3 rounded-full inline-block border border-glass">
+                                                    {activeContext.role}
+                                                </p>
+                                            </div>
+
+                                            <div className="space-y-4 pt-6 border-t border-glass text-sm">
+                                                <button className="w-full flex items-center gap-3 text-secondary hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg">
+                                                    <User size={16} className="text-tertiary shrink-0" />
+                                                    <span className="truncate flex-1 text-left">View Full Profile</span>
+                                                </button>
+                                                <div className="flex items-center gap-3 text-secondary p-2">
+                                                    <Calendar size={16} className="text-tertiary shrink-0" />
+                                                    <span>Local time: <span className="text-white ml-1">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span></span>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    ) : (
+                                        /* IF GENERAL CHANNEL */
+                                        !activeTitle.startsWith('deal-') && !isDM && (
+                                            <div className="text-center text-secondary pt-8 flex flex-col items-center">
+                                                <div className="w-20 h-20 rounded-xl bg-white/5 flex items-center justify-center mb-4 border border-white/10 shadow-sm">
+                                                    <Hash size={36} className="text-gray-400" />
+                                                </div>
+                                                <h4 className="text-lg text-white font-bold mb-2">#{activeTitle}</h4>
+                                                <p className="text-sm text-gray-400 leading-relaxed px-4">
+                                                    This is a workspace channel for general team communication.
+                                                </p>
+                                            </div>
+                                        )
+                                    )}
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+
+            {/* Create Channel Modal */}
+            <AnimatePresence>
+                {showAddChannel && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setShowAddChannel(false)}>
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="bg-dark/90 border border-glass rounded-2xl shadow-2xl overflow-hidden w-full max-w-sm"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="flex justify-between items-center p-4 border-b border-glass bg-white/5">
+                                <h3 className="font-semibold text-white">Create a channel</h3>
+                                <X size={20} className="text-secondary hover:text-white cursor-pointer transition-colors" onClick={() => setShowAddChannel(false)} />
+                            </div>
+                            <div className="p-5 space-y-4">
+                                <p className="text-sm text-secondary">Channels are where your team communicates. They're best when organized around a topic — #marketing, for example.</p>
+                                <div className="space-y-1">
+                                    <label className="text-xs text-secondary font-medium tracking-wide">Name</label>
+                                    <input
+                                        type="text"
+                                        autoFocus
+                                        className="w-full bg-black/20 border border-white/5 rounded-lg py-2 px-3 text-sm text-white focus:outline-none focus:border-accent-cyan/50 transition-colors"
+                                        placeholder="e.g. plan-budget"
+                                        value={newChannelName}
+                                        onChange={e => setNewChannelName(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && newChannelName.trim()) {
+                                                addChannel({ id: `channel-${Date.now()}`, name: newChannelName.trim().toLowerCase().replace(/\s+/g, '-'), type: 'channel' });
+                                                setNewChannelName('');
+                                                setShowAddChannel(false);
+                                            }
+                                        }}
+                                    />
+                                </div>
+                                <div className="pt-2 flex justify-end">
+                                    <button
+                                        onClick={() => {
+                                            if (newChannelName.trim()) {
+                                                addChannel({ id: `channel-${Date.now()}`, name: newChannelName.trim().toLowerCase().replace(/\s+/g, '-'), type: 'channel' });
+                                                setNewChannelName('');
+                                                setShowAddChannel(false);
+                                            }
+                                        }}
+                                        disabled={!newChannelName.trim()}
+                                        className="btn btn-primary px-6"
+                                    >
+                                        Create
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </motion.div >
+    );
+};
+
+export default Messenger;

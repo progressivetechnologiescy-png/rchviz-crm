@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String   // Hashed via bcrypt
+  name      String
+  role      String   @default("employee") // admin, employee, client
+  clientId  String?  // If role is client, associate with a Client profile
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  name      String
+  contact   String
+  email     String
+  phone     String
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id          String   @id @default(uuid())
+  name        String
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id])
+  reference   String?
+  status      String   @default("Queue") // Queue, Active, Revising, Completed
+  progress    Int      @default(0)
+  assignee    String?
+  dueDate     String?
+  totalAmount Float    @default(0)
+  deposit     Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Lead {
+  id            String   @id @default(uuid())
+  company       String
+  website       String?
+  email         String?
+  phone         String?
+  status        String   @default("Discovered") // Discovered, Contacted, Proposal Sent, Won
+  value         String?
+  addedDate     String?
+  intentScore   Int      @default(50)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Task {
+  id        String   @id @default(uuid())
+  title     String
+  assignee  String?
+  dueDate   String?
+  priority  String   @default("Medium") // High, Medium, Low
+  status    String   @default("Pending") // Pending, Completed
+  projectId String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

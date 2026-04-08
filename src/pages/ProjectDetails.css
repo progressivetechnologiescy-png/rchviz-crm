@@ -1,0 +1,306 @@
+.project-details-container {
+    padding: var(--spacing-xl);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.project-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.project-header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.project-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.project-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.project-reference {
+    color: var(--text-secondary);
+    font-size: 1.125rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+}
+
+.project-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.project-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    background: var(--input-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+    align-self: flex-start;
+}
+
+.back-btn:hover {
+    background: var(--hover-bg);
+    border-color: var(--glass-border-highlight);
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.main-col {
+    min-width: 0;
+}
+
+.side-col {
+    min-width: 0;
+}
+
+.workflow-container {
+    padding: var(--spacing-lg);
+}
+
+.workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.75rem;
+}
+
+.workflow-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 0.5rem;
+    background: var(--input-bg);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.workflow-block .block-icon-wrapper {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--bg-secondary);
+    border: 2px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all 0.3s ease;
+}
+
+.workflow-block .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.workflow-block.completed {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.2);
+    backdrop-filter: blur(8px);
+}
+
+.workflow-block.completed .block-icon-wrapper {
+    border-color: var(--color-success);
+    color: var(--color-success);
+    background: rgba(16, 185, 129, 0.1);
+}
+
+.workflow-block.current {
+    background: rgba(0, 240, 255, 0.05);
+    border-color: rgba(0, 240, 255, 0.3);
+    box-shadow: 0 0 15px rgba(0, 240, 255, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+.workflow-block.current .block-icon-wrapper {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    background: rgba(0, 240, 255, 0.1);
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+}
+
+.workflow-block .block-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-align: center;
+}
+
+.workflow-block.completed .block-label,
+.workflow-block.current .block-label {
+    color: var(--text-primary);
+}
+
+.workflow-block.clickable {
+    cursor: pointer;
+}
+
+.workflow-block.clickable:hover {
+    background: var(--hover-bg);
+    border-color: var(--glass-border-highlight);
+}
+
+.workflow-block.clickable:hover .block-icon-wrapper {
+    border-color: var(--accent-cyan);
+    color: var(--text-primary);
+}
+
+.feedback-section {
+    padding: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.details-card {
+    padding: var(--spacing-lg);
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 0.75rem;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.detail-label {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    font-size: 0.875rem;
+}
+
+.detail-value {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-align: right;
+    margin-left: 1rem;
+    word-break: break-word;
+}
+
+.admin-select {
+    background-color: var(--input-bg);
+    backdrop-filter: blur(12px);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.875rem;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: right;
+    appearance: none;
+    min-width: 120px;
+}
+
+.admin-select:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--glass-border-highlight);
+}
+
+.admin-select:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.1);
+}
+
+.admin-select option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    padding: 8px;
+}
+
+.admin-input {
+    background-color: var(--input-bg);
+    backdrop-filter: blur(12px);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 0.875rem;
+    outline: none;
+    transition: all 0.2s ease;
+    text-align: right;
+    width: 100%;
+    max-width: 140px;
+}
+
+.admin-input:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--glass-border-highlight);
+}
+
+.admin-input:focus {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.1);
+}
+
+.admin-input[type="number"]::-webkit-inner-spin-button,
+.admin-input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Calendar Date Picker Styling for Dark Mode */
+.admin-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.6;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.admin-input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+@media (max-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 1fr;
+    }
+}
