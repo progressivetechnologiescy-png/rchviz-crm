@@ -36,6 +36,7 @@ model Project {
   id              String   @id @default(uuid())
   name            String
   clientId        String?
+  clientName      String?  // Explicitly stores typed text for the frontend
   client          Client?  @relation(fields: [clientId], references: [id])
   reference       String?
   status          String   @default("Queue") // Queue, Active, Revising, Completed

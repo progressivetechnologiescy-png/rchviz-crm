@@ -304,7 +304,8 @@ export const useStore = create(
                     const res = await fetch(`${API_BASE}/api/v1/projects`);
                     const json = await res.json();
                     if (json.success) {
-                        set({ projects: json.data });
+                        const mappedProjects = json.data.map(p => ({ ...p, client: p.clientName || 'Unknown' }));
+                        set({ projects: mappedProjects });
                     }
                 } catch (e) { console.error("Failed to fetch projects frontend", e); }
             },
@@ -312,6 +313,7 @@ export const useStore = create(
                 try {
                     const reqObj = {
                         name: project.name || 'Unnamed Project',
+                        clientName: project.client || 'Unknown',
                         clientId: null,
                         totalAmount: Number(project.totalAmount || 0),
                         deposit: Number(project.deposit || 0),
@@ -325,7 +327,8 @@ export const useStore = create(
                     });
                     const json = await res.json();
                     if (json.success) {
-                        set(state => ({ projects: [json.data, ...state.projects] }));
+                        const savedProject = { ...json.data, client: json.data.clientName };
+                        set(state => ({ projects: [savedProject, ...state.projects] }));
                     }
                 } catch (e) { console.error("Failed to add project", e); }
             },
