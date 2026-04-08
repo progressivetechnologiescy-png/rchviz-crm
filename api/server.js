@@ -9,8 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Routes
 const authRoutes = require('./routes/auth');
+const genericApiRoutes = require('./routes/api');
+
 app.use('/api/auth', authRoutes);
+app.use('/api/v1', genericApiRoutes);
 
 // Basic Health Check
 app.get('/api/health', (req, res) => {

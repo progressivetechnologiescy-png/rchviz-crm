@@ -33,19 +33,20 @@ model Client {
 }
 
 model Project {
-  id          String   @id @default(uuid())
-  name        String
-  clientId    String
-  client      Client   @relation(fields: [clientId], references: [id])
-  reference   String?
-  status      String   @default("Queue") // Queue, Active, Revising, Completed
-  progress    Int      @default(0)
-  assignee    String?
-  dueDate     String?
-  totalAmount Float    @default(0)
-  deposit     Float    @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id              String   @id @default(uuid())
+  name            String
+  clientId        String?
+  client          Client?  @relation(fields: [clientId], references: [id])
+  reference       String?
+  status          String   @default("Queue") // Queue, Active, Revising, Completed
+  progress        Int      @default(0)
+  assignee        String?
+  dueDate         String?
+  totalAmount     Float    @default(0)
+  deposit         Float    @default(0)
+  revisionCount   Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Lead {
