@@ -47,11 +47,7 @@ export const useStore = create(
             isAuthenticated: false,
 
             // --- NOTIFICATIONS STATE ---
-            notifications: [
-                { id: 'n1', title: 'New Revision Request', desc: 'Oikogenesis requested changes on "25".', read: false, link: '/project/proj-2026-0' },
-                { id: 'n2', title: 'Project Approved', desc: '"12 Housee" was approved by client.', read: false, link: '/project/proj-2026-1' },
-                { id: 'n3', title: 'System Update', desc: 'Platform maintenance scheduled for tomorrow 2AM.', read: true, link: '/' }
-            ],
+            notifications: [],
 
             // --- CHAT CHANNELS & MESSAGES ---
             channels: [
@@ -61,12 +57,7 @@ export const useStore = create(
                 { id: 'channel-task-2372', name: 'deal-oikogenesis', type: 'deal', referenceId: 'task-2372' }
             ],
             addChannel: (channel) => set(state => ({ channels: [...state.channels, channel] })),
-            messages: [
-                { id: 'm1', channelId: 'channel-general', sender: 'Koss', role: 'admin', text: 'Hey team, please prioritize the Limassol Marina revisions today.', timestamp: new Date(Date.now() - 3600000).toISOString(), reactions: { '👍': ['Peter'] }, read: true },
-                { id: 'm2', channelId: 'channel-general', sender: 'Peter', role: 'employee', text: 'On it. I will upload the new drafts by 3 PM.', timestamp: new Date(Date.now() - 3000000).toISOString(), reactions: {}, read: true },
-                { id: 'm3', channelId: 'channel-design', sender: 'Mirek', role: 'employee', text: 'Here are the new moodboards for the exterior lobby.', timestamp: new Date(Date.now() - 2000000).toISOString(), reactions: { '🔥': ['Koss', 'Peter'] }, read: false },
-                { id: 'm4', channelId: 'channel-task-2372', sender: 'Koss', role: 'admin', text: 'Opportunity won! Please align on the kickoff meeting times.', timestamp: new Date(Date.now() - 1000000).toISOString(), reactions: { '🎉': ['Peter'] }, read: true }
-            ],
+            messages: [],
             addMessage: (channelId, msg) => {
                 set(state => {
                     const isNewMessageFromOther = msg.sender !== state.currentUser?.name;
@@ -379,7 +370,7 @@ export const useStore = create(
             }))
         }),
         {
-            name: 'crm-storage-v11', // Bumped version to inject updated mock data
+            name: 'crm-storage-v12', // Bumped version to flush old local storage
             getStorage: () => localStorage,
         }
     )
