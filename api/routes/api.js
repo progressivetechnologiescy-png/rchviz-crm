@@ -37,4 +37,34 @@ router.post('/tasks', (req, res) => sendResp(res, prisma.task.create({ data: req
 router.put('/tasks/:id', (req, res) => sendResp(res, prisma.task.update({ where: { id: req.params.id }, data: req.body })));
 router.delete('/tasks/:id', (req, res) => sendResp(res, prisma.task.delete({ where: { id: req.params.id } })));
 
+// --- FOLDERS ---
+router.get('/folders', (req, res) => sendResp(res, prisma.folder.findMany()));
+router.post('/folders', (req, res) => sendResp(res, prisma.folder.create({ data: req.body })));
+router.put('/folders/:id', (req, res) => sendResp(res, prisma.folder.update({ where: { id: req.params.id }, data: req.body })));
+router.delete('/folders/:id', (req, res) => sendResp(res, prisma.folder.delete({ where: { id: req.params.id } })));
+
+// --- ASSETS ---
+router.get('/assets', (req, res) => sendResp(res, prisma.asset.findMany()));
+router.post('/assets', (req, res) => sendResp(res, prisma.asset.create({ data: req.body })));
+router.put('/assets/:id', (req, res) => sendResp(res, prisma.asset.update({ where: { id: req.params.id }, data: req.body })));
+router.delete('/assets/:id', (req, res) => sendResp(res, prisma.asset.delete({ where: { id: req.params.id } })));
+
+// --- CHANNELS ---
+router.get('/channels', (req, res) => sendResp(res, prisma.channel.findMany()));
+router.post('/channels', (req, res) => sendResp(res, prisma.channel.create({ data: req.body })));
+router.put('/channels/:id', (req, res) => sendResp(res, prisma.channel.update({ where: { id: req.params.id }, data: req.body })));
+router.delete('/channels/:id', (req, res) => sendResp(res, prisma.channel.delete({ where: { id: req.params.id } })));
+
+// --- MESSAGES ---
+router.get('/messages', (req, res) => sendResp(res, prisma.message.findMany()));
+router.post('/messages', (req, res) => sendResp(res, prisma.message.create({ data: req.body })));
+router.put('/messages/:id', (req, res) => sendResp(res, prisma.message.update({ where: { id: req.params.id }, data: req.body })));
+router.delete('/messages/:id', (req, res) => sendResp(res, prisma.message.delete({ where: { id: req.params.id } })));
+
+// --- EMPLOYEES ---
+router.get('/employees', (req, res) => sendResp(res, prisma.employee.findMany()));
+router.post('/employees', (req, res) => sendResp(res, prisma.employee.create({ data: req.body })));
+router.put('/employees/:id', (req, res) => sendResp(res, prisma.employee.update({ where: { id: req.params.id }, data: req.body })));
+router.delete('/employees/:id', (req, res) => sendResp(res, prisma.employee.delete({ where: { id: req.params.id } })));
+
 module.exports = router;

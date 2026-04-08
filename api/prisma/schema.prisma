@@ -75,3 +75,56 @@ model Task {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Folder {
+  id        String   @id @default(uuid())
+  name      String
+  parentId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Asset {
+  id          String   @id @default(uuid())
+  name        String
+  type        String
+  folderId    String?
+  size        String?
+  url         String?
+  comments    Json?
+  annotations Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Channel {
+  id          String   @id @default(uuid())
+  name        String
+  type        String   @default("channel") // channel, deal
+  referenceId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  channelId   String
+  sender      String
+  text        String?
+  imageUrl    String?
+  timestamp   DateTime @default(now())
+  read        Boolean  @default(false)
+  reactions   Json?
+}
+
+model Employee {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  role      String   @default("employee")
+  status    String   @default("active")
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
