@@ -154,6 +154,10 @@ export const useStore = create(
             login: (userData, role) => {
                 // If userData is literally a string email (fallback), wrap it
                 const userObj = typeof userData === 'string' ? { email: userData } : userData;
+                
+                // Extract possible custom preferences returned by Cloud Auth
+                const prefs = userObj.preferences || {};
+                
                 set({
                     currentUser: {
                         email: userObj.email,
@@ -161,7 +165,9 @@ export const useStore = create(
                         avatar: userObj.avatar || ''
                     },
                     userRole: role || userObj.role,
-                    isAuthenticated: true
+                    isAuthenticated: true,
+                    ...(prefs.layout ? { dashboardLayout: prefs.layout } : {}),
+                    ...(prefs.modules ? { dashboardModules: prefs.modules } : {})
                 });
                 // Fetch fresh DB data into local store on login
                 get().fetchProjects();
@@ -224,9 +230,29 @@ export const useStore = create(
             setMobileMenuOpen: (isOpen) => set({ mobileMenuOpen: isOpen }),
             toggleMobileMenu: () => set(state => ({ mobileMenuOpen: !state.mobileMenuOpen })),
             dashboardLayout: ['active-projects', 'completion-ratio', 'total-revenue', 'outstanding'],
-            updateDashboardLayout: (newLayout) => set({ dashboardLayout: newLayout }),
+            updateDashboardLayout: (newLayout) => {
+                set({ dashboardLayout: newLayout });
+                const state = get();
+                if (state.currentUser && state.currentUser.email) {
+                    fetch(`${API_BASE}/api/v1/users/preferences`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: state.currentUser.email, preferences: { layout: newLayout, modules: state.dashboardModules } })
+                    }).catch(e => console.error("Cloud Layout Sync failed", e));
+                }
+            },
             dashboardModules: ['stats', 'daily-tasks', 'analytics', 'recent-projects', 'activity-feed'],
-            updateDashboardModules: (newLayout) => set({ dashboardModules: newLayout }),
+            updateDashboardModules: (newLayout) => {
+                set({ dashboardModules: newLayout });
+                const state = get();
+                if (state.currentUser && state.currentUser.email) {
+                    fetch(`${API_BASE}/api/v1/users/preferences`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: state.currentUser.email, preferences: { layout: state.dashboardLayout, modules: newLayout } })
+                    }).catch(e => console.error("Cloud Modules Sync failed", e));
+                }
+            },
 
             // Pipeline State
             pipelineData: initialLeadsData,

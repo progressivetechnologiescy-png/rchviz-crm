@@ -11,15 +11,16 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String   // Hashed via bcrypt
-  name      String
-  role      String   @default("employee") // admin, employee, client
-  clientId  String?  // If role is client, associate with a Client profile
-  avatar    String?  // Base64 image data or URL for profile picture
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String   // Hashed via bcrypt
+  name        String
+  role        String   @default("employee") // admin, employee, client
+  clientId    String?  // If role is client, associate with a Client profile
+  avatar      String?  // Base64 image data or URL for profile picture
+  preferences Json?    // UI layout preferences, module configs, dashboard state
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Client {

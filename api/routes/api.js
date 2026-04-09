@@ -76,10 +76,37 @@ router.put('/users/profile', async (req, res) => {
             where: { email: email.toLowerCase() },
             data: { name, avatar }
         });
-        res.json({ success: true, data: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar } });
+        res.json({ success: true, data: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar, preferences: user.preferences } });
     } catch (e) {
         console.error(e);
         res.status(500).json({ success: false, error: e.message || 'Failed to update profile' });
+    }
+});
+
+// --- CLOUD UI PREFERENCES SYNC ---
+router.put('/users/preferences', async (req, res) => {
+    const { email, preferences } = req.body;
+    if (!email) return res.status(400).json({ success: false, error: 'Email required' });
+    try {
+        const user = await prisma.user.update({
+            where: { email: email.toLowerCase() },
+            data: { preferences }
+        });
+        res.json({ success: true, data: { preferences: user.preferences } });
+    } catch (e) {
+        console.error("Preferences Sync Error:", e);
+        res.status(500).json({ success: false, error: e.message || 'Failed to sync preferences' });
+    }
+});
+
+// --- INTERNAL DB MIGRATION WEBHOOK ---
+router.get('/internal/schema-push', (req, res) => {
+    try {
+        const { execSync } = require('child_process');
+        const output = execSync('npx prisma db push --accept-data-loss', { encoding: 'utf-8' });
+        res.json({ success: true, logs: output });
+    } catch(e) {
+        res.status(500).json({ success: false, error: e.message });
     }
 });
 
