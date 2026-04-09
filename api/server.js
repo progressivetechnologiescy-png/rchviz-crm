@@ -75,7 +75,7 @@ app.post('/api/scrape', async (req, res) => {
 
             // Navigate to the new query search page if this is a fresh keyword attempt or new keyword variation
             if (attempts === 1 || newURLTrigger) {
-                await page.goto('https://lite.duckduckgo.com/lite/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+                await page.goto('https://lite.duckduckgo.com/lite/', { waitUntil: 'domcontentloaded', timeout: 60000 });
                 await page.type('input[name="q"]', `${currentIndustry} in ${cleanLocation}`);
                 await page.click('input[type="submit"][value="Search"]');
                 await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => { });
@@ -345,7 +345,7 @@ app.post('/api/scrape-x', async (req, res) => {
 
         console.log(`[!] Executing DuckDuckGo Lite Proxy Query for recent tweets...`);
         // Navigate and wait for DOM load
-        await page.goto('https://lite.duckduckgo.com/lite/', { waitUntil: 'domcontentloaded', timeout: 30000 });
+        await page.goto('https://lite.duckduckgo.com/lite/', { waitUntil: 'domcontentloaded', timeout: 60000 });
         await page.type('input[name="q"]', query);
         await page.click('input[type="submit"][value="Search"]');
         await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => { });

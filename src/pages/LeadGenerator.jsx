@@ -113,11 +113,11 @@ const LeadGenerator = () => {
                 body: JSON.stringify(payload)
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to connect to AI Scraper Backend');
-            }
-
             const data = await response.json();
+            
+            if (!response.ok || !data.success) {
+                throw new Error(data.error || 'Failed to connect to AI Scraper Backend');
+            }
 
             if (data.success) {
                 // Determine the correct array key based on the endpoint response structure
