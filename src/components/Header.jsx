@@ -392,7 +392,11 @@ const Header = () => {
 
                 <div className="user-profile">
                     <div className="avatar">
-                        <span className="avatar-text">{initials}</span>
+                        {currentUser?.avatar ? (
+                            <img src={currentUser.avatar} alt="Profile Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                        ) : (
+                            <span className="avatar-text">{initials}</span>
+                        )}
                     </div>
                     <div className="user-info">
                         <span className="user-name">{name}</span>
