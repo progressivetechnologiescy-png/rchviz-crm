@@ -73,40 +73,43 @@ app.post('/api/scrape', async (req, res) => {
 
             console.log(`[!] Searching for: "${currentIndustry}" (Attempt ${attempts})...`);
 
-            // Navigate to the new query search page if this is a fresh keyword attempt or new keyword variation
+            // Navigate to the new query search page safely using Yahoo
             if (attempts === 1 || newURLTrigger) {
-                await page.goto('https://lite.duckduckgo.com/lite/', { waitUntil: 'domcontentloaded', timeout: 60000 });
-                await page.type('input[name="q"]', `${currentIndustry} in ${cleanLocation}`);
-                await page.click('input[type="submit"][value="Search"]');
-                await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => { });
-                newURLTrigger = false; // Reset trigger after navigation
+                const searchQuery = encodeURIComponent(`${currentIndustry} in ${cleanLocation}`);
+                await page.goto(`https://search.yahoo.com/search?p=${searchQuery}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
+                newURLTrigger = false; 
             }
 
             // Wait for results
             const webResults = await page.evaluate((bannedLists, targetLocation) => {
                 const results = [];
-                const links = document.querySelectorAll('.result-snippet');
-                const titles = document.querySelectorAll('.result-title, .result-link');
+                // Yahoo encapsulates organic results inside div.algo
+                const algoBlocks = document.querySelectorAll('div.algo');
 
-                titles.forEach((titleNode, index) => {
+                algoBlocks.forEach((block, index) => {
+                    const titleNode = block.querySelector('.title a');
+                    const snippetNode = block.querySelector('.compText');
+
+                    if (!titleNode) return;
+
                     let title = titleNode.innerText.trim();
                     let url = titleNode.href;
 
-                    if (url.includes('uddg=')) {
+                    // Yahoo masks outbound urls with r.search.yahoo.com redirectors
+                    if (url.includes('RU=')) {
                         try {
-                            const urlObj = new URL(url);
-                            const uddg = urlObj.searchParams.get('uddg');
-                            if (uddg) url = decodeURIComponent(uddg);
+                            const trackingSplit = url.split('RU=')[1];
+                            const rawDest = trackingSplit.split('/')[0];
+                            if (rawDest) url = decodeURIComponent(rawDest);
                         } catch (e) { }
                     }
 
-                    // Skip DuckDuckGo Ad tracking links and educational institutions
-                    if (url.includes('duckduckgo.com/y.js') || url.includes('/y.js?') ||
-                        url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
+                    // Skip Educational/Magazine content
+                    if (url.includes('yahoo.com') || url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
                         return;
                     }
 
-                    const snippet = links[index] ? links[index].innerText.trim() : '';
+                    const snippet = snippetNode ? snippetNode.innerText.trim() : '';
 
                     const isBanned = bannedLists.some(bannedUrl => {
                         if (!bannedUrl || typeof bannedUrl !== 'string' || bannedUrl.trim() === '') return false;
@@ -215,27 +218,19 @@ app.post('/api/scrape', async (req, res) => {
                 break; // Stop if target limit reached
             }
 
-            // DuckDuckGo HTML Lite pagination uses a POST form for the "Next" button.
+            // Yahoo pagination uses a standard "Next" anchor tag with class `next`
             let clickedNext = false;
 
-            // If the raw DOM has zero search results, do not attempt to paginate further.
-            const rawResultCount = await page.$$eval('.result-snippet', els => els.length).catch(() => 0);
+            const rawResultCount = await page.$$eval('div.algo', els => els.length).catch(() => 0);
 
             if (rawResultCount > 0) {
-                const nextForms = await page.$$('form[action="/lite/"]');
-                for (const form of nextForms) {
-                    const btn = await form.$('input[type="submit"]');
-                    if (btn) {
-                        const val = await page.evaluate(el => el.value, btn);
-                        if (val && val.includes('Next')) {
-                            await Promise.all([
-                                page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => { }),
-                                btn.click()
-                            ]);
-                            clickedNext = true;
-                            break;
-                        }
-                    }
+                const nextBtn = await page.$('a.next');
+                if (nextBtn) {
+                    await Promise.all([
+                        page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => { }),
+                        nextBtn.click()
+                    ]);
+                    clickedNext = true;
                 }
             }
 
