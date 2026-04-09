@@ -75,6 +75,11 @@
     box-shadow: 0 0 0 2px rgba(0, 240, 255, 0.1);
 }
 
+select.modal-input option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
 .modal-footer {
     padding: 1.5rem 2rem;
     border-top: 1px solid var(--glass-border);
