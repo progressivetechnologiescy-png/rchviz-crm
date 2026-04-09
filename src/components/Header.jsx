@@ -16,7 +16,7 @@ const Header = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [showResults, setShowResults] = useState(false);
-    const [temperature, setTemperature] = useState('24');
+    const [temperature, setTemperature] = useState('--');
     const [weatherCode, setWeatherCode] = useState(0); // 0 corresponds to clear skies / Sun
     const searchRef = useRef(null);
 
