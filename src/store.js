@@ -253,6 +253,25 @@ export const useStore = create(
                     }).catch(e => console.error("Cloud Modules Sync failed", e));
                 }
             },
+            
+            fetchPreferences: async () => {
+                const state = get();
+                if (state.currentUser && state.currentUser.email) {
+                    try {
+                        const res = await fetch(`${API_BASE}/api/v1/users/profile?email=${encodeURIComponent(state.currentUser.email)}`);
+                        if(res.ok) {
+                            const json = await res.json();
+                            if(json.success && json.data && json.data.preferences) {
+                                const prefs = json.data.preferences;
+                                set({
+                                    ...(prefs.layout ? { dashboardLayout: prefs.layout } : {}),
+                                    ...(prefs.modules ? { dashboardModules: prefs.modules } : {})
+                                });
+                            }
+                        }
+                    } catch(e) { console.error("Failed to fetch preferences", e); }
+                }
+            },
 
             // Pipeline State
             pipelineData: initialLeadsData,
@@ -409,6 +428,7 @@ export const useStore = create(
             // Production State
             projects: initialProjects,
             fetchProjects: async () => {
+                get().fetchPreferences();
                 try {
                     const res = await fetch(`${API_BASE}/api/v1/projects`);
                     const json = await res.json();
