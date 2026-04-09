@@ -38,38 +38,54 @@ const pageTransition = {
 };
 
 
-const LeadCard = ({ lead, index }) => (
-    <Draggable draggableId={lead.id} index={index}>
-        {(provided, snapshot) => (
-            <div
-                className={`lead-card glass-panel ${snapshot.isDragging ? 'is-dragging' : ''}`}
-                ref={provided.innerRef}
-                {...provided.draggableProps}
-                {...provided.dragHandleProps}
-                style={{
-                    ...provided.draggableProps.style,
-                }}
-            >
-                <div className="lead-header">
-                    <span className="lead-client">{lead.client}</span>
-                    <button className="btn-icon"><MoreHorizontal size={16} /></button>
-                </div>
-                <div className="lead-project">{lead.project || lead.client}</div>
+const LeadCard = ({ lead, index }) => {
+    const removePipelineLead = useStore(state => state.removePipelineLead);
 
-                <div className="lead-footer">
-                    <div className="lead-meta">
-                        <DollarSign size={14} />
-                        <span>{lead.value}</span>
+    return (
+        <Draggable draggableId={lead.id} index={index}>
+            {(provided, snapshot) => (
+                <div
+                    className={`lead-card glass-panel ${snapshot.isDragging ? 'is-dragging' : ''}`}
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={{
+                        ...provided.draggableProps.style,
+                    }}
+                >
+                    <div className="lead-header">
+                        <span className="lead-client">{lead.client}</span>
+                        <div className="flex gap-1">
+                            <button className="btn-icon" onClick={() => removePipelineLead(lead.id)}>
+                                <MoreHorizontal size={16} /> 
+                            </button>
+                        </div>
                     </div>
-                    <div className="lead-meta">
-                        <Calendar size={14} />
-                        <span>{lead.expectedClose || lead.added}</span>
+                    <div className="lead-project">{lead.project || lead.client}</div>
+
+                    <div className="lead-footer">
+                        <div className="lead-meta">
+                            <DollarSign size={14} />
+                            <span>{lead.value}</span>
+                        </div>
+                        <div className="lead-meta">
+                            <Calendar size={14} />
+                            <span>{lead.expectedClose || lead.added}</span>
+                        </div>
+                        <button 
+                            className="bg-red-500/10 text-red-400 hover:bg-red-500/20 p-1 rounded transition-colors" 
+                            title="Delete Lead"
+                            onClick={(e) => { e.stopPropagation(); removePipelineLead(lead.id); }}
+                        >
+                            <Calendar size={0}/>
+                            <span style={{fontSize: '12px', fontWeight: 'bold'}}>Delete</span>
+                        </button>
                     </div>
                 </div>
-            </div>
-        )}
-    </Draggable>
-);
+            )}
+        </Draggable>
+    );
+};
 
 const PipelineColumn = ({ column, leads, t }) => (
     <div className="pipeline-col">

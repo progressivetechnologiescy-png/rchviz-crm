@@ -317,6 +317,29 @@ export const useStore = create(
                 } catch(e) { console.error("API error", e); }
             },
 
+            removePipelineLead: (taskId) => {
+                set((state) => {
+                    const newTasks = { ...state.pipelineData.tasks };
+                    delete newTasks[taskId];
+
+                    const newCols = { ...state.pipelineData.columns };
+                    for (const colId in newCols) {
+                        newCols[colId] = {
+                            ...newCols[colId],
+                            taskIds: newCols[colId].taskIds.filter(id => id !== taskId)
+                        };
+                    }
+
+                    return {
+                        pipelineData: {
+                            ...state.pipelineData,
+                            tasks: newTasks,
+                            columns: newCols
+                        }
+                    };
+                });
+            },
+
             // Update a specific task/card in the pipeline
             addLead: async (lead) => {
                 try {
