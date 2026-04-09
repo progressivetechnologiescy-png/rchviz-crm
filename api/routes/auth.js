@@ -22,17 +22,18 @@ router.post('/register', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         
         const user = await prisma.user.create({
-            data: { 
+            data: {
                 email: email.toLowerCase(), 
                 name, 
                 password: hashedPassword, 
-                role: role || 'employee' 
+                avatar: req.body.avatar || null,
+                role: role || 'employee'
             }
         });
         
         const token = jwt.sign({ id: user.id, role: user.role, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
         
-        res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+        res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar } });
     } catch (e) {
         console.error(e);
         res.status(500).json({ success: false, error: 'Internal Server Error' });
@@ -55,7 +56,7 @@ router.post('/login', async (req, res) => {
         
         const token = jwt.sign({ id: user.id, role: user.role, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
         
-        res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+        res.json({ success: true, token, user: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar } });
     } catch (e) {
         console.error(e);
         res.status(500).json({ success: false, error: 'Internal Server Error' });

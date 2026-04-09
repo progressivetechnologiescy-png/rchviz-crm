@@ -67,4 +67,20 @@ router.post('/employees', (req, res) => sendResp(res, prisma.employee.create({ d
 router.put('/employees/:id', (req, res) => sendResp(res, prisma.employee.update({ where: { id: req.params.id }, data: req.body })));
 router.delete('/employees/:id', (req, res) => sendResp(res, prisma.employee.delete({ where: { id: req.params.id } })));
 
+// --- USERS (PROFILE SYNC) ---
+router.put('/users/profile', async (req, res) => {
+    const { email, name, avatar } = req.body;
+    if (!email) return res.status(400).json({ success: false, error: 'Email required' });
+    try {
+        const user = await prisma.user.update({
+            where: { email: email.toLowerCase() },
+            data: { name, avatar }
+        });
+        res.json({ success: true, data: { id: user.id, email: user.email, name: user.name, role: user.role, avatar: user.avatar } });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false, error: 'Failed to update profile' });
+    }
+});
+
 module.exports = router;

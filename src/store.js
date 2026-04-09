@@ -151,14 +151,16 @@ export const useStore = create(
             })),
 
             // --- ACTIONS ---
-            login: (email, role) => {
+            login: (userData, role) => {
+                // If userData is literally a string email (fallback), wrap it
+                const userObj = typeof userData === 'string' ? { email: userData } : userData;
                 set({
                     currentUser: {
-                        email,
-                        name: role === 'admin' ? 'Koss' : role === 'client' ? 'Client Partner' : 'Production Team',
-                        avatar: ''
+                        email: userObj.email,
+                        name: userObj.name || (role === 'admin' ? 'Koss' : role === 'client' ? 'Client Partner' : 'Production Team'),
+                        avatar: userObj.avatar || ''
                     },
-                    userRole: role,
+                    userRole: role || userObj.role,
                     isAuthenticated: true
                 });
                 // Fetch fresh DB data into local store on login
@@ -173,9 +175,22 @@ export const useStore = create(
                 get().fetchEmployees();
             },
 
-            updateProfile: (updates) => set((state) => ({
-                currentUser: state.currentUser ? { ...state.currentUser, ...updates } : null
-            })),
+            updateProfile: (updates) => {
+                // Optimistic instant UI update
+                set((state) => ({
+                    currentUser: state.currentUser ? { ...state.currentUser, ...updates } : null
+                }));
+
+                // Push to centralized cloud DB
+                const state = get();
+                if (state.currentUser && state.currentUser.email) {
+                    fetch(`${API_BASE}/api/v1/users/profile`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: state.currentUser.email, ...updates })
+                    }).catch(e => console.error("Cloud Profile Sync failed", e));
+                }
+            },
 
             logout: () => set({
                 currentUser: null,

@@ -17,6 +17,7 @@ model User {
   name      String
   role      String   @default("employee") // admin, employee, client
   clientId  String?  // If role is client, associate with a Client profile
+  avatar    String?  // Base64 image data or URL for profile picture
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
