@@ -88,7 +88,6 @@ function App() {
   const fetchChannels = useStore(state => state.fetchChannels);
   const fetchMessages = useStore(state => state.fetchMessages);
   const fetchEmployees = useStore(state => state.fetchEmployees);
-  const fetchPreferences = useStore(state => state.fetchPreferences);
 
   // Global Data Re-hydration
   // If the user refreshes the page, pull down fresh cloud data automatically.
@@ -103,9 +102,8 @@ function App() {
       fetchChannels();
       fetchMessages();
       fetchEmployees();
-      fetchPreferences();
     }
-  }, [currentUser, fetchProjects, fetchLeads, fetchClients, fetchTasks, fetchFolders, fetchAssets, fetchChannels, fetchMessages, fetchEmployees, fetchPreferences]);
+  }, [currentUser, fetchProjects, fetchLeads, fetchClients, fetchTasks, fetchFolders, fetchAssets, fetchChannels, fetchMessages, fetchEmployees]);
 
   // Render auth outside of the layout and router when not logged in
   if (!currentUser) {
