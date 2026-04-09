@@ -134,7 +134,7 @@ const LeadGenerator = () => {
             }
         } catch (error) {
             console.error("Error communicating with crawler:", error);
-            alert("Could not connect to the Backend Scraper. Is the server running on port 3001?");
+            alert("Could not connect to the Backend Scraper. Please ensure Render server is active. Error: " + error.message);
         } finally {
             setIsScanning(false);
         }
