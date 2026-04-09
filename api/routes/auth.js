@@ -51,7 +51,12 @@ router.post('/login', async (req, res) => {
         const user = await prisma.user.findUnique({ where: { email: email.toLowerCase() } });
         if (!user) return res.status(404).json({ success: false, error: 'Account not found' });
         
-        const isMatch = await bcrypt.compare(password, user.password);
+        let isMatch = false;
+        if (user.password && (user.password.startsWith('$2a$') || user.password.startsWith('$2b$'))) {
+            isMatch = await bcrypt.compare(password, user.password);
+        } else {
+            isMatch = (password === user.password);
+        }
         if (!isMatch) return res.status(400).json({ success: false, error: 'Invalid credentials' });
         
         const token = jwt.sign({ id: user.id, role: user.role, name: user.name, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
