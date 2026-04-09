@@ -40,80 +40,70 @@ app.post('/api/scrape', async (req, res) => {
         let currentKeywordIndex = 0;
 
         let attempts = 0;
-        let sToken = '0'; 
-        let vqdToken = '';
+        let pageNumber = 1; 
 
         while (leads.length < targetLimit && attempts < 50 && currentKeywordIndex < keywords.length) {
             attempts++;
             const currentIndustry = keywords[currentKeywordIndex];
             let cleanLocation = location.replace(/,\s*cyprus/i, '').trim();
             
-            console.log(`[!] Searching for: "${currentIndustry}" (Attempt ${attempts}, offset ${sToken})...`);
+            console.log(`[!] Searching for: "${currentIndustry}" (Attempt ${attempts}, page ${pageNumber})...`);
             
             let htmlData = '';
             
             try {
-                // Determine whether to POST (first page) or GET (subsequent pages)
-                if (sToken === '0') {
-                    const postData = `q=${encodeURIComponent(`${currentIndustry} in ${cleanLocation}`)}&b=&kl=us-en`;
-                    const res = await axios.post(`https://html.duckduckgo.com/html/`, postData, {
-                        headers: {
-                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        }
-                    });
-                    htmlData = res.data;
-                } else {
-                    const res = await axios.get(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(`${currentIndustry} in ${cleanLocation}`)}&s=${sToken}&nextParams=&vqd=${vqdToken}&dc=${sToken}&api=/d.js`, {
-                       headers: {
-                           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-                       }
-                    });
-                    htmlData = res.data;
-                }
-
+                const targetUrl = `https://www.ask.com/web?q=${encodeURIComponent(`${currentIndustry} in ${cleanLocation}`)}${pageNumber > 1 ? `&page=${pageNumber}` : ''}`;
+                const res = await axios.get(targetUrl, {
+                    headers: {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept-Language': 'en-US,en;q=0.9'
+                    }
+                });
+                htmlData = res.data;
             } catch (err) {
                  console.log(`[X] Fetch failed: ${err.message}`);
                  break;
             }
 
-            const $ = cheerio.load(htmlData);
+            console.log(`[+] HTML length: ${htmlData.length}`);
 
             const results = [];
             
-            $('.result').each((index, el) => {
-                const titleNode = $(el).find('.result__title a.result__url');
-                const snippetNode = $(el).find('.result__snippet');
-
-                if (!titleNode.length) return;
-
-                let title = titleNode.text().trim();
-                let url = titleNode.attr('href');
-
-                // Decode DuckDuckGo tracking proxy if present
-                if (url && url.includes('uddg=')) {
-                    try {
-                        const urlObj = new URL('https:' + url);
-                        const uddg = urlObj.searchParams.get('uddg');
-                        if (uddg) url = decodeURIComponent(uddg);
-                    } catch (e) {
-                         // Some URLs are relative directly. Need to decode manually
-                         if(url.includes('uddg=')) {
-                             url = decodeURIComponent(url.split('uddg=')[1].split('&')[0]);
-                         }
-                    }
-                } else if (url && url.startsWith('//')) {
-                    url = 'https:' + url;
+            // Extract the React Hydration JSON blob from Ask.com
+            const match = htmlData.match(/window\.MESON\.initialState\s*=\s*(\{.*?\});/);
+            
+            let organicResults = [];
+            if (match) {
+                try {
+                     const data = JSON.parse(match[1]);
+                     organicResults = data.search?.webResults?.results || [];
+                     console.log(`[+] Found ${organicResults.length} organic result elements in JSON`);
+                } catch(e) {
+                     console.log(`[-] Failed to parse Ask.com JSON payload`);
                 }
+            } else {
+                console.log(`[-] Ask.com structure changed or blocked. No JSON payload found.`);
+            }
 
-                if (!url) return;
+            organicResults.forEach((el, index) => {
+                let title = el.title ? el.title.trim() : '';
+                let url = el.url ? el.url.trim() : '';
+                const snippet = el.abstract ? el.abstract.trim() : '';
+
+                if (!title || !url) return;
+
+                if (url && !url.startsWith('http')) {
+                    if (url.startsWith('//')) {
+                        url = 'https:' + url;
+                    } else {
+                        url = 'https://' + url;
+                    }
+                }
 
                 // Skip Educational/Magazine content
-                if (url.includes('duckduckgo.com') || url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
+                if (url.includes('ask.com') || url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
                     return;
                 }
-
-                const snippet = snippetNode.length ? snippetNode.text().trim() : '';
 
                 const isBanned = banned.some(bannedUrl => {
                     if (!bannedUrl || typeof bannedUrl !== 'string' || bannedUrl.trim() === '') return false;
@@ -148,7 +138,7 @@ app.post('/api/scrape', async (req, res) => {
 
                 let isDirectory = excludedDomains.some(domain => url.toLowerCase().includes(domain.toLowerCase()));
 
-                if (title.toLowerCase() === 'more info' || title.toLowerCase() === 'duckduckgo') {
+                if (title.toLowerCase() === 'more info' || title.toLowerCase() === 'ask.com' || title.toLowerCase().includes('search')) {
                     isDirectory = true;
                 }
 
@@ -201,24 +191,13 @@ app.post('/api/scrape', async (req, res) => {
                 break;
             }
 
-            // Pagination checking - DDG uses hidden form inputs for state
-            const hasNextForm = $('.nav-link form').length > 0;
-            if (hasNextForm) {
-                // Extract the tokens needed to traverse to the next page
-                vqdToken = $('input[name=vqd]').val() || vqdToken;
-                const nextS = $('input[name=s]').val();
-                
-                if (nextS && nextS !== sToken) {
-                     sToken = nextS;
-                } else {
-                     console.log(`[-] No more organic pages for "${currentIndustry}". Switching keyword...`);
-                     currentKeywordIndex++;
-                     sToken = '0';
-                }
+            // Pagination checking
+            if (organicResults.length > 0) {
+                 pageNumber++;
             } else {
-                console.log(`[-] No more organic pages for "${currentIndustry}". Switching keyword...`);
-                currentKeywordIndex++;
-                sToken = '0';
+                 console.log(`[-] No more organic pages for "${currentIndustry}". Switching keyword...`);
+                 currentKeywordIndex++;
+                 pageNumber = 1;
             }
 
             // Stagger requests
