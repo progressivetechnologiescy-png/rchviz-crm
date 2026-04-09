@@ -203,3 +203,44 @@
 .sidebar.collapsed .messenger-badge-dot {
     opacity: 1;
 }
+
+/* Mobile Responsive Sidebar */
+.mobile-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 90;
+    opacity: 1;
+    animation: fadeIn var(--transition-fast) ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        width: 260px;
+        transition: transform var(--transition-normal) ease-in-out;
+    }
+
+    .sidebar.collapsed {
+        width: 260px; /* Don't allow collapse on mobile, it just hides completely */
+    }
+
+    .sidebar.mobile-open {
+        transform: translateX(280px);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+}

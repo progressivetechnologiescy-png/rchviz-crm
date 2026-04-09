@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://rchviz-crm.onrender.com';
 
 
 // --- INITIAL PIPELINE DATA ---
@@ -203,7 +203,10 @@ export const useStore = create(
                 return { theme: newTheme };
             }),
 
-            // Dashboard Layout State
+            // Dashboard Layout & Mobile State
+            mobileMenuOpen: false,
+            setMobileMenuOpen: (isOpen) => set({ mobileMenuOpen: isOpen }),
+            toggleMobileMenu: () => set(state => ({ mobileMenuOpen: !state.mobileMenuOpen })),
             dashboardLayout: ['active-projects', 'completion-ratio', 'total-revenue', 'outstanding'],
             updateDashboardLayout: (newLayout) => set({ dashboardLayout: newLayout }),
             dashboardModules: ['stats', 'daily-tasks', 'analytics', 'recent-projects', 'activity-feed'],

@@ -67,7 +67,7 @@ const LeadGenerator = () => {
         `;
 
         try {
-            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const API_BASE = import.meta.env.VITE_API_URL || 'https://rchviz-crm.onrender.com';
             const response = await fetch(`${API_BASE}/api/send-email`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -99,7 +99,7 @@ const LeadGenerator = () => {
         setIsScanning(true);
         setHasScanned(false);
         setLeads([]);
-        const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const API_BASE = import.meta.env.VITE_API_URL || 'https://rchviz-crm.onrender.com';
         const endpoint = searchMode === 'x-radar' ? `${API_BASE}/api/scrape-x` : `${API_BASE}/api/scrape`;
         const payload = searchMode === 'x-radar' ? { limit: 6, banned: [...bannedLeads, ...sentLeads] } : { industry, location, limit: parseInt(limit, 10), banned: [...bannedLeads, ...sentLeads] };
 

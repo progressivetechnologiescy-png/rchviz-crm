@@ -12,6 +12,7 @@ const Auth = ({ onLogin }) => {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [authError, setAuthError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
 
     const login = useStore(state => state.login);
     const clients = useStore(state => state.clients);
@@ -24,12 +25,13 @@ const Auth = ({ onLogin }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setAuthError('');
+        setIsLoading(true);
         
         try {
             const endpoint = isLogin ? 'login' : 'register';
             const payload = isLogin ? { email, password } : { email, name, password, role: 'admin' };
             
-            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const API_BASE = import.meta.env.VITE_API_URL || 'https://rchviz-crm.onrender.com';
             const response = await fetch(`${API_BASE}/api/auth/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -49,6 +51,8 @@ const Auth = ({ onLogin }) => {
             }
         } catch (err) {
             setAuthError('Unable to connect to authentication server');
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -120,11 +124,25 @@ const Auth = ({ onLogin }) => {
                     <motion.button
                         type="submit"
                         className="btn btn-primary btn-block mt-4"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={!isLoading ? { scale: 1.02 } : {}}
+                        whileTap={!isLoading ? { scale: 0.98 } : {}}
+                        disabled={isLoading}
+                        style={{ opacity: isLoading ? 0.7 : 1, cursor: isLoading ? 'wait' : 'pointer' }}
                     >
-                        <span>{isLogin ? t('sign_in', 'Sign In') : t('sign_up', 'Sign Up')}</span>
-                        <ArrowRight size={16} />
+                        {isLoading ? (
+                            <span className="flex items-center gap-2">
+                                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                {t('authenticating', 'Authenticating...')}
+                            </span>
+                        ) : (
+                            <>
+                                <span>{isLogin ? t('sign_in', 'Sign In') : t('sign_up', 'Sign Up')}</span>
+                                <ArrowRight size={16} />
+                            </>
+                        )}
                     </motion.button>
                 </form>
 

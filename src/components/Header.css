@@ -269,3 +269,65 @@
     display: flex;
     justify-content: center;
 }
+
+.mobile-menu-btn {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 1rem;
+    border-radius: var(--border-radius-md);
+    transition: background var(--transition-fast);
+}
+
+.mobile-menu-btn:hover {
+    background: var(--hover-bg);
+}
+
+@media (max-width: 1024px) {
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .header {
+        padding: 0 1rem;
+    }
+
+    .header-search {
+        width: auto;
+        flex: 1;
+        max-width: 250px;
+        margin-right: auto;
+    }
+
+    .header-actions {
+        gap: 0.5rem;
+    }
+    
+    .header-widget {
+        display: none !important;
+    }
+    
+    /* Hide the Globe text on mobile, just keep the icon */
+    .action-btn .text-xs {
+        display: none;
+    }
+    
+    .user-profile {
+        padding-left: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .user-info {
+        display: none; /* Hide user name and role on mobile, keep avatar */
+    }
+
+    .notifications-dropdown {
+        width: 300px;
+        right: -50px; /* shift dropdown on mobile so it doesn't overflow */
+    }
+}

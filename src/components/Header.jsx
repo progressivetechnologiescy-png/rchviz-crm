@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Bell, Sun, Moon, CloudSun, HelpCircle, CheckCircle2, Circle, MessageSquare, Globe } from 'lucide-react';
+import { Search, Bell, Sun, Moon, CloudSun, HelpCircle, CheckCircle2, Circle, MessageSquare, Globe, Menu } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '../store';
@@ -9,7 +9,7 @@ import './Header.css';
 const Header = () => {
     const navigate = useNavigate();
     const { t, i18n } = useTranslation();
-    const { theme, toggleTheme, currentUser, userRole, notifications, markAllNotificationsRead, markNotificationRead, toggleNotificationRead, messages, markAllMessagesAsRead, projects, clients } = useStore();
+    const { theme, toggleTheme, currentUser, userRole, notifications, markAllNotificationsRead, markNotificationRead, toggleNotificationRead, messages, markAllMessagesAsRead, projects, clients, toggleMobileMenu } = useStore();
     const [showNotifications, setShowNotifications] = useState(false);
     const [showMessages, setShowMessages] = useState(false);
     const [currentTime, setCurrentTime] = useState(new Date());
@@ -168,6 +168,9 @@ const Header = () => {
 
     return (
         <header className="header glass-panel">
+            <button className="mobile-menu-btn" onClick={toggleMobileMenu} aria-label="Toggle Menu">
+                <Menu size={24} />
+            </button>
 
             <div className="header-search relative" ref={searchRef}>
                 <Search className="search-icon" size={18} />

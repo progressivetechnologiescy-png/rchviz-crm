@@ -73,6 +73,8 @@ const Sidebar = () => {
     const logout = useStore(state => state.logout);
     const messages = useStore(state => state.messages);
     const currentUser = useStore(state => state.currentUser);
+    const mobileMenuOpen = useStore(state => state.mobileMenuOpen);
+    const setMobileMenuOpen = useStore(state => state.setMobileMenuOpen);
 
     const navItems = [
         { path: '/dashboard', label: t('nav_dashboard', 'Overview'), icon: LayoutDashboard },
@@ -117,8 +119,16 @@ const Sidebar = () => {
     });
 
     return (
-        <aside className={`sidebar select-none ${isCollapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-brand">
+        <>
+            {/* Mobile Overlay */}
+            {mobileMenuOpen && (
+                <div
+                    className="mobile-sidebar-overlay"
+                    onClick={() => setMobileMenuOpen(false)}
+                />
+            )}
+            <aside className={`sidebar select-none ${isCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-open' : ''}`}>
+                <div className="sidebar-brand">
                 <NavLink to="/dashboard" className="block w-full h-full flex justify-center items-center">
                     <div className="brand-logo-container">
                         <img
@@ -149,6 +159,7 @@ const Sidebar = () => {
                             key={item.path}
                             to={item.path}
                             className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
+                            onClick={() => { if (window.innerWidth <= 1024) setMobileMenuOpen(false); }}
                         >
                             <Icon className="nav-icon" size={20} />
                             <span className="nav-label">{item.label}</span>
@@ -164,7 +175,11 @@ const Sidebar = () => {
             </nav>
 
             <div className="sidebar-footer">
-                <NavLink to="/settings" className={({ isActive }) => `nav-link btn-ghost w-full justify-start mt-auto ${isActive ? 'active' : ''}`}>
+                <NavLink 
+                    to="/settings" 
+                    className={({ isActive }) => `nav-link btn-ghost w-full justify-start mt-auto ${isActive ? 'active' : ''}`}
+                    onClick={() => { if (window.innerWidth <= 1024) setMobileMenuOpen(false); }}
+                >
                     <Settings className="nav-icon" size={20} />
                     <span className="nav-label">{t('nav_settings', 'Settings')}</span>
                 </NavLink>
@@ -174,6 +189,7 @@ const Sidebar = () => {
                 </button>
             </div>
         </aside>
+        </>
     );
 };
 
