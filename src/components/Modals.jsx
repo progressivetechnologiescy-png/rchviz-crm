@@ -641,9 +641,24 @@ export const EditTaskModal = ({ isOpen, onClose, task }) => {
                                 </div>
                             </div>
 
-                            <div className="modal-footer mt-4">
-                                <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
-                                <button type="submit" className="btn btn-primary">{t('save_task', 'Save Task')}</button>
+                            <div className="modal-footer mt-6" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                <button
+                                    type="button" 
+                                    className="btn btn-ghost text-red-500 hover:text-white hover:bg-red-500 hover:bg-opacity-20 transition-colors"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        if (window.confirm("Are you sure you want to delete this task?")) {
+                                            useStore.getState().deleteTask(task.id);
+                                            onClose();
+                                        }
+                                    }}
+                                >
+                                    {t('delete_task', 'Delete Task')}
+                                </button>
+                                <div className="flex gap-3">
+                                    <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
+                                    <button type="submit" className="btn btn-primary">{t('save_task', 'Save Task')}</button>
+                                </div>
                             </div>
                         </form>
                     </motion.div>
