@@ -168,7 +168,6 @@ const LeadGenerator = () => {
             totalValue: '€0'
         };
         addClient(newClient);
-        addPipelineLead(lead);
         banLead(lead.website);
 
         setLeads(prev => prev.filter(l => l.id !== lead.id));
