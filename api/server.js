@@ -2,9 +2,9 @@ const express = require('express');
 const cors = require('cors');
 const cheerio = require('cheerio');
 const path = require('path');
+const axios = require('axios');
 
 // Removed Puppeteer imports
-const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
@@ -40,60 +40,76 @@ app.post('/api/scrape', async (req, res) => {
         let currentKeywordIndex = 0;
 
         let attempts = 0;
-        let b = 1; // Yahoo Pagination tracker (1, 11, 21...)
+        let sToken = '0'; 
+        let vqdToken = '';
 
         while (leads.length < targetLimit && attempts < 50 && currentKeywordIndex < keywords.length) {
             attempts++;
             const currentIndustry = keywords[currentKeywordIndex];
             let cleanLocation = location.replace(/,\s*cyprus/i, '').trim();
-            const searchQuery = encodeURIComponent(`${currentIndustry} in ${cleanLocation}`);
-
-            console.log(`[!] Searching for: "${currentIndustry}" (Attempt ${attempts}, offset ${b})...`);
             
-            // Construct Yahoo Search URL directly for node-fetch
-            const targetUrl = `https://search.yahoo.com/search?p=${searchQuery}&b=${b}`;
+            console.log(`[!] Searching for: "${currentIndustry}" (Attempt ${attempts}, offset ${sToken})...`);
             
-            const fetchRes = await fetch(targetUrl, {
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                    'Accept-Language': 'en-US,en;q=0.5'
+            let htmlData = '';
+            
+            try {
+                // Determine whether to POST (first page) or GET (subsequent pages)
+                if (sToken === '0') {
+                    const postData = `q=${encodeURIComponent(`${currentIndustry} in ${cleanLocation}`)}&b=&kl=us-en`;
+                    const res = await axios.post(`https://html.duckduckgo.com/html/`, postData, {
+                        headers: {
+                            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        }
+                    });
+                    htmlData = res.data;
+                } else {
+                    const res = await axios.get(`https://html.duckduckgo.com/html/?q=${encodeURIComponent(`${currentIndustry} in ${cleanLocation}`)}&s=${sToken}&nextParams=&vqd=${vqdToken}&dc=${sToken}&api=/d.js`, {
+                       headers: {
+                           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                       }
+                    });
+                    htmlData = res.data;
                 }
-            });
 
-            if (!fetchRes.ok) {
-                console.log(`[X] Fetch failed with status: ${fetchRes.status}`);
-                break;
+            } catch (err) {
+                 console.log(`[X] Fetch failed: ${err.message}`);
+                 break;
             }
 
-            const html = await fetchRes.text();
-            const $ = cheerio.load(html);
+            const $ = cheerio.load(htmlData);
 
             const results = [];
-            const algoBlocks = $('div.algo');
-
-            algoBlocks.each((index, el) => {
-                const titleNode = $(el).find('.title a');
-                const snippetNode = $(el).find('.compText');
+            
+            $('.result').each((index, el) => {
+                const titleNode = $(el).find('.result__title a.result__url');
+                const snippetNode = $(el).find('.result__snippet');
 
                 if (!titleNode.length) return;
 
                 let title = titleNode.text().trim();
                 let url = titleNode.attr('href');
 
-                // Yahoo masks outbound urls with r.search.yahoo.com redirectors
-                if (url && url.includes('RU=')) {
+                // Decode DuckDuckGo tracking proxy if present
+                if (url && url.includes('uddg=')) {
                     try {
-                        const trackingSplit = url.split('RU=')[1];
-                        const rawDest = trackingSplit.split('/')[0];
-                        if (rawDest) url = decodeURIComponent(rawDest);
-                    } catch (e) { }
+                        const urlObj = new URL('https:' + url);
+                        const uddg = urlObj.searchParams.get('uddg');
+                        if (uddg) url = decodeURIComponent(uddg);
+                    } catch (e) {
+                         // Some URLs are relative directly. Need to decode manually
+                         if(url.includes('uddg=')) {
+                             url = decodeURIComponent(url.split('uddg=')[1].split('&')[0]);
+                         }
+                    }
+                } else if (url && url.startsWith('//')) {
+                    url = 'https:' + url;
                 }
 
                 if (!url) return;
 
                 // Skip Educational/Magazine content
-                if (url.includes('yahoo.com') || url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
+                if (url.includes('duckduckgo.com') || url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
                     return;
                 }
 
@@ -185,17 +201,28 @@ app.post('/api/scrape', async (req, res) => {
                 break;
             }
 
-            // Pagination checking
-            const hasNext = $('a.next').length > 0;
-            if (hasNext) {
-                b += 10; // Yahoo offsets by 10 per page
+            // Pagination checking - DDG uses hidden form inputs for state
+            const hasNextForm = $('.nav-link form').length > 0;
+            if (hasNextForm) {
+                // Extract the tokens needed to traverse to the next page
+                vqdToken = $('input[name=vqd]').val() || vqdToken;
+                const nextS = $('input[name=s]').val();
+                
+                if (nextS && nextS !== sToken) {
+                     sToken = nextS;
+                } else {
+                     console.log(`[-] No more organic pages for "${currentIndustry}". Switching keyword...`);
+                     currentKeywordIndex++;
+                     sToken = '0';
+                }
             } else {
                 console.log(`[-] No more organic pages for "${currentIndustry}". Switching keyword...`);
                 currentKeywordIndex++;
-                b = 1;
+                sToken = '0';
             }
 
-            await new Promise(r => setTimeout(r, 1000));
+            // Stagger requests
+            await new Promise(r => setTimeout(r, Math.floor(Math.random() * 2000) + 1000));
         }
 
         // --- REMOVED FALLBACK INJECTION ---
