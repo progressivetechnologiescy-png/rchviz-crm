@@ -206,9 +206,15 @@ const Dashboard = () => {
             // Employee sees only theirs, Admin sees all
             if (userRole === 'employee' && t.assignee !== currentUser.name && t.assignee !== (currentUser.name?.substring(0, 2).toUpperCase())) return false;
 
-            const taskDate = new Date(t.dueDate);
+            if (!t.dueDate) return false;
+            
+            // Extract just the YYYY-MM-DD to avoid timezone shifting
+            const taskDateStr = t.dueDate.substring(0, 10);
+            
             const now = new Date();
-            return taskDate.toDateString() === now.toDateString(); // Basic today check
+            const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            
+            return taskDateStr === todayStr;
         }).slice(0, 5); // Take top 5
 
         return (

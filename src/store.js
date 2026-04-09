@@ -317,7 +317,7 @@ export const useStore = create(
                 } catch(e) { console.error("API error", e); }
             },
 
-            removePipelineLead: (taskId) => {
+            removePipelineLead: async (taskId) => {
                 set((state) => {
                     const newTasks = { ...state.pipelineData.tasks };
                     delete newTasks[taskId];
@@ -338,6 +338,9 @@ export const useStore = create(
                         }
                     };
                 });
+                try {
+                    await fetch(`${API_BASE}/api/v1/leads/${taskId}`, { method: 'DELETE' });
+                } catch(e) { console.error("API error", e); }
             },
 
             // Update a specific task/card in the pipeline
