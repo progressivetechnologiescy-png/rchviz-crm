@@ -2,7 +2,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'https://rchviz-crm.onrender.com';
+const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const API_BASE = import.meta.env.VITE_API_URL || (isDev ? 'http://localhost:3001' : 'https://rchviz-crm.onrender.com');
 
 
 // --- INITIAL PIPELINE DATA ---

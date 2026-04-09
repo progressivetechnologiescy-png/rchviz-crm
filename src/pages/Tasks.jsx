@@ -578,15 +578,17 @@ const Tasks = () => {
                         <h2 className="calendar-month-title">{monthNames[month]} {year}</h2>
                         <button onClick={nextMonth} className="calendar-nav-btn"><ChevronRight size={20} /></button>
                     </div>
-                    <div className="calendar-grid">
-                        <div className="calendar-weekday">{toGreekCaps(t('mon_short', 'Mon'))}</div>
-                        <div className="calendar-weekday">{toGreekCaps(t('tue_short', 'Tue'))}</div>
-                        <div className="calendar-weekday">{toGreekCaps(t('wed_short', 'Wed'))}</div>
-                        <div className="calendar-weekday">{toGreekCaps(t('thu_short', 'Thu'))}</div>
-                        <div className="calendar-weekday">{toGreekCaps(t('fri_short', 'Fri'))}</div>
-                        <div className="calendar-weekday">{toGreekCaps(t('sat_short', 'Sat'))}</div>
-                        <div className="calendar-weekday">{toGreekCaps(t('sun_short', 'Sun'))}</div>
-                        {days}
+                    <div className="calendar-scroll-wrapper">
+                        <div className="calendar-grid">
+                            <div className="calendar-weekday">{toGreekCaps(t('mon_short', 'Mon'))}</div>
+                            <div className="calendar-weekday">{toGreekCaps(t('tue_short', 'Tue'))}</div>
+                            <div className="calendar-weekday">{toGreekCaps(t('wed_short', 'Wed'))}</div>
+                            <div className="calendar-weekday">{toGreekCaps(t('thu_short', 'Thu'))}</div>
+                            <div className="calendar-weekday">{toGreekCaps(t('fri_short', 'Fri'))}</div>
+                            <div className="calendar-weekday">{toGreekCaps(t('sat_short', 'Sat'))}</div>
+                            <div className="calendar-weekday">{toGreekCaps(t('sun_short', 'Sun'))}</div>
+                            {days}
+                        </div>
                     </div>
                 </div>
             </DragDropContext>

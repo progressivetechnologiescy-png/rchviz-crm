@@ -63,8 +63,14 @@
 
 .project-layout {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr;
     gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+    .project-layout {
+        grid-template-columns: 2fr 1fr;
+    }
 }
 
 .assets-column,

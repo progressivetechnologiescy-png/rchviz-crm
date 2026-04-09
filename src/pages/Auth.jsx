@@ -31,7 +31,8 @@ const Auth = ({ onLogin }) => {
             const endpoint = isLogin ? 'login' : 'register';
             const payload = isLogin ? { email, password } : { email, name, password, role: 'admin' };
             
-            const API_BASE = import.meta.env.VITE_API_URL || 'https://rchviz-crm.onrender.com';
+            const isDev = typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+            const API_BASE = import.meta.env.VITE_API_URL || (isDev ? 'http://localhost:3001' : 'https://rchviz-crm.onrender.com');
             const response = await fetch(`${API_BASE}/api/auth/${endpoint}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

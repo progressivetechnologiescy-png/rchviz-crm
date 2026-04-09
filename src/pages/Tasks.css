@@ -666,9 +666,16 @@
     background: var(--hover-bg);
 }
 
+.calendar-scroll-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: var(--border-radius-lg);
+}
+
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, minmax(0, 1fr));
+    min-width: 700px;
     gap: 1px;
     background: var(--glass-border);
     border: 1px solid var(--glass-border);
