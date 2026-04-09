@@ -44,7 +44,7 @@ app.post('/api/scrape', async (req, res) => {
         // Launch Headless Chrome with Stealth Plugin
         browser = await puppeteer.launch({
             headless: 'new', // Use new headless mode
-            args: ['--no-sandbox', '--disable-setuid-sandbox']
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-gpu']
         });
 
         const page = await browser.newPage();
