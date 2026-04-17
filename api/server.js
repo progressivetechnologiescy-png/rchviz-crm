@@ -37,23 +37,26 @@ app.post('/api/scrape', async (req, res) => {
     let leads = [];
 
     try {
-        let keywords = [industry, `${industry} Firms`, `${industry} Studios`, `Top ${industry}`, `${industry} Offices`];
+        let keywords = [
+            `${industry} in ${location}`,
+            `Top ${industry} ${location}`,
+            `${industry} firms ${location}`,
+            `${industry} studios ${location}`,
+            `Best ${industry} ${location}`,
+            `${industry} offices in ${location}`
+        ];
         let currentKeywordIndex = 0;
-
         let attempts = 0;
-        let pageNumber = 1; 
 
-        while (leads.length < targetLimit && attempts < 50 && currentKeywordIndex < keywords.length) {
+        while (leads.length < targetLimit && attempts < keywords.length) {
             attempts++;
             const currentIndustry = keywords[currentKeywordIndex];
-            let cleanLocation = location.replace(/,\s*cyprus/i, '').trim();
             
-            console.log(`[!] Searching for: "${currentIndustry}" (Attempt ${attempts}, page ${pageNumber})...`);
+            console.log(`[!] Searching DDG for: "${currentIndustry}" (Attempt ${attempts})...`);
             
             let htmlData = '';
-            
             try {
-                const targetUrl = `https://www.ask.com/web?q=${encodeURIComponent(`${currentIndustry} in ${cleanLocation}`)}${pageNumber > 1 ? `&page=${pageNumber}` : ''}`;
+                const targetUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(currentIndustry)}`;
                 const res = await axios.get(targetUrl, {
                     headers: {
                         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -63,28 +66,34 @@ app.post('/api/scrape', async (req, res) => {
                 htmlData = res.data;
             } catch (err) {
                  console.log(`[X] Fetch failed: ${err.message}`);
-                 break;
+                 currentKeywordIndex++;
+                 continue;
             }
 
-            console.log(`[+] HTML length: ${htmlData.length}`);
-
-            const results = [];
-            
-            // Extract the React Hydration JSON blob from Ask.com
-            const match = htmlData.match(/window\.MESON\.initialState\s*=\s*(\{.*?\});/);
+            const cheerio = require('cheerio');
+            const $ = cheerio.load(htmlData);
             
             let organicResults = [];
-            if (match) {
-                try {
-                     const data = JSON.parse(match[1]);
-                     organicResults = data.search?.webResults?.results || [];
-                     console.log(`[+] Found ${organicResults.length} organic result elements in JSON`);
-                } catch(e) {
-                     console.log(`[-] Failed to parse Ask.com JSON payload`);
+            $('.result').each((i, el) => {
+                const title = $(el).find('.result__title').text().trim();
+                let url = $(el).find('.result__url').attr('href');
+                const snippet = $(el).find('.result__snippet').text().trim();
+                
+                if (url && url.includes('uddg=')) {
+                    try {
+                        const uddg = new URL('https:' + url).searchParams.get('uddg');
+                        if (uddg) url = decodeURIComponent(uddg);
+                    } catch(e){}
                 }
-            } else {
-                console.log(`[-] Ask.com structure changed or blocked. No JSON payload found.`);
-            }
+                
+                if (title && url && !url.includes('duckduckgo.com')) {
+                    organicResults.push({ title, url, abstract: snippet });
+                }
+            });
+            
+            console.log(`[+] Found ${organicResults.length} organic result elements on DDG Lite`);
+
+            const results = [];
 
             organicResults.forEach((el, index) => {
                 let title = el.title ? el.title.trim() : '';
@@ -192,16 +201,7 @@ app.post('/api/scrape', async (req, res) => {
                 break;
             }
 
-            // Pagination checking
-            if (organicResults.length > 0) {
-                 pageNumber++;
-            } else {
-                 console.log(`[-] No more organic pages for "${currentIndustry}". Switching keyword...`);
-                 currentKeywordIndex++;
-                 pageNumber = 1;
-            }
-
-            // Stagger requests
+            currentKeywordIndex++;
             await new Promise(r => setTimeout(r, Math.floor(Math.random() * 2000) + 1000));
         }
 
