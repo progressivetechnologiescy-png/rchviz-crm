@@ -46,6 +46,8 @@ const Clients = () => {
     const [selectedClient, setSelectedClient] = useState(null);
     const [clientToDelete, setClientToDelete] = useState(null);
 
+    const [clientFilter, setClientFilter] = useState('All');
+
     const navigate = useNavigate();
 
     const handleSaveClient = (updatedClient) => {
@@ -122,7 +124,11 @@ const Clients = () => {
     const clientsList = Array.from(uniqueClientsMap.values());
 
     const filteredClients = clientsList
-        .filter(client => (client.name || '').toLowerCase().includes(searchTerm.toLowerCase()))
+        .filter(client => {
+            const matchesSearch = (client.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+            const matchesFilter = clientFilter === 'All' ? true : (client.activeProjects && client.activeProjects.length > 0);
+            return matchesSearch && matchesFilter;
+        })
         .sort((a, b) => {
             const nameA = a.name || '';
             const nameB = b.name || '';
@@ -145,7 +151,7 @@ const Clients = () => {
                     <h1 className="page-title">{t('client_directory', 'Client Directory')}</h1>
                     <p className="page-subtitle">{t('manage_studio_relationships', 'Manage your studio relationships and contact info.')}</p>
                 </div>
-                <div className="header-actions">
+                <div className="header-actions flex-wrap gap-2">
                     <div className="search-wrap">
                         <Search className="search-icon" size={16} />
                         <input
@@ -156,6 +162,15 @@ const Clients = () => {
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
+                    <select
+                        className="dashboard-select"
+                        value={clientFilter}
+                        onChange={(e) => setClientFilter(e.target.value)}
+                        style={{ height: '36px' }}
+                    >
+                        <option value="All">{t('all_clients', 'All Clients')}</option>
+                        <option value="Active">{t('active_clients', 'Active Clients')}</option>
+                    </select>
                     <select
                         className="dashboard-select"
                         value={sortDirection}
