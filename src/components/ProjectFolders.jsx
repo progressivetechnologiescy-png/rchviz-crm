@@ -16,9 +16,11 @@ const ProjectFolders = ({ projectId }) => {
     const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const [selectedFoldersForAction, setSelectedFoldersForAction] = useState([]);
+    const [selectedAssetsForAction, setSelectedAssetsForAction] = useState([]);
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
+    const [assetBulkDeleteConfirm, setAssetBulkDeleteConfirm] = useState(false);
 
     const STANDARD_ORDER = ['Drafts 1', 'Drafts 2', 'AI', 'Client References', 'Final'];
 
@@ -125,7 +127,7 @@ const ProjectFolders = ({ projectId }) => {
                             : t('project_folders', 'Project Folders')}
                     </h2>
                 </div>
-                {!selectedFolder && (
+                {!selectedFolder ? (
                     <div className="flex items-center gap-2">
                         {selectedFoldersForAction.length > 0 && (
                             <button
@@ -167,12 +169,23 @@ const ProjectFolders = ({ projectId }) => {
                                         <button onClick={handleCreateStandardFolders} className="btn btn-primary shadow-lg shadow-cyan-500/20 px-6">
                                             {t('create_standard_folders', 'Create Standard Folders')}
                                         </button>
-                                        <button onClick={handleAddFolder} className="btn btn-secondary px-6">
-                                            {t('custom_folder', 'Custom Folder')}
-                                        </button>
-                                    </div>
-                                </div>
-                            ) : (
+                        <button onClick={handleAddFolder} className="btn btn-secondary px-6">
+                            {t('custom_folder', 'Custom Folder')}
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2">
+                        {selectedAssetsForAction.length > 0 && (
+                            <button
+                                onClick={() => setAssetBulkDeleteConfirm(true)}
+                                className="text-xs font-medium bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors relative z-30"
+                            >
+                                <Trash2 size={14} /> {t('delete_selected', `Delete (${selectedAssetsForAction.length})`)}
+                            </button>
+                        )}
+                    </div>
+                )}
+            </div>
                                 <>
                                     {projectFolders.map(folder => {
                                         const folderAssets = projectAssets.filter(a => a.folderId === folder.id);
@@ -251,9 +264,22 @@ const ProjectFolders = ({ projectId }) => {
                                 return (
                                     <div
                                         key={asset.id}
-                                        className="relative bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-xl overflow-hidden hover:bg-[var(--input-bg)] transition-all cursor-pointer group shadow-sm hover:shadow-md"
+                                        className={`relative bg-[var(--bg-secondary)] border ${selectedAssetsForAction.includes(asset.id) ? 'border-accent-blue bg-blue-500/5' : 'border-[var(--glass-border)]'} rounded-xl overflow-hidden hover:bg-[var(--input-bg)] transition-all cursor-pointer group shadow-sm hover:shadow-md`}
                                         onClick={() => handleAssetClick(asset)}
                                     >
+                                        {/* Asset Selection Checkbox */}
+                                        <div 
+                                            className={`absolute top-2 left-2 w-5 h-5 rounded flex items-center justify-center transition-all z-20 shadow-sm ${selectedAssetsForAction.includes(asset.id) ? 'bg-accent-blue text-white opacity-100' : 'bg-black/20 border border-white/20 text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 hover:bg-black/40'}`}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedAssetsForAction(prev => 
+                                                    prev.includes(asset.id) ? prev.filter(id => id !== asset.id) : [...prev, asset.id]
+                                                );
+                                            }}
+                                        >
+                                            {selectedAssetsForAction.includes(asset.id) && <CheckCircle size={12} />}
+                                        </div>
+
                                         <button
                                             onClick={(e) => handleDeleteAsset(asset, e)}
                                             className="absolute top-2 right-2 text-white bg-red-500/80 hover:bg-red-600 p-1.5 rounded-full shadow-md z-20 opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-md"
@@ -262,7 +288,7 @@ const ProjectFolders = ({ projectId }) => {
                                             <Trash2 size={12} />
                                         </button>
                                         {totalAnn > 0 && (
-                                            <div className={`absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md z-10 flex items-center gap-1 backdrop-blur-md ${openAnn > 0 ? 'bg-accent-blue/90' : 'bg-green-500/90'}`}>
+                                            <div className={`absolute top-2 left-9 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md z-10 flex items-center gap-1 backdrop-blur-md ${openAnn > 0 ? 'bg-accent-blue/90' : 'bg-green-500/90'}`}>
                                                 {openAnn > 0 ? (
                                                     <><MessageSquare size={10} /> {openAnn}</>
                                                 ) : (
@@ -522,6 +548,55 @@ const ProjectFolders = ({ projectId }) => {
                                                 selectedFoldersForAction.forEach(id => deleteFolder(id));
                                                 setSelectedFoldersForAction([]);
                                                 setBulkDeleteConfirm(false);
+                                            }}
+                                        >
+                                            {t('delete', 'Delete')}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Asset Bulk Delete Modal */}
+                    <AnimatePresence>
+                        {assetBulkDeleteConfirm && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                                onClick={() => setAssetBulkDeleteConfirm(false)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                                    className="bg-[var(--bg-primary)] border border-[var(--glass-border)] rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    <div className="flex items-center gap-3 text-red-500 mb-4">
+                                        <div className="p-3 bg-red-500/10 rounded-full">
+                                            <Trash2 size={24} />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-white">{t('delete_assets', 'Delete Files')}</h3>
+                                    </div>
+                                    <p className="text-[var(--text-secondary)] mb-6 text-sm leading-relaxed">
+                                        {t('confirm_bulk_delete', 'Are you sure you want to delete ')}<span className="text-white font-medium">{selectedAssetsForAction.length}</span> {t('files', 'files')}? {t('cannot_be_undone_asset', 'This action cannot be undone.')}
+                                    </p>
+                                    <div className="flex gap-3 justify-end mt-2">
+                                        <button
+                                            className="px-4 py-2 hover:bg-[var(--hover-bg)] text-[var(--text-secondary)] hover:text-white rounded-lg transition-colors font-medium text-sm"
+                                            onClick={() => setAssetBulkDeleteConfirm(false)}
+                                        >
+                                            {t('cancel', 'Cancel')}
+                                        </button>
+                                        <button
+                                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-lg shadow-red-500/20 font-medium text-sm"
+                                            onClick={() => {
+                                                selectedAssetsForAction.forEach(id => deleteAsset(id));
+                                                setSelectedAssetsForAction([]);
+                                                setAssetBulkDeleteConfirm(false);
                                             }}
                                         >
                                             {t('delete', 'Delete')}
