@@ -296,8 +296,12 @@ app.post('/api/scrape-x', async (req, res) => {
             searchQuery = `"${industry}" (hiring OR "looking for")`;
         }
 
-        if (cleanLocation) {
+        // Note: We deliberately ignore location for Reddit API if it's highly specific like cities, 
+        // because Reddit job posts are almost exclusively "Remote" and strict location matching fails.
+        if (cleanLocation && cleanLocation.toLowerCase() !== 'worldwide' && cleanLocation.toLowerCase() !== 'remote' && industry !== '3D/ArchViz Jobs') {
             searchQuery += ` ${cleanLocation}`;
+        } else if (industry === '3D/ArchViz Jobs' || industry === 'Architectural Jobs') {
+            searchQuery += ` (Remote OR Anywhere)`;
         }
         
         console.log(`[!] Executing Reddit JSON Query for: ${searchQuery}`);
