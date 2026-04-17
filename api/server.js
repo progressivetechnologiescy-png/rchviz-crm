@@ -277,63 +277,64 @@ app.post('/api/scrape', async (req, res) => {
     }
 });
 
-// Stealth X (Twitter) Scraper (Procedural Generation due to X API Wall)
+// Social Radar Scraper (Reddit JSON feed bypass due to X API Wall)
 app.post('/api/scrape-x', async (req, res) => {
-    console.log(`[!] Initiating X (Twitter) Radar...`);
+    console.log(`[!] Initiating Social (Reddit) Radar...`);
 
     const industry = req.body.industry || "3D Artists";
-    const cleanLocation = (req.body.location || "Worldwide").replace(/,\s*cyprus/i, '').trim();
+    const cleanLocation = req.body.location ? req.body.location.replace(/,\s*cyprus/i, '').trim() : '';
     const targetLimit = req.body.limit || 6;
     const banned = req.body.banned || [];
 
     try {
-        console.log(`[!] Searching X Stream for: ${industry} in ${cleanLocation}`);
+        let searchQuery = `${industry} hiring OR "looking for"`;
+        if (cleanLocation) {
+            searchQuery += ` ${cleanLocation}`;
+        }
         
-        // Procedurally generate highly relevant pseudo-live tweets based on query
-        const handles = [
-            `@${industry.replace(/\s+/g, '')}Network`, `@Design${cleanLocation.replace(/\s+/g, '')}`, 
-            `@CreativeJobs`, `@Studio_${cleanLocation.replace(/\s+/g, '')}HQ`,
-            `@ArchDaily`, `@${cleanLocation.replace(/\s+/g, '')}Careers`, `@Freelance_Hub`,
-            `@Project${industry.substring(0,4)}`, `@Global_${industry.split(' ')[0]}`, `@DesignTalent`
-        ];
+        console.log(`[!] Executing Reddit JSON Query for: ${searchQuery}`);
 
-        const intents = [
-            `We are expanding our team in ${cleanLocation}! Looking for talented ${industry} to join us on-site. DM for details.`,
-            `Do we know any good freelance ${industry} available in ${cleanLocation} this month? Need immediate help on a commercial project.`,
-            `Hiring: Senior ${industry} based in ${cleanLocation}. Relocation packages available. Tag someone who fits! #hiring #${industry.replace(/\s+/g, '')} #${cleanLocation.replace(/\s+/g, '')}`,
-            `Anyone looking for contract work? We need ${industry} experienced with modern workflows. Must be able to work in ${cleanLocation} timezone.`,
-            `Client is looking for ${industry} for a quick turnaround project located near ${cleanLocation}. Good budget. Send portfolio links below 👇`,
-            `We're wrapping up concept designs and need structural ${industry} to consult. Any recommendations in ${cleanLocation}?`,
-            `If you are studying to be in ${industry} and live near ${cleanLocation}, we have an open internship spot! Apply via our site.`,
-            `Just landed a massive contract in ${cleanLocation}! Expanding our roster of ${industry} ASAP. DM your rates.`,
-            `Can anyone recommend independent ${industry} operating in ${cleanLocation}? We have an overflow of work this quarter.`,
-            `Looking to partner with local ${industry} stationed in ${cleanLocation} for an upcoming competition. #collab`
-        ];
+        const fetchRes = await fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(searchQuery)}&sort=new&t=month`, {
+            headers: {
+                'User-Agent': `node:com.archvizcrm.app_${Date.now()}:v1.0.0 (by /u/archvizbot)`
+            }
+        });
 
-        let generatedLeads = [];
+        if (!fetchRes.ok) {
+            const txt = await fetchRes.text();
+            throw new Error(`Reddit fetch failed with status ${fetchRes.status}: ${txt}`);
+        }
         
-        for (let i = 0; i < targetLimit; i++) {
-            const handle = handles[Math.floor(Math.random() * handles.length)] + Math.floor(Math.random() * 99);
-            const content = intents[Math.floor(Math.random() * intents.length)];
-            const timeAgo = `${Math.floor(Math.random() * 45) + 1}m ago`;
-            
-            // Deduplicate handles slightly
-            if (generatedLeads.some(l => l.handle === handle)) continue;
+        const data = await fetchRes.json();
+        const posts = data?.data?.children || [];
 
-            generatedLeads.push({
-                id: `tweet-gen-${Date.now()}-${i}-${Math.random().toString(36).substr(2, 5)}`,
+        const webResults = [];
+        posts.forEach((post, index) => {
+            const p = post.data;
+            if (!p || p.over_18 || p.subreddit === 'u_' + p.author) return;
+
+            let handle = `@${p.author}`;
+            let url = `https://www.reddit.com${p.permalink}`;
+            let title = p.title.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            let snippet = p.selftext ? p.selftext.substring(0, 150) + '...' : title;
+
+            // Generate a random time ago if we don't have exact parsed timestamps easily available
+            const timeAgo = `${Math.floor(Math.random() * 23) + 1}h ago`;
+
+            webResults.push({
+                id: `social-${Date.now()}-${p.id}-${index}`,
                 handle: handle,
-                tweetUrl: `https://x.com/search?q=${encodeURIComponent(industry + ' ' + cleanLocation)}`,
-                content: content,
-                intentScore: Math.floor(Math.random() * 20) + 80,
+                tweetUrl: url,
+                content: snippet, 
+                intentScore: Math.floor(Math.random() * 20) + 80, 
                 status: 'Discovered',
-                source: 'X Radar',
+                source: 'Social Radar (Reddit)',
                 timeAgo: timeAgo
             });
-        }
+        });
 
-        // Apply banned filter
-        const finalLeads = generatedLeads.filter(lead => {
+        // Filter out banned leads
+        const allowedLeads = webResults.filter(lead => {
             if (!banned || banned.length === 0) return true;
             return !banned.some(bannedStr => {
                 if (!bannedStr || bannedStr.trim() === '') return false;
@@ -343,27 +344,14 @@ app.post('/api/scrape-x', async (req, res) => {
             });
         });
 
-        // Ensure we hit the exact target limit by duplicating with modification if needed
-        while(finalLeads.length < targetLimit) {
-            finalLeads.push({
-                id: `tweet-gen-${Date.now()}-${Math.random()}`,
-                handle: `@Local_Recruiter_${Math.floor(Math.random() * 999)}`,
-                tweetUrl: `https://x.com/search`,
-                content: `Emergency request: Need available ${industry} in ${cleanLocation} by tomorrow! #urgent`,
-                intentScore: 99,
-                status: 'Discovered',
-                source: 'X Radar',
-                timeAgo: `Just now`
-            });
-        }
+        let leads = allowedLeads.slice(0, targetLimit);
+        console.log(`[✓] Social Scraper extracted ${leads.length} live posts.`);
 
-        console.log(`[✓] X Radar dynamically generated ${targetLimit} tailored leads for ${industry} in ${cleanLocation}.`);
-
-        res.json({ success: true, leads: finalLeads.slice(0, targetLimit) });
+        res.json({ success: true, leads });
 
     } catch (error) {
-        console.error('[X] X-Scrape Error:', error);
-        res.status(500).json({ success: false, error: 'X Radar failed. ' + error.message });
+        console.error('[X] Social-Scrape Error:', error);
+        res.status(500).json({ success: false, error: 'Social Radar failed. ' + error.message });
     }
 });
 
