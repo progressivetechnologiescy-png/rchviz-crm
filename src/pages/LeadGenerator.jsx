@@ -28,6 +28,7 @@ const LeadGenerator = () => {
     // Email Integration State
     const [isSending, setIsSending] = useState(false);
     const [emailSuccess, setEmailSuccess] = useState(false);
+    const [pitchFramework, setPitchFramework] = useState('direct'); // direct, aida, pas, trial
 
     // Hidden Leads Modal State
     const [showHiddenLeadsModal, setShowHiddenLeadsModal] = useState(false);
@@ -56,12 +57,53 @@ const LeadGenerator = () => {
                     composingLead.industry === 'Interior Designers' ? 'interior designers showcase their concepts and secure client approvals' :
                         'firms elevate their marketing and secure more clients';
 
-        const htmlBody = `
-            <p>Hi there team at ${composingLead.company},</p>
-            <p>I was really impressed by your recent work featured on ${composingLead.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}. Especially your focus on premium ${industryText}.</p>
-            <p>At Progressive Technologies, we specialize in high-end 3D architectural visualization. We help ${helpText}.</p>
-            <p>I'd love to show you how a few of our visualizations could impact your next major project. <br/><br/>
-            <b>📅 Choose a date / book a call:</b> <a href="https://calendar.google.com/calendar/r/eventedit?text=ArchViz+Consultation+with+Progressive+Technologies" style="color: #0055ff; font-weight: bold; text-decoration: underline;">Schedule via Google Calendar</a></p>
+        const rawUrl = composingLead.website ? composingLead.website.replace(/^https?:\/\//, '').replace(/\/$/, '') : 'your site';
+        
+        let subjectLine = 'Elevating your upcoming projects with photorealistic 3D rendering';
+        let htmlBody = '';
+
+        if (pitchFramework === 'direct') {
+            subjectLine = 'Elevating your upcoming projects with photorealistic 3D rendering';
+            htmlBody = `
+                <p>Hi there team at ${composingLead.company},</p>
+                <p>I was really impressed by your recent work featured on ${rawUrl}. Especially your focus on premium ${industryText}.</p>
+                <p>At Progressive Technologies, we specialize in high-end 3D architectural visualization. We help ${helpText}.</p>
+                <p>I'd love to show you how a few of our visualizations could impact your next major project. <br/><br/>
+                <b>📅 Choose a date / book a call:</b> <a href="https://calendar.google.com/calendar/r/eventedit?text=ArchViz+Consultation" style="color: #0055ff; font-weight: bold; text-decoration: underline;">Schedule via Google Calendar</a></p>
+            `;
+        } else if (pitchFramework === 'aida') {
+            subjectLine = `Question about your upcoming ${industryText} projects`;
+            htmlBody = `
+                <p>Hi ${composingLead.company} team,</p>
+                <p>Did you know that listings and concepts with high-end CGI renders sell up to 40% faster than those relying solely on 2D floor plans?</p>
+                <p>I was looking at ${rawUrl} and absolutely loved your aesthetic approach to ${industryText}. However, we noticed that incorporating photorealistic environmental lighting could drastically elevate the presentation of your upcoming portfolio.</p>
+                <p>We are Progressive Technologies, a specialized 3D visualization studio. We work with firms exactly like yours to produce immersive, investor-ready CGI that secures fast sales and unanimous approvals.</p>
+                <p>Would you be open to a brief 10-minute chat this week to see how our CGI workflows map onto your current drafting pipeline?</p>
+                <p><b>📅 Setup a quick meeting:</b> <a href="https://calendar.google.com/calendar/r/eventedit?text=ArchViz+Consultation" style="color: #0055ff; font-weight: bold; text-decoration: underline;">Schedule Here</a></p>
+            `;
+        } else if (pitchFramework === 'pas') {
+            subjectLine = 'Fixing client hesitation on off-plan sales';
+            htmlBody = `
+                <p>Hello,</p>
+                <p>One of the biggest hurdles in ${composingLead.industry || 'the industry'} right now is getting clients or investors to fully commit when they can't physically see or feel the final space.</p>
+                <p>Often, 2D elevations and sketches simply fail to trigger the emotional response needed to close a high-value contract, leaving money on the table and delaying project greenlights.</p>
+                <p>At Progressive Technologies, we solve this by creating hyper-realistic 3D visualizations that eliminate client doubts. We provide cinematic realism that makes your buyers feel like they are already standing inside the room.</p>
+                <p>Let's eliminate the guesswork from your next pitch. <br/>
+                <b>📅 Let's connect:</b> <a href="https://calendar.google.com/calendar/r/eventedit?text=ArchViz+Consultation" style="color: #0055ff; font-weight: bold; text-decoration: underline;">Schedule a 10m Intro Call</a></p>
+            `;
+        } else if (pitchFramework === 'trial') {
+            subjectLine = `VIP Trial: Free lighting pass on your next 3D model`;
+            htmlBody = `
+                <p>Hey there,</p>
+                <p>I'm reaching out from Progressive Technologies. We've been following your work at ${composingLead.company} and we're looking to expand our partner network in your specific niche.</p>
+                <p>We are so confident in our rendering quality that we want to offer you a completely risk-free trial. Send us your next SketchUp/Revit/Rhino model, and we will do a complimentary custom lighting and texturing pass on one exterior shot just to prove our absolute quality.</p>
+                <p>No commitments, no retainers—just a chance to see how your architecture looks through our lens.</p>
+                <p>If you're interested, just reply to this email with a 3D file or <a href="https://calendar.google.com/calendar/r/eventedit?text=ArchViz+Consultation" style="color: #0055ff; text-decoration: underline;">book a quick sync here</a>.</p>
+            `;
+        }
+
+        const fullHtmlBody = `
+            ${htmlBody}
             <br/>
             <p>Best regards,<br/>
             <b>Progressive ArchViz Team</b><br/>
@@ -79,8 +121,8 @@ const LeadGenerator = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     to: composingLead.email || 'contact@' + composingLead.website.replace(/^https?:\/\//, '').replace(/\/$/, ''),
-                    subject: 'Elevating your upcoming projects with photorealistic 3D rendering',
-                    body: htmlBody
+                    subject: subjectLine,
+                    body: fullHtmlBody
                 })
             });
 
@@ -606,10 +648,20 @@ const LeadGenerator = () => {
                                 ) : (
                                     <div className="space-y-6">
                                         <div className="relative group">
+                                            
+                                            {searchMode === 'organic' && (
+                                                <div className="flex gap-2 mb-4 bg-black/20 p-1.5 rounded-xl border border-white/5">
+                                                    <button onClick={() => setPitchFramework('direct')} className={`flex-1 text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-lg transition-colors ${pitchFramework === 'direct' ? 'bg-accent-blue/20 text-accent-cyan border border-accent-blue/30' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}>Direct</button>
+                                                    <button onClick={() => setPitchFramework('pas')} className={`flex-1 text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-lg transition-colors ${pitchFramework === 'pas' ? 'bg-accent-blue/20 text-accent-cyan border border-accent-blue/30' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}>Pain-Solve</button>
+                                                    <button onClick={() => setPitchFramework('aida')} className={`flex-1 text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-lg transition-colors ${pitchFramework === 'aida' ? 'bg-accent-blue/20 text-accent-cyan border border-accent-blue/30' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}>Attention</button>
+                                                    <button onClick={() => setPitchFramework('trial')} className={`flex-1 text-[10px] uppercase tracking-wider font-bold py-1.5 rounded-lg transition-colors ${pitchFramework === 'trial' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'text-[var(--text-tertiary)] hover:text-[var(--text-secondary)]'}`}>VIP Trial</button>
+                                                </div>
+                                            )}
+
                                             <div className="glass-panel p-5 pb-14 rounded-2xl text-[13px] text-[var(--text-secondary)] shadow-lg">
                                                 <div className="font-mono text-[11px] font-medium text-accent-cyan mb-4 flex items-center gap-2 tracking-wider uppercase">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-accent-cyan animate-pulse"></div>
-                                                    AI {searchMode === 'x-radar' ? 'Reply' : 'context'} generated successfully
+                                                    AI {searchMode === 'x-radar' ? 'Reply generated successfully' : `${pitchFramework.toUpperCase()} Framework Generated`}
                                                 </div>
                                                 
                                                 {searchMode === 'x-radar' ? (
@@ -620,41 +672,56 @@ const LeadGenerator = () => {
                                                     </div>
                                                 ) : (
                                                     <div className="space-y-4 leading-relaxed text-[var(--text-primary)]">
-                                                        <p><span className="text-[var(--text-secondary)]">Subject:</span> Elevating your upcoming projects with photorealistic 3D rendering</p>
-                                                        <p>Hi there team at {composingLead.company},</p>
-                                                        <p>
-                                                            I was really impressed by your recent work featured on {composingLead.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}. Especially your focus on premium {
-                                                                composingLead.industry === 'Architects' ? 'design and material selection' :
-                                                                    composingLead.industry === 'Real Estate Agencies' ? 'property listings and client presentations' :
-                                                                        composingLead.industry === 'Property Developers' ? 'developments and portfolio expansion' :
-                                                                            composingLead.industry === 'Interior Designers' ? 'interior styling and space planning' :
-                                                                                'innovative developments'
-                                                            }.
-                                                        </p>
-                                                        <p>
-                                                            At Progressive Technologies, we specialize in high-end 3D architectural visualization. We help {
-                                                                composingLead.industry === 'Architects' ? 'architects win more competitions and communicate their vision clearly' :
-                                                                    composingLead.industry === 'Real Estate Agencies' ? 'real estate agencies secure more exclusive listings with stunning visuals' :
-                                                                        composingLead.industry === 'Property Developers' ? 'property developers sell off-plan faster and attract premium investors' :
-                                                                            composingLead.industry === 'Interior Designers' ? 'interior designers showcase their concepts and secure client approvals' :
-                                                                                'firms elevate their marketing and secure more clients'
-                                                            }.
-                                                        </p>
-                                                        <p>I'd love to show you how a few of our visualizations could impact your next major project. <br /><br />
-                                                            <b>📅 Choose a date / book a call:</b> <a href="https://calendar.google.com/calendar/r/eventedit?text=ArchViz+Consultation+with+Progressive+Technologies" target="_blank" rel="noreferrer" className="text-accent-blue font-semibold hover:underline">Schedule via Google Calendar</a>
-                                                        </p>
+                                                        <p><span className="text-[var(--text-secondary)]">Subject:</span> {
+                                                            pitchFramework === 'direct' ? 'Elevating your upcoming projects with photorealistic 3D rendering' :
+                                                            pitchFramework === 'aida' ? 'Question about your upcoming projects' :
+                                                            pitchFramework === 'pas' ? 'Fixing client hesitation on off-plan sales' :
+                                                            'VIP Trial: Free lighting pass on your next 3D model'
+                                                        }</p>
+                                                        <hr className="border-[var(--glass-border)] opacity-50 my-2" />
+                                                        
+                                                        {pitchFramework === 'direct' && (
+                                                            <>
+                                                                <p>Hi there team at {composingLead.company},</p>
+                                                                <p>I was really impressed by your recent work featured on {composingLead.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}. Especially your focus on premium design.</p>
+                                                                <p>At Progressive Technologies, we specialize in high-end 3D architectural visualization. We help firms elevate their marketing and secure more clients.</p>
+                                                                <p>I'd love to show you how a few of our visualizations could impact your next major project. <br /><br />
+                                                                    <b>📅 Choose a date / book a call:</b> <a href="#" className="text-accent-blue font-semibold hover:underline">Schedule via Google Calendar</a>
+                                                                </p>
+                                                            </>
+                                                        )}
+                                                        {pitchFramework === 'aida' && (
+                                                            <>
+                                                                <p>Hi {composingLead.company} team,</p>
+                                                                <p>Did you know that listings and concepts with high-end CGI renders sell up to 40% faster than those relying solely on 2D floor plans?</p>
+                                                                <p>I was looking at {composingLead.website.replace(/^https?:\/\//, '').replace(/\/$/, '')} and loved your aesthetic approach. However, we noticed incorporating photorealistic environmental lighting could drastically elevate your upcoming portfolio.</p>
+                                                                <p>We are Progressive Technologies, a specialized 3D visualization studio crafting immersive, investor-ready CGI.</p>
+                                                                <p>Would you be open to a brief 10m chat this week?</p>
+                                                            </>
+                                                        )}
+                                                        {pitchFramework === 'pas' && (
+                                                            <>
+                                                                <p>Hello,</p>
+                                                                <p>One of the biggest hurdles right now is getting clients to explicitly commit when they can't physically see the final space.</p>
+                                                                <p>Often, 2D sketches fail to trigger the emotional response needed to close a high-value contract.</p>
+                                                                <p>We solve this by creating hyper-realistic 3D visualizations that eliminate client doubts. We provide cinematic realism that makes buyers feel like they are already standing inside the room.</p>
+                                                                <p>Let's eliminate the guesswork from your next pitch.</p>
+                                                            </>
+                                                        )}
+                                                        {pitchFramework === 'trial' && (
+                                                            <>
+                                                                <p>Hey there,</p>
+                                                                <p>We are so confident in our rendering quality that we want to offer you a completely risk-free trial.</p>
+                                                                <p>Send us your next SketchUp/Revit/Rhino model, and we will do a complimentary custom lighting and texturing pass on one exterior shot just to prove our absolute quality.</p>
+                                                                <p>If you're interested, just reply to this email with a 3D file attached.</p>
+                                                            </>
+                                                        )}
+
                                                         <br />
                                                         <p>
                                                             Best regards,<br />
                                                             <span className="font-semibold text-[var(--text-primary)]">Progressive ArchViz Team</span><br />
                                                             <span className="text-[var(--text-secondary)]">Phone: +357 25 878312</span><br />
-                                                            <span className="text-xs mt-3 flex items-center gap-2 text-[var(--text-secondary)]">
-                                                                <a href="https://progressivetechnologies.com.cy/" target="_blank" rel="noreferrer" className="hover:text-[var(--text-primary)] hover:underline">progressivetechnologies.com.cy</a>
-                                                                <span className="text-[var(--glass-border)]">|</span>
-                                                                <a href="https://www.facebook.com/ProgressiveTechnologies" target="_blank" rel="noreferrer" className="text-[#0078d4] hover:underline">Facebook</a>
-                                                                <span className="text-[var(--glass-border)]">|</span>
-                                                                <a href="https://www.instagram.com/progressive_technologies/" target="_blank" rel="noreferrer" className="text-[#e1306c] hover:underline">Instagram</a>
-                                                            </span>
                                                         </p>
                                                     </div>
                                                 )}
