@@ -288,22 +288,25 @@ const LeadGenerator = () => {
                 {/* Search Controls (Dynamic based on tab) */}
                 <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row gap-4 items-end">
                     {searchMode === 'organic' && (
-                        <>
-                            <div className="flex-1 w-full">
-                                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_industry', 'Target Industry'))}</label>
-                                <select
-                                    className="input-field w-full h-11"
-                                    value={industry}
-                                    onChange={(e) => setIndustry(e.target.value)}
-                                >
-                                    <option value="All">{t('all_real_estate', 'All Real Estate')}</option>
-                                    <option value="Architects">{t('architects', 'Architects')}</option>
-                                    <option value="Property Developers">{t('property_developers', 'Property Developers')}</option>
-                                    <option value="Architectural Jobs">{t('architectural_jobs', 'Architectural Jobs')}</option>
-                                    <option value="3D/ArchViz Jobs">{t('3d_archviz_jobs', '3D / ArchViz Jobs')}</option>
-                                    <option value="Interior Designers">{t('interior_designers', 'Interior Designers')}</option>
-                                </select>
-                            </div>
+                        <div className="flex-1 w-full">
+                            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_industry', 'Target Industry'))}</label>
+                            <select
+                                className="input-field w-full h-11"
+                                value={industry}
+                                onChange={(e) => setIndustry(e.target.value)}
+                            >
+                                <option value="All">{t('all_real_estate', 'All Real Estate')}</option>
+                                <option value="Architects">{t('architects', 'Architects')}</option>
+                                <option value="Property Developers">{t('property_developers', 'Property Developers')}</option>
+                                <option value="Architectural Jobs">{t('architectural_jobs', 'Architectural Jobs')}</option>
+                                <option value="3D/ArchViz Jobs">{t('3d_archviz_jobs', '3D / ArchViz Jobs')}</option>
+                                <option value="Interior Designers">{t('interior_designers', 'Interior Designers')}</option>
+                            </select>
+                        </div>
+                    )}
+                    
+                    <div className={searchMode === 'organic' ? "flex-1 w-full flex gap-4" : "w-full md:w-64"}>
+                        {searchMode === 'organic' && (
                             <div className="flex-1">
                                 <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_region', 'Target Region'))}</label>
                                 <div className="relative">
@@ -318,9 +321,8 @@ const LeadGenerator = () => {
                                     />
                                 </div>
                             </div>
-                        </>
-                    )}
-                    <div className={`${searchMode === 'x-radar' ? 'w-full md:w-64 mx-auto md:mx-0' : 'w-[100px] shrink-0'}`}>
+                        )}
+                        <div className={searchMode === 'organic' ? "w-[100px] shrink-0" : "w-full"}>
                             <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('limit', 'Limit'))}</label>
                             <select
                                 className="input-field w-full h-11 px-2"
@@ -332,6 +334,7 @@ const LeadGenerator = () => {
                                 <option value="50">50</option>
                             </select>
                         </div>
+                    </div>
                 </div>
                 
                 <div className="flex gap-3">
