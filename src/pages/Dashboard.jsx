@@ -759,11 +759,9 @@ const Dashboard = () => {
                     }
 
                     return (
-                        <SortableContext items={activeModules} strategy={rectSortingStrategy}>
-                            <div className="dashboard-widgets-grid w-full items-stretch">
-                                {renderListItems(false)}
-                            </div>
-                        </SortableContext>
+                        <div className="dashboard-widgets-grid w-full items-stretch">
+                            {renderListItems(false)}
+                        </div>
                     );
                 })()}
             </div>
