@@ -251,6 +251,9 @@ const LeadGenerator = () => {
                             <option value="All">{t('all_real_estate', 'All Real Estate')}</option>
                             <option value="Architects">{t('architects', 'Architects')}</option>
                             <option value="Property Developers">{t('property_developers', 'Property Developers')}</option>
+                            <option value="Architectural Jobs">{t('architectural_jobs', 'Architectural Jobs')}</option>
+                            <option value="3D/ArchViz Jobs">{t('3d_archviz_jobs', '3D / ArchViz Jobs')}</option>
+                            <option value="Interior Designers">{t('interior_designers', 'Interior Designers')}</option>
                         </select>
                     </div>
                     <div className="flex-1 w-full flex gap-4">
