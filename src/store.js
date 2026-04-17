@@ -433,7 +433,7 @@ export const useStore = create(
                     const res = await fetch(`${API_BASE}/api/v1/projects`);
                     const json = await res.json();
                     if (json.success) {
-                        let maxNum = 2389;
+                        let maxNum = 2399;
                         const mappedProjects = json.data.map(p => {
                             if (p.reference && p.reference.startsWith('PT')) {
                                 const num = parseInt(p.reference.replace('PT', ''), 10);

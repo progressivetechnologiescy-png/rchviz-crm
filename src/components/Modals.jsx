@@ -35,7 +35,7 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
 
     React.useEffect(() => {
         if (isOpen) {
-            let maxNum = 2389; // Start at 2389 so next is 2390
+            let maxNum = 2399; // Start at 2399 so next is 2400
             projects.forEach(p => {
                 if (p.reference && p.reference.startsWith('PT')) {
                     const num = parseInt(p.reference.replace('PT', ''), 10);
