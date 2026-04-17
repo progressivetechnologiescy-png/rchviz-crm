@@ -412,7 +412,9 @@ const LeadGenerator = () => {
                     <h3 className="text-lg font-medium text-accent-cyan animate-pulse">
                         {searchMode === 'organic' ? t('scanning_registries', 'Searching Google and business directories...') : 'Querying active Reddit JSON hiring feeds...'}
                     </h3>
-                    <p className="text-[var(--text-secondary)] mt-2 text-sm italic">{t('searching_for', "Searching for '{{industry}}' in '{{location}}'", { industry, location })}</p>
+                    {searchMode === 'organic' && (
+                        <p className="text-[var(--text-secondary)] mt-2 text-sm italic">{t('searching_for', "Searching for '{{industry}}' in '{{location}}'", { industry, location })}</p>
+                    )}
                 </div>
             )}
 
