@@ -516,13 +516,28 @@ const Dashboard = () => {
                                     {project.reference || 'PT----'}
                                 </div>
 
-                                <div className="h-10 w-10 shrink-0 rounded-md overflow-hidden border border-[var(--glass-border)] ml-2 mr-4 bg-[var(--bg-tertiary)]">
-                                    <img 
-                                        src={assets.find(a => a.projectId === project.id && (a.type === 'Render' || a.type === 'Image') && a.url)?.url || projectImages[parseInt(project.id.replace(/\D/g, '') || 0) % projectImages.length]} 
-                                        alt={project.name}
-                                        className="w-full h-full object-cover opacity-90 transition-opacity hover:opacity-100"
-                                    />
-                                </div>
+                                {(() => {
+                                    const thumbSrc = assets.find(a => a.projectId === project.id && (a.type === 'Render' || a.type === 'Image') && a.url)?.url || projectImages[parseInt(project.id.replace(/\D/g, '') || 0) % projectImages.length];
+                                    return (
+                                        <div className="relative group h-10 w-16 shrink-0 rounded-md overflow-hidden border border-[var(--glass-border)] ml-2 mr-4 bg-[var(--bg-tertiary)]">
+                                            <img 
+                                                src={thumbSrc} 
+                                                alt={project.name}
+                                                className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
+                                            />
+                                            {/* Hover Large Image Tooltip */}
+                                            <div className="absolute top-1/2 -translate-y-1/2 left-full ml-4 z-50 hidden group-hover:block pointer-events-none fade-in">
+                                                <div className="w-64 h-48 bg-[var(--bg-primary)] border border-[var(--glass-border)] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                                                    <img 
+                                                        src={thumbSrc} 
+                                                        alt={project.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })()}
 
                                 <div className="project-info flex-1">
                                     <span className="project-name">
