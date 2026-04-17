@@ -68,18 +68,20 @@ const ProjectFolders = ({ projectId }) => {
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (file && selectedFolder) {
-            const tempUrl = URL.createObjectURL(file);
-            addAsset({
-                projectId,
-                folderId: selectedFolder,
-                name: file.name,
-                type: 'Image',
-                size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
-                modified: 'Just now',
-                image: tempUrl,
-                comments: [],
-                annotations: []
-            });
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                addAsset({
+                    projectId,
+                    folderId: selectedFolder,
+                    name: file.name,
+                    type: 'Image',
+                    size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
+                    url: reader.result,
+                    comments: [],
+                    annotations: []
+                });
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -255,7 +257,7 @@ const ProjectFolders = ({ projectId }) => {
                                                 )}
                                             </div>
                                         )}
-                                        <img src={asset.image} alt={asset.name} className="w-full h-32 object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
+                                        <img src={asset.url} alt={asset.name} className="w-full h-32 object-cover opacity-90 group-hover:opacity-100 transition-opacity" />
                                         <div className="p-3 bg-[var(--bg-secondary)] backdrop-blur-md">
                                             <div className="font-medium text-[var(--text-primary)] text-sm truncate">{asset.name}</div>
                                             <div className="flex items-center justify-between mt-1 text-[11px] text-[var(--text-secondary)]">
