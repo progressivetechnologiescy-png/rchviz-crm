@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useStore } from '../store';
-import { Folder, Image as ImageIcon, Plus, Trash2, ArrowLeft, MessageSquare, FolderPlus, ImagePlus, CheckCircle } from 'lucide-react';
+import { Folder, Image as ImageIcon, Plus, Trash2, ArrowLeft, MessageSquare, FolderPlus, ImagePlus, CheckCircle, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ImageAnnotator from './ImageAnnotator';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,8 @@ const ProjectFolders = ({ projectId }) => {
     const [annotatorAssetId, setAnnotatorAssetId] = useState(null);
     const [folderToDelete, setFolderToDelete] = useState(null);
     const [assetToDelete, setAssetToDelete] = useState(null);
+    const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+    const [newFolderName, setNewFolderName] = useState('');
 
     const projectFolders = folders.filter(f => f.projectId === projectId);
     const projectAssets = assets.filter(a => a.projectId === projectId);
@@ -26,10 +28,16 @@ const ProjectFolders = ({ projectId }) => {
     };
 
     const handleAddFolder = () => {
-        const name = window.prompt(t('enter_new_folder_name', "Enter new folder name (e.g., Drafts 3):"));
-        if (name && name.trim()) {
-            addFolder({ projectId, name: name.trim() });
+        setIsCreateFolderModalOpen(true);
+    };
+
+    const submitAddFolder = (e) => {
+        e.preventDefault();
+        if (newFolderName && newFolderName.trim()) {
+            addFolder({ projectId, name: newFolderName.trim() });
         }
+        setIsCreateFolderModalOpen(false);
+        setNewFolderName('');
     };
 
     const handleCreateStandardFolders = () => {
@@ -252,6 +260,71 @@ const ProjectFolders = ({ projectId }) => {
                                 asset={annotatorAsset}
                                 onClose={() => setAnnotatorAssetId(null)}
                             />
+                        )}
+                    </AnimatePresence>
+
+                    {/* Create Folder Modal */}
+                    <AnimatePresence>
+                        {isCreateFolderModalOpen && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                                onClick={() => setIsCreateFolderModalOpen(false)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                                    className="bg-[var(--bg-primary)] border border-[var(--glass-border)] rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                                            <FolderPlus size={20} className="text-accent-blue" />
+                                            {t('create_custom_folder', 'Create Custom Folder')}
+                                        </h3>
+                                        <button 
+                                            className="text-[var(--text-secondary)] hover:text-white transition-colors p-1"
+                                            onClick={() => setIsCreateFolderModalOpen(false)}
+                                        >
+                                            <X size={20} />
+                                        </button>
+                                    </div>
+                                    <form onSubmit={submitAddFolder}>
+                                        <div className="mb-6">
+                                            <label className="block text-sm text-[var(--text-secondary)] mb-2 font-medium">
+                                                {t('folder_name', 'Folder Name')}
+                                            </label>
+                                            <input 
+                                                type="text" 
+                                                className="w-full bg-[var(--input-bg)] border border-[var(--glass-border)] rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue/50 transition-all placeholder-[var(--text-tertiary)]"
+                                                placeholder={t('e_g_drafts_3', 'e.g., Drafts 3')}
+                                                autoFocus
+                                                value={newFolderName}
+                                                onChange={(e) => setNewFolderName(e.target.value)}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex gap-3 justify-end items-center mt-2">
+                                            <button
+                                                type="button"
+                                                className="px-4 py-2 hover:bg-[var(--hover-bg)] text-[var(--text-secondary)] hover:text-white rounded-lg transition-colors font-medium text-sm flex-1"
+                                                onClick={() => setIsCreateFolderModalOpen(false)}
+                                            >
+                                                {t('cancel', 'Cancel')}
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors shadow-lg shadow-blue-500/20 font-medium text-sm flex-1"
+                                            >
+                                                {t('create_folder', 'Create Folder')}
+                                            </button>
+                                        </div>
+                                    </form>
+                                </motion.div>
+                            </motion.div>
                         )}
                     </AnimatePresence>
 

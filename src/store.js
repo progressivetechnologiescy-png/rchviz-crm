@@ -604,7 +604,7 @@ export const useStore = create(
                     const res = await fetch(`${API_BASE}/api/v1/folders`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ name: folder.name, parentId: folder.parentId || null })
+                        body: JSON.stringify({ name: folder.name, projectId: folder.projectId, parentId: folder.parentId || null })
                     });
                     const json = await res.json();
                     if (json.success) set(state => ({ folders: [json.data, ...state.folders] }));
@@ -634,6 +634,7 @@ export const useStore = create(
                         body: JSON.stringify({
                             name: asset.name,
                             type: asset.type,
+                            projectId: asset.projectId,
                             folderId: asset.folderId || null,
                             size: asset.size || null,
                             url: asset.url || null

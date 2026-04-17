@@ -83,6 +83,7 @@ model Task {
 model Folder {
   id        String   @id @default(uuid())
   name      String
+  projectId String?
   parentId  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -92,6 +93,7 @@ model Asset {
   id          String   @id @default(uuid())
   name        String
   type        String
+  projectId   String?
   folderId    String?
   size        String?
   url         String?
