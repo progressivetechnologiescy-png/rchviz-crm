@@ -287,14 +287,25 @@ app.post('/api/scrape-x', async (req, res) => {
     const banned = req.body.banned || [];
 
     try {
-        let searchQuery = `${industry} hiring OR "looking for"`;
+        let searchQuery = '';
+        if (industry === '3D/ArchViz Jobs') {
+            searchQuery = `(3D OR ArchViz OR "3D rendering") (hiring OR "looking for")`;
+        } else if (industry === 'Architectural Jobs') {
+            searchQuery = `(Architect OR Architecture) (hiring OR "looking for")`;
+        } else {
+            searchQuery = `"${industry}" (hiring OR "looking for")`;
+        }
+
         if (cleanLocation) {
             searchQuery += ` ${cleanLocation}`;
         }
         
         console.log(`[!] Executing Reddit JSON Query for: ${searchQuery}`);
 
-        const fetchRes = await fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(searchQuery)}&sort=new&t=month`, {
+        // Limit maximum query to 50 for Reddit JSON via `limit` param
+        const safeLimit = Math.min(targetLimit || 10, 50);
+
+        const fetchRes = await fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(searchQuery)}&sort=new&t=month&limit=${safeLimit}`, {
             headers: {
                 'User-Agent': `node:com.archvizcrm.app_${Date.now()}:v1.0.0 (by /u/archvizbot)`
             }
