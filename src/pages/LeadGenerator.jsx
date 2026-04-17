@@ -332,7 +332,6 @@ const LeadGenerator = () => {
                                 <option value="50">50</option>
                             </select>
                         </div>
-                    </div>
                 </div>
                 
                 <div className="flex gap-3">
