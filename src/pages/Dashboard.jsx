@@ -522,19 +522,21 @@ const Dashboard = () => {
                                         const thumbAsset = pAssets.find(a => a.comments?.some(c => c.type === 'cover')) || pAssets[0];
                                         const thumbSrc = thumbAsset?.url || projectImages[parseInt(project.id.replace(/\D/g, '') || 0) % projectImages.length];
                                         return (
-                                            <div className="relative group h-10 w-16 shrink-0 rounded-md overflow-hidden border border-[var(--glass-border)] mx-3 bg-[var(--bg-tertiary)]">
-                                                <img 
-                                                    src={thumbSrc} 
-                                                    alt={project.name}
-                                                    className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
-                                                />
+                                            <div className="relative group mx-3 shrink-0 cursor-pointer">
+                                                <div className="h-10 w-16 rounded-md overflow-hidden border border-[var(--glass-border)] bg-[var(--bg-tertiary)]">
+                                                    <img 
+                                                        src={thumbSrc} 
+                                                        alt={project.name}
+                                                        className="w-full h-full object-cover opacity-90 transition-opacity group-hover:opacity-100"
+                                                    />
+                                                </div>
                                                 {/* Hover Large Image Tooltip */}
-                                                <div className="absolute top-1/2 -translate-y-1/2 left-full ml-4 z-50 hidden group-hover:block pointer-events-none fade-in">
-                                                    <div className="w-64 h-48 bg-[var(--bg-primary)] border border-[var(--glass-border)] rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden">
+                                                <div className="fixed sm:absolute top-1/2 -translate-y-1/2 left-full ml-4 z-[100] hidden group-hover:block pointer-events-none fade-in">
+                                                    <div className="w-80 h-56 bg-[var(--bg-primary)] border border-[var(--glass-border)] rounded-xl shadow-[0_30px_60px_rgba(0,0,0,0.6)] overflow-hidden">
                                                         <img 
                                                             src={thumbSrc} 
                                                             alt={project.name}
-                                                            className="w-full h-full object-cover"
+                                                            className="w-full h-full object-cover shadow-inner"
                                                         />
                                                     </div>
                                                 </div>
