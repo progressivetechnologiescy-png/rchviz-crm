@@ -433,12 +433,34 @@ export const useStore = create(
                     const res = await fetch(`${API_BASE}/api/v1/projects`);
                     const json = await res.json();
                     if (json.success) {
-                        const mappedProjects = json.data.map(p => ({ 
-                            ...p, 
-                            client: p.clientName || 'Unknown',
-                            balance: (Number(p.totalAmount) || 0) - (Number(p.deposit) || 0)
-                        }));
-                        set({ projects: mappedProjects });
+                        let maxNum = 2389;
+                        const mappedProjects = json.data.map(p => {
+                            if (p.reference && p.reference.startsWith('PT')) {
+                                const num = parseInt(p.reference.replace('PT', ''), 10);
+                                if (!isNaN(num) && num > maxNum) maxNum = num;
+                            }
+                            return {
+                                ...p,
+                                client: p.clientName || 'Unknown',
+                                balance: (Number(p.totalAmount) || 0) - (Number(p.deposit) || 0)
+                            };
+                        });
+                        
+                        const backfilledProjects = mappedProjects.map(p => {
+                            if (!p.reference) {
+                                maxNum++;
+                                const newRef = `PT${maxNum}`;
+                                fetch(`${API_BASE}/api/v1/projects/${p.id}`, {
+                                    method: 'PUT',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ reference: newRef })
+                                }).catch(console.error);
+                                return { ...p, reference: newRef };
+                            }
+                            return p;
+                        });
+
+                        set({ projects: backfilledProjects });
                     }
                 } catch (e) { console.error("Failed to fetch projects frontend", e); }
             },
