@@ -317,15 +317,14 @@ app.post('/api/scrape-x', async (req, res) => {
 
     try {
         // PERMANENT RATE-LIMIT BYPASS: Because Render datacenters are instantly 429'd by Reddit's new API protections, 
-        // we bounce the true Native Reddit JSON query off an open CORS proxy to get 100% unadulterated, real-time results.
-        
-        let searchQuery = industry === '3D/ArchViz Jobs' ? '(3D OR ArchViz) (hiring OR "looking for")' : `(${industry}) (hiring OR "looking for")`;
+        // Restrict search entirely to ArchViz, 3D, and real estate developer ecosystems, enforcing hiring terminology and negating self-promotions
+        const strictQuery = `(subreddit:archviz OR subreddit:architecture OR subreddit:3dsmax OR subreddit:blender OR subreddit:RealEstateTechnology OR subreddit:InteriorDesign) (hiring OR "looking for" OR "needed") -"for hire" -"hire me" -"my portfolio"`;
         
         const safeLimit = Math.min(targetLimit || 10, 50);
-        const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(searchQuery)}&sort=new&t=month&limit=${safeLimit}`;
+        const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(strictQuery)}&sort=new&t=month&limit=100`;
         const targetUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(redditUrl)}`;
         
-        console.log(`[!] Executing Native-Reddit Bypass via Proxy for: ${searchQuery}`);
+        console.log(`[!] Executing Locked Native-Reddit Proxy bypassing for highly-relevant ArchViz Leads...`);
 
         const fetchRes = await fetch(targetUrl, {
             headers: {
@@ -338,13 +337,34 @@ app.post('/api/scrape-x', async (req, res) => {
         }
 
         const data = await fetchRes.json();
-        const posts = data?.data?.children || [];
+        let rawPosts = data?.data?.children || [];
 
+        // STRICT JS-LEVEL FILTERING to ensure 100% ArchViz Client Intent
+        let validPosts = rawPosts.filter(post => {
+            const p = post.data;
+            if (!p || p.over_18 || p.subreddit === 'u_' + p.author) return false;
+            
+            const textContent = (p.title + " " + (p.selftext || "")).toLowerCase();
+            
+            // Absolute rejection of self-promoting 3D artists
+            if (textContent.includes('[for hire]') || textContent.includes('hire me') || textContent.includes('my portfolio') || textContent.includes('i am a 3d')) {
+                return false;
+            }
+            
+            // Require strict hiring terminology
+            if (textContent.includes('hiring') || textContent.includes('looking for') || textContent.includes('needed')) {
+                return true;
+            }
+            
+            return false;
+        });
+
+        // Trim to safe target limit (usually 10-25)
+        const posts = validPosts.slice(0, safeLimit);
         const webResults = [];
+
         posts.forEach((post, index) => {
             const p = post.data;
-            if (!p || p.over_18 || p.subreddit === 'u_' + p.author) return;
-
             let handle = `@${p.author}`;
             let url = `https://www.reddit.com${p.permalink}`;
             let title = p.title.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
@@ -364,7 +384,7 @@ app.post('/api/scrape-x', async (req, res) => {
                 content: snippet, 
                 intentScore: Math.floor(Math.random() * 20) + 80, 
                 status: 'Discovered',
-                source: 'Social Radar (Reddit)',
+                source: `Reddit Radar (r/${p.subreddit})`,
                 timeAgo: timeAgo
             });
         });
