@@ -433,7 +433,11 @@ export const useStore = create(
                     const res = await fetch(`${API_BASE}/api/v1/projects`);
                     const json = await res.json();
                     if (json.success) {
-                        const mappedProjects = json.data.map(p => ({ ...p, client: p.clientName || 'Unknown' }));
+                        const mappedProjects = json.data.map(p => ({ 
+                            ...p, 
+                            client: p.clientName || 'Unknown',
+                            balance: (Number(p.totalAmount) || 0) - (Number(p.deposit) || 0)
+                        }));
                         set({ projects: mappedProjects });
                     }
                 } catch (e) { console.error("Failed to fetch projects frontend", e); }
@@ -456,7 +460,11 @@ export const useStore = create(
                     });
                     const json = await res.json();
                     if (json.success) {
-                        const savedProject = { ...json.data, client: json.data.clientName };
+                        const savedProject = { 
+                            ...json.data, 
+                            client: json.data.clientName,
+                            balance: (Number(json.data.totalAmount) || 0) - (Number(json.data.deposit) || 0)
+                        };
                         set(state => ({ projects: [savedProject, ...state.projects] }));
                     }
                 } catch (e) { console.error("Failed to add project", e); }
@@ -483,8 +491,22 @@ export const useStore = create(
             },
             updateProjectField: async (id, field, value) => {
                 set((state) => ({
-                    projects: state.projects.map(p => p.id === id ? { ...p, [field]: value } : p)
+                    projects: state.projects.map(p => {
+                        if (p.id === id) {
+                            const updated = { ...p, [field]: value };
+                            // Auto-compute virtual balance if billing changes
+                            if (field === 'totalAmount' || field === 'deposit') {
+                                updated.balance = (Number(updated.totalAmount) || 0) - (Number(updated.deposit) || 0);
+                            }
+                            return updated;
+                        }
+                        return p;
+                    })
                 }));
+                
+                // Block virtual/computed fields from being sent to Prisma
+                if (field === 'balance' || field === 'client') return;
+
                 try {
                     await fetch(`${API_BASE}/api/v1/projects/${id}`, {
                         method: 'PUT',
