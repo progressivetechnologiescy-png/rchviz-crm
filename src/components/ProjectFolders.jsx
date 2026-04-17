@@ -16,6 +16,8 @@ const ProjectFolders = ({ projectId }) => {
     const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const [selectedFoldersForAction, setSelectedFoldersForAction] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
     const STANDARD_ORDER = ['Drafts 1', 'Drafts 2', 'AI', 'Client References', 'Final'];
@@ -68,7 +70,16 @@ const ProjectFolders = ({ projectId }) => {
     const handleFileUpload = (e) => {
         const file = e.target.files[0];
         if (file && selectedFolder) {
+            setIsUploading(true);
+            setUploadProgress(10);
             const reader = new FileReader();
+            
+            reader.onprogress = (ev) => {
+                if (ev.lengthComputable) {
+                    setUploadProgress(Math.max(10, Math.round((ev.loaded / ev.total) * 100)));
+                }
+            };
+
             reader.onloadend = () => {
                 addAsset({
                     projectId,
@@ -80,6 +91,8 @@ const ProjectFolders = ({ projectId }) => {
                     comments: [],
                     annotations: []
                 });
+                setIsUploading(false);
+                setUploadProgress(0);
             };
             reader.readAsDataURL(file);
         }
@@ -278,10 +291,15 @@ const ProjectFolders = ({ projectId }) => {
                             })}
 
                             {/* Upload Area inside folder */}
-                            <label className="border border-dashed border-[var(--glass-border)] rounded-xl hover:bg-[var(--hover-bg)] transition-colors cursor-pointer flex flex-col items-center justify-center text-center opacity-70 hover:opacity-100 hover:border-[var(--glass-border-highlight)] min-h-[180px]">
-                                <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
-                                <ImagePlus size={24} className="text-[var(--text-secondary)] mb-2" />
-                                <div className="text-xs font-medium text-[var(--text-secondary)]">{t('upload_image', 'Upload Image')}</div>
+                            <label className={`relative border border-dashed border-[var(--glass-border)] rounded-xl hover:bg-[var(--hover-bg)] transition-colors flex flex-col items-center justify-center text-center overflow-hidden min-h-[180px] ${isUploading ? 'cursor-wait opacity-100 border-accent-cyan/50' : 'cursor-pointer opacity-70 hover:opacity-100 hover:border-[var(--glass-border-highlight)]'}`}>
+                                {isUploading && (
+                                    <div className="absolute top-0 left-0 h-full bg-accent-cyan/10 transition-all duration-200 ease-out" style={{ width: `${uploadProgress}%` }}></div>
+                                )}
+                                <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} disabled={isUploading} />
+                                <ImagePlus size={24} className={`mb-2 relative z-10 transition-colors ${isUploading ? 'text-accent-cyan' : 'text-[var(--text-secondary)]'}`} />
+                                <div className={`text-xs font-medium relative z-10 transition-colors ${isUploading ? 'text-accent-cyan' : 'text-[var(--text-secondary)]'}`}>
+                                    {isUploading ? t('uploading', `Uploading... ${uploadProgress}%`) : t('upload_image', 'Upload Image')}
+                                </div>
                             </label>
                         </motion.div>
                     )}
