@@ -36,6 +36,11 @@ const LeadGenerator = () => {
     const [showSentLeadsModal, setShowSentLeadsModal] = useState(false);
 
     const handleSendEmail = async () => {
+        // Per user request, Reddit Radar ignores frontend industry/location selectors.
+        // It always executes a massive, universal global query targeting all potential clients.
+        let searchQuery = `(3D OR ArchViz OR "3D rendering" OR Architect) (hiring OR "looking for")`;
+        
+        console.log(`[!] Executing Universal Reddit JSON Query for: ${searchQuery}`);
         setIsSending(true);
         setEmailSuccess(false);
 
@@ -238,39 +243,42 @@ const LeadGenerator = () => {
                     </button>
                 </div>
 
-                {/* Search Controls (Always shown now) */}
+                {/* Search Controls (Dynamic based on tab) */}
                 <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row gap-4 items-end">
-                    <div className="flex-1 w-full">
-                        <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_industry', 'Target Industry'))}</label>
-                        <select
-                            className="input-field w-full h-11"
-                            value={industry}
-                            onChange={(e) => setIndustry(e.target.value)}
-                        >
-                            <option value="All">{t('all_real_estate', 'All Real Estate')}</option>
-                            <option value="Architects">{t('architects', 'Architects')}</option>
-                            <option value="Property Developers">{t('property_developers', 'Property Developers')}</option>
-                            <option value="Architectural Jobs">{t('architectural_jobs', 'Architectural Jobs')}</option>
-                            <option value="3D/ArchViz Jobs">{t('3d_archviz_jobs', '3D / ArchViz Jobs')}</option>
-                            <option value="Interior Designers">{t('interior_designers', 'Interior Designers')}</option>
-                        </select>
-                    </div>
-                    <div className="flex-1 w-full flex gap-4">
-                        <div className="flex-1">
-                            <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_region', 'Target Region'))}</label>
-                            <div className="relative">
-                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={18} />
-                                <input
-                                    type="text"
+                    {searchMode === 'organic' && (
+                        <>
+                            <div className="flex-1 w-full">
+                                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_industry', 'Target Industry'))}</label>
+                                <select
                                     className="input-field w-full h-11"
-                                    style={{ paddingLeft: '2.5rem' }}
-                                    value={location}
-                                    onChange={(e) => setLocation(e.target.value)}
-                                    placeholder={t('target_region_placeholder', 'e.g. Limassol, Cyprus')}
-                                />
+                                    value={industry}
+                                    onChange={(e) => setIndustry(e.target.value)}
+                                >
+                                    <option value="All">{t('all_real_estate', 'All Real Estate')}</option>
+                                    <option value="Architects">{t('architects', 'Architects')}</option>
+                                    <option value="Property Developers">{t('property_developers', 'Property Developers')}</option>
+                                    <option value="Architectural Jobs">{t('architectural_jobs', 'Architectural Jobs')}</option>
+                                    <option value="3D/ArchViz Jobs">{t('3d_archviz_jobs', '3D / ArchViz Jobs')}</option>
+                                    <option value="Interior Designers">{t('interior_designers', 'Interior Designers')}</option>
+                                </select>
                             </div>
-                        </div>
-                        <div className="w-[100px]">
+                            <div className="flex-1">
+                                <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('target_region', 'Target Region'))}</label>
+                                <div className="relative">
+                                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-secondary)]" size={18} />
+                                    <input
+                                        type="text"
+                                        className="input-field w-full h-11"
+                                        style={{ paddingLeft: '2.5rem' }}
+                                        value={location}
+                                        onChange={(e) => setLocation(e.target.value)}
+                                        placeholder={t('target_region_placeholder', 'e.g. Limassol, Cyprus')}
+                                    />
+                                </div>
+                            </div>
+                        </>
+                    )}
+                    <div className={`${searchMode === 'x-radar' ? 'w-full md:w-64 mx-auto md:mx-0' : 'w-[100px] shrink-0'}`}>
                             <label className="block text-xs font-medium text-[var(--text-secondary)] mb-2 uppercase tracking-wider">{toGreekCaps(t('limit', 'Limit'))}</label>
                             <select
                                 className="input-field w-full h-11 px-2"
@@ -343,7 +351,7 @@ const LeadGenerator = () => {
                                 <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .883.175 1.191.46c1.2-.833 2.836-1.385 4.63-1.472l.836-3.882a.238.238 0 0 1 .282-.18l3.19.673zM8.706 13.918c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm6.619 0c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm-3.32 4.148c-1.378 0-2.617-.384-2.883-.509-.164-.078-.236-.27-.16-.432.078-.163.268-.235.433-.16.142.067 1.258.4 2.61.4 1.344 0 2.45-.333 2.592-.398.163-.075.355-.008.43.155.075.163.007.355-.156.43-.263.123-1.498.514-2.866.514z"></path></svg>
                             </div>
                             <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">Ready to scan Reddit for live leads?</h3>
-                            <p className="text-[var(--text-secondary)] max-w-md">Use the dropdowns above to scan Reddit's live JSON streams for your Target Industry and query limits.</p>
+                            <p className="text-[var(--text-secondary)] max-w-md">Click the scan button above to automatically query Reddit's 3D/ArchViz JSON streams and fetch {limit} live opportunities.</p>
                         </div>
                     )
                 ) : null}
