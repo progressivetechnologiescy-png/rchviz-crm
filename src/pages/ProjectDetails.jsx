@@ -140,7 +140,9 @@ const ProjectDetails = () => {
                         <div className="badge badge-warning">Revision #{project.revisionCount}</div>
                     )}
                     {userRole === 'admin' && (
-                        <div className="badge badge-success">Balance: €{project.balance}</div>
+                        <div className={`badge ${project.balance > 0 ? 'badge-danger' : 'badge-success'}`}>
+                            Balance: €{project.balance}
+                        </div>
                     )}
                 </div>
             </header>
