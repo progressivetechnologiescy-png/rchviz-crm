@@ -58,6 +58,7 @@ const ProjectManagement = () => {
     const [selectedFolder, setSelectedFolder] = useState(null);
     const [selectedImage, setSelectedImage] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [isCreatingFolder, setIsCreatingFolder] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
     const [viewMode, setViewMode] = useState('grid');
@@ -106,6 +107,7 @@ const ProjectManagement = () => {
     const handleFileUpload = (e) => {
         if (e.target.files && e.target.files.length > 0) {
             setIsUploading(true);
+            setUploadProgress(10);
             const file = e.target.files[0];
             const extension = file.name.split('.').pop().toLowerCase();
             let type = 'Other';
@@ -114,25 +116,48 @@ const ProjectManagement = () => {
             if (['dwg', 'dxf', 'cad', 'max'].includes(extension)) type = 'CAD Model';
             if (['zip', 'rar', '7z'].includes(extension)) type = 'Archive';
 
-            // Generate an instant object URL for image preview if it's an image
-            const fileUrl = type === 'Render' ? URL.createObjectURL(file) : null;
             const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
 
-            // Mock upload delay
-            setTimeout(() => {
+            const reader = new FileReader();
+            reader.onprogress = (ev) => {
+                if (ev.lengthComputable) {
+                    setUploadProgress(Math.max(10, Math.round((ev.loaded / ev.total) * 100)));
+                }
+            };
+            
+            reader.onloadend = () => {
                 const newAsset = {
                     name: file.name,
                     projectId: selectedProject.id,
                     folderId: selectedFolder ? selectedFolder.id : null,
                     type: type,
                     size: sizeInMB >= 1000 ? `${(sizeInMB / 1024).toFixed(1)} GB` : `${sizeInMB} MB`,
-                    modified: 'Just now',
-                    image: fileUrl || '',
+                    url: reader.result,
                     comments: []
                 };
                 addAsset(newAsset);
                 setIsUploading(false);
-            }, 800);
+                setUploadProgress(0);
+            };
+            
+            if (type === 'Render') {
+                reader.readAsDataURL(file);
+            } else {
+                // If not an image, simulate quick upload
+                setTimeout(() => {
+                    addAsset({
+                        name: file.name,
+                        projectId: selectedProject.id,
+                        folderId: selectedFolder ? selectedFolder.id : null,
+                        type: type,
+                        size: sizeInMB >= 1000 ? `${(sizeInMB / 1024).toFixed(1)} GB` : `${sizeInMB} MB`,
+                        url: '',
+                        comments: []
+                    });
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                }, 800);
+            }
         }
     };
 
@@ -432,7 +457,7 @@ const ProjectManagement = () => {
                                                                             <PenTool size={48} className="text-orange-400 opacity-80" />
                                                                         </div>
                                                                     ) : (
-                                                                        <img src={a.image} alt={a.name} />
+                                                                        <img src={a.url || a.image} alt={a.name} />
                                                                     )}
                                                                     <div className="asset-overlay">
                                                                         <span className="block truncate">{a.name}</span>
@@ -461,7 +486,7 @@ const ProjectManagement = () => {
                                                                             ) : a.type === 'CAD Model' ? (
                                                                                 <PenTool size={20} className="text-orange-400 opacity-80" />
                                                                             ) : (
-                                                                                <img src={a.image} alt={a.name} className="w-full h-full object-cover" />
+                                                                                <img src={a.url || a.image} alt={a.name} className="w-full h-full object-cover" />
                                                                             )}
                                                                         </div>
                                                                         <div>
@@ -486,11 +511,15 @@ const ProjectManagement = () => {
 
                                                 <div className="deliverables-system flex flex-col mt-6 pt-6 border-t border-glass">
                                                     <label
-                                                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', marginTop: '1rem', border: '1px dashed var(--glass-border-highlight)', borderRadius: '0.5rem', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: 'var(--input-bg)', color: 'var(--text-secondary)' }}
-                                                        onMouseOver={e => { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; e.currentTarget.style.color = 'var(--text-primary)' }}
-                                                        onMouseOut={e => { e.currentTarget.style.backgroundColor = 'var(--input-bg)'; e.currentTarget.style.color = 'var(--text-secondary)' }}
+                                                        style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyItems: 'center', justifyContent: 'center', gap: '0.5rem', width: '100%', padding: '0.75rem', marginTop: '1rem', border: '1px dashed var(--glass-border-highlight)', borderRadius: '0.5rem', cursor: isUploading ? 'wait' : 'pointer', transition: 'all 0.2s', backgroundColor: 'var(--input-bg)', color: 'var(--text-secondary)', overflow: 'hidden' }}
+                                                        onMouseOver={e => { if(!isUploading) { e.currentTarget.style.backgroundColor = 'var(--hover-bg)'; e.currentTarget.style.color = 'var(--text-primary)'; }}}
+                                                        onMouseOut={e => { if(!isUploading) { e.currentTarget.style.backgroundColor = 'var(--input-bg)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}}
                                                     >
-                                                        <Upload size={16} /> {isUploading ? t('uploading', 'Uploading...') : t('upload_new_assets_to', 'Upload New Assets to {{folderName}}', { folderName: selectedFolder.name })}
+                                                        {isUploading && (
+                                                            <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', width: `${uploadProgress}%`, backgroundColor: 'rgba(6, 182, 212, 0.15)', transition: 'width 0.2s ease-out' }}></div>
+                                                        )}
+                                                        <Upload size={16} style={{ position: 'relative', zIndex: 1 }} />
+                                                        <div style={{ position: 'relative', zIndex: 1 }}>{isUploading ? t('uploading', `Uploading... ${uploadProgress}%`) : t('upload_new_assets_to', 'Upload New Assets to {{folderName}}', { folderName: selectedFolder.name })}</div>
                                                     </label>
                                                 </div>
                                             </>
@@ -588,7 +617,7 @@ const ProjectManagement = () => {
                                     }}
                                 >
                                     <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', maxHeight: '100%' }}>
-                                        <img src={selectedImage.image} alt={selectedImage.name} style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', borderRadius: '0.5rem', objectFit: 'contain' }} />
+                                        <img src={selectedImage.url || selectedImage.image} alt={selectedImage.name} style={{ display: 'block', maxWidth: '100%', maxHeight: '100%', borderRadius: '0.5rem', objectFit: 'contain' }} />
 
                                         {/* Annotations overlayed on image */}
                                         {annotations.map(ann => (
