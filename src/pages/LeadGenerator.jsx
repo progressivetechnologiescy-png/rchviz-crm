@@ -227,14 +227,14 @@ const LeadGenerator = () => {
                         {searchMode === 'organic' && <motion.div layoutId="searchTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent-cyan" />}
                     </button>
                     <button
-                        className={`pb-3 px-2 text-sm font-medium transition-colors relative ${searchMode === 'x-radar' ? 'text-blue-400' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
+                        className={`pb-3 px-2 text-sm font-medium transition-colors relative ${searchMode === 'x-radar' ? 'text-orange-500' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}
                         onClick={() => { setSearchMode('x-radar'); setHasScanned(false); setLeads([]); }}
                     >
                         <div className="flex items-center gap-2">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
-                            {t('x_radar', 'X (Twitter) Radar')}
+                            <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .883.175 1.191.46c1.2-.833 2.836-1.385 4.63-1.472l.836-3.882a.238.238 0 0 1 .282-.18l3.19.673zM8.706 13.918c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm6.619 0c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm-3.32 4.148c-1.378 0-2.617-.384-2.883-.509-.164-.078-.236-.27-.16-.432.078-.163.268-.235.433-.16.142.067 1.258.4 2.61.4 1.344 0 2.45-.333 2.592-.398.163-.075.355-.008.43.155.075.163.007.355-.156.43-.263.123-1.498.514-2.866.514z"></path></svg>
+                            {t('x_radar', 'Reddit Radar')}
                         </div>
-                        {searchMode === 'x-radar' && <motion.div layoutId="searchTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-400" />}
+                        {searchMode === 'x-radar' && <motion.div layoutId="searchTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-orange-500" />}
                     </button>
                 </div>
 
@@ -319,7 +319,7 @@ const LeadGenerator = () => {
                         ) : (
                             <>
                                 <Search size={18} />
-                                <span>{searchMode === 'organic' ? t('find_leads', 'Find Leads') : 'Scan X for 6 Posts'}</span>
+                                <span>{searchMode === 'organic' ? t('find_leads', 'Find Leads') : 'Scan Reddit for 6 Posts'}</span>
                             </>
                         )}
                     </button>
@@ -338,11 +338,11 @@ const LeadGenerator = () => {
                         </div>
                     ) : (
                         <div className="h-64 flex flex-col items-center justify-center text-center px-4">
-                            <div className="w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 shadow-inner">
-                                <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                            <div className="w-16 h-16 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center mb-4 shadow-inner">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" width="28" height="28" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .883.175 1.191.46c1.2-.833 2.836-1.385 4.63-1.472l.836-3.882a.238.238 0 0 1 .282-.18l3.19.673zM8.706 13.918c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm6.619 0c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm-3.32 4.148c-1.378 0-2.617-.384-2.883-.509-.164-.078-.236-.27-.16-.432.078-.163.268-.235.433-.16.142.067 1.258.4 2.61.4 1.344 0 2.45-.333 2.592-.398.163-.075.355-.008.43.155.075.163.007.355-.156.43-.263.123-1.498.514-2.866.514z"></path></svg>
                             </div>
-                            <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">Ready to scan X for leads?</h3>
-                            <p className="text-[var(--text-secondary)] max-w-md">Click the scan button above to deploy the Proxy Scraper to find 6 recent clients looking for ArchViz studios or 3D services.</p>
+                            <h3 className="text-lg font-medium text-[var(--text-primary)] mb-2">Ready to scan Reddit for live leads?</h3>
+                            <p className="text-[var(--text-secondary)] max-w-md">Click the scan button above to tap into Reddit's JSON streams to find active users looking to hire ArchViz studios or 3D services.</p>
                         </div>
                     )
                 ) : null}
@@ -357,7 +357,7 @@ const LeadGenerator = () => {
                         </div>
                     </div>
                     <h3 className="text-lg font-medium text-accent-cyan animate-pulse">
-                        {searchMode === 'organic' ? t('scanning_registries', 'Searching Google and business directories...') : 'Proxy scanning X (Twitter) indexing servers...'}
+                        {searchMode === 'organic' ? t('scanning_registries', 'Searching Google and business directories...') : 'Querying active Reddit JSON hiring feeds...'}
                     </h3>
                     {searchMode === 'organic' && <p className="text-[var(--text-secondary)] mt-2 text-sm italic">{t('searching_for', "Searching for '{{industry}}' in '{{location}}'", { industry, location })}</p>}
                 </div>
@@ -483,20 +483,20 @@ const LeadGenerator = () => {
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
                                     transition={{ delay: idx * 0.1, type: "spring", stiffness: 200, damping: 20 }}
                                     key={lead.id}
-                                    className="glass-panel rounded-3xl p-6 flex flex-col h-full border-t border-l border-white/10 shadow-2xl relative overflow-hidden group hover:border-blue-500/30 transition-all duration-500"
+                                    className="glass-panel rounded-3xl p-6 flex flex-col h-full border-t border-l border-white/10 shadow-2xl relative overflow-hidden group hover:border-orange-500/30 transition-all duration-500"
                                 >
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/10 transition-colors"></div>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-orange-500/10 transition-colors"></div>
 
                                     {/* Header: User Handle & Link */}
                                     <div className="flex items-start justify-between mb-4 relative z-10">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 shadow-inner">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true" width="18" height="18" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                                            <div className="w-10 h-10 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-500 flex items-center justify-center shrink-0 shadow-inner">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" width="20" height="20" fill="currentColor"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .883.175 1.191.46c1.2-.833 2.836-1.385 4.63-1.472l.836-3.882a.238.238 0 0 1 .282-.18l3.19.673zM8.706 13.918c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm6.619 0c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm-3.32 4.148c-1.378 0-2.617-.384-2.883-.509-.164-.078-.236-.27-.16-.432.078-.163.268-.235.433-.16.142.067 1.258.4 2.61.4 1.344 0 2.45-.333 2.592-.398.163-.075.355-.008.43.155.075.163.007.355-.156.43-.263.123-1.498.514-2.866.514z"></path></svg>
                                             </div>
                                             <div>
                                                 <span className="text-sm font-bold text-[var(--text-primary)] block tracking-tight">{lead.handle}</span>
                                                 <span className="text-[10px] text-[var(--text-tertiary)] uppercase flex items-center gap-1 font-semibold tracking-wider">
-                                                    <span className={`w-1.5 h-1.5 rounded-full ${lead.timeAgo.includes('m') ? 'bg-emerald-400 animate-pulse' : 'bg-blue-400'}`}></span> 
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${lead.timeAgo.includes('m') ? 'bg-emerald-400 animate-pulse' : 'bg-orange-500'}`}></span> 
                                                     {lead.timeAgo}
                                                 </span>
                                             </div>
@@ -524,9 +524,9 @@ const LeadGenerator = () => {
                                                 href={lead.tweetUrl}
                                                 target="_blank"
                                                 rel="noreferrer"
-                                                className="btn flex-1 h-9 rounded-xl text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/40 transition-all flex items-center justify-center gap-1.5 shadow-sm"
+                                                className="btn flex-1 h-9 rounded-xl text-xs font-semibold bg-orange-500/10 text-orange-500 border border-orange-500/20 hover:bg-orange-500/20 hover:border-orange-500/40 transition-all flex items-center justify-center gap-1.5 shadow-sm"
                                             >
-                                                Deep Search X <Search size={14} />
+                                                Open Live Post <ArrowUpRight size={14} />
                                             </a>
                                             <button
                                                 onClick={(e) => {
@@ -605,9 +605,9 @@ const LeadGenerator = () => {
                                                 
                                                 {searchMode === 'x-radar' ? (
                                                     <div className="space-y-4 leading-relaxed text-[var(--text-primary)]">
-                                                        <p>Hey {composingLead.handle.replace('@', '')}, saw your tweet about needing 3D work.</p>
+                                                        <p>Hey {composingLead.handle.replace('@', '')}, saw your recent post looking for 3D help.</p>
                                                         <p>I run an architectural visualization studio based out of Cyprus. We specialize in exactly this kind of high-end photorealism to help secure pre-sales and investor pitches.</p>
-                                                        <p>Would love to show you a few relevant exterior concepts we just wrapped up. Mind if I DM you our portfolio?</p>
+                                                        <p>Would love to show you a few relevant exterior concepts we just wrapped up. Mind if I message you our portfolio?</p>
                                                     </div>
                                                 ) : (
                                                     <div className="space-y-4 leading-relaxed text-[var(--text-primary)]">
@@ -674,12 +674,12 @@ const LeadGenerator = () => {
                                                     )}
                                                 </button>
                                             ) : (
-                                                <button className="btn w-full justify-start py-3 shadow-none bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border-blue-500/20" onClick={() => {
-                                                    navigator.clipboard.writeText(`Hey ${composingLead.handle.replace('@', '')}, saw your tweet about needing 3D work.\n\nI run an architectural visualization studio based out of Cyprus. We specialize in exactly this kind of high-end photorealism to help secure pre-sales and investor pitches.\n\nWould love to show you a few relevant exterior concepts we just wrapped up. Mind if I DM you our portfolio?`);
+                                                <button className="btn w-full justify-start py-3 shadow-none bg-orange-500/10 text-orange-500 hover:bg-orange-500/20 border-orange-500/20" onClick={() => {
+                                                    navigator.clipboard.writeText(`Hey ${composingLead.handle.replace('@', '')}, saw your post looking for 3D work.\n\nI run an architectural visualization studio based out of Cyprus. We specialize in exactly this kind of high-end photorealism to help secure pre-sales and investor pitches.\n\nWould love to show you a few relevant exterior concepts we just wrapped up. Mind if I message you our portfolio?`);
                                                     window.open(composingLead.tweetUrl, '_blank');
                                                 }}>
-                                                    <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="currentColor" className="mr-3"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg> 
-                                                    Copy Reply & Open on X
+                                                    <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="currentColor" className="mr-3"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .883.175 1.191.46c1.2-.833 2.836-1.385 4.63-1.472l.836-3.882a.238.238 0 0 1 .282-.18l3.19.673zM8.706 13.918c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm6.619 0c-.808 0-1.464.656-1.464 1.464 0 .808.656 1.464 1.464 1.464.808 0 1.464-.656 1.464-1.464 0-.808-.656-1.464-1.464-1.464zm-3.32 4.148c-1.378 0-2.617-.384-2.883-.509-.164-.078-.236-.27-.16-.432.078-.163.268-.235.433-.16.142.067 1.258.4 2.61.4 1.344 0 2.45-.333 2.592-.398.163-.075.355-.008.43.155.075.163.007.355-.156.43-.263.123-1.498.514-2.866.514z"></path></svg> 
+                                                    Copy Reply & Open Reddit
                                                 </button>
                                             )}
 
