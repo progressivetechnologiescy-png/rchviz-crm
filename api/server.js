@@ -312,59 +312,28 @@ app.post('/api/scrape-x', async (req, res) => {
 
     try {
         // PERMANENT RATE-LIMIT BYPASS: Because Render datacenters are instantly 429'd by Reddit's new API protections, 
-        // we bounce the Reddit query off DuckDuckGo's HTML scraper and map it to the expected Reddit JSON structure.
-        const cleanQuery = 'site:reddit.com 3D ArchViz jobs hiring';
-        console.log(`[!] Executing DDG-Reddit JSON Query bypass for: ${cleanQuery}`);
-
-        let htmlData = '';
-        const targetUrl = `https://html.duckduckgo.com/html/?q=${encodeURIComponent(cleanQuery)}`;
-        const resHtml = await axios.get(targetUrl, { 
-            headers: { 'User-Agent': 'Mozilla/5.0'} ,
-            timeout: 8000 // Prevent server hanging if Render IP is packet-dropped by DuckDuckGo
-        });
-        htmlData = resHtml.data;
-
-        const cheerio = require('cheerio');
-        const $ = cheerio.load(htmlData);
+        // we bounce the true Native Reddit JSON query off an open CORS proxy to get 100% unadulterated, real-time results.
         
-        let ddgPosts = [];
-        $('.result').each((i, el) => {
-            const title = $(el).find('.result__title').text().trim();
-            const snippet = $(el).find('.result__snippet').text().trim();
-            let rawUrl = $(el).find('.result__url').attr('href');
-            
-            if (rawUrl && rawUrl.includes('uddg=')) {
-                try {
-                    const uddg = new URL('https:' + rawUrl).searchParams.get('uddg');
-                    if (uddg) rawUrl = decodeURIComponent(uddg);
-                } catch(e){}
-            }
-            
-            if (title && rawUrl && rawUrl.includes('reddit.com')) {
-                const urlParts = rawUrl.split('/');
-                const author = 'reddit_user';
-                
-                let permalink = rawUrl.replace('https://www.reddit.com', '').replace('https://reddit.com', '');
-                if (!permalink.startsWith('/')) permalink = '/' + permalink;
+        let searchQuery = industry === '3D/ArchViz Jobs' ? '(3D OR ArchViz) (hiring OR "looking for")' : `(${industry}) (hiring OR "looking for")`;
+        
+        const safeLimit = Math.min(targetLimit || 10, 50);
+        const redditUrl = `https://www.reddit.com/search.json?q=${encodeURIComponent(searchQuery)}&sort=new&t=month&limit=${safeLimit}`;
+        const targetUrl = `https://api.codetabs.com/v1/proxy/?quest=${encodeURIComponent(redditUrl)}`;
+        
+        console.log(`[!] Executing Native-Reddit Bypass via Proxy for: ${searchQuery}`);
 
-                ddgPosts.push({
-                    data: {
-                        id: `reddit_${Math.random().toString(36).substring(2, 9)}`,
-                        author: author,
-                        author_fullname: author,
-                        created_utc: Math.floor(Date.now() / 1000) - (Math.floor(Math.random() * 86400 * 3)),
-                        selftext: snippet,
-                        title: title,
-                        ups: Math.floor(Math.random() * 50) + 1,
-                        num_comments: Math.floor(Math.random() * 20),
-                        permalink: permalink
-                    }
-                });
+        const fetchRes = await fetch(targetUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (CRM-Social-Scanner)'
             }
         });
 
-        const safeLimit = Math.min(targetLimit || 10, 50);
-        const posts = ddgPosts.slice(0, safeLimit);
+        if (!fetchRes.ok) {
+            throw new Error(`Reddit API proxy returned ${fetchRes.status}`);
+        }
+
+        const data = await fetchRes.json();
+        const posts = data?.data?.children || [];
 
         const webResults = [];
         posts.forEach((post, index) => {
@@ -376,7 +345,12 @@ app.post('/api/scrape-x', async (req, res) => {
             let title = p.title.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             let snippet = p.selftext ? p.selftext.substring(0, 150) + '...' : title;
 
-            const timeAgo = `${Math.floor(Math.random() * 23) + 1}h ago`;
+            // Generate relative time ago based on Reddit's created_utc
+            const diffSeconds = Math.floor(Date.now() / 1000) - p.created_utc;
+            let timeAgo = '';
+            if (diffSeconds < 3600) timeAgo = `${Math.floor(diffSeconds / 60)}m ago`;
+            else if (diffSeconds < 86400) timeAgo = `${Math.floor(diffSeconds / 3600)}h ago`;
+            else timeAgo = `${Math.floor(diffSeconds / 86400)}d ago`;
 
             webResults.push({
                 id: `social-${Date.now()}-${p.id}-${index}`,
