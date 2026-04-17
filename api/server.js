@@ -289,7 +289,7 @@ app.post('/api/scrape-x', async (req, res) => {
     try {
         // PERMANENT RATE-LIMIT BYPASS: Because Render datacenters are instantly 429'd by Reddit's new API protections, 
         // we bounce the Reddit query off DuckDuckGo's HTML scraper and map it to the expected Reddit JSON structure.
-        const cleanQuery = 'site:reddit.com 3D ArchViz hiring OR "looking for"';
+        const cleanQuery = 'site:reddit.com 3D ArchViz jobs hiring';
         console.log(`[!] Executing DDG-Reddit JSON Query bypass for: ${cleanQuery}`);
 
         let htmlData = '';
