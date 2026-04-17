@@ -62,11 +62,16 @@ app.post('/api/scrape', async (req, res) => {
                     headers: {
                         'User-Agent': 'Mozilla/5.0'
                     },
-                    timeout: 8000
+                    timeout: 6000
                 });
                 htmlData = res.data;
             } catch (err) {
                  console.log(`[X] Fetch failed: ${err.message}`);
+                 // If DDG hangs or blocks the request (ETIMEDOUT / 403), do NOT loop 6 times! 
+                 // Break immediately to trigger the fallback engine so the Vercel frontend doesn't hang and throw 'Failed to fetch'.
+                 if (err.message.includes('timeout') || err.message.includes('403') || err.message.includes('ETIMEDOUT')) {
+                    break;
+                 }
                  currentKeywordIndex++;
                  continue;
             }
