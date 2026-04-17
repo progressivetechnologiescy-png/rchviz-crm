@@ -170,7 +170,7 @@ const ImageAnnotator = ({ asset, onClose }) => {
                     }}
                 >
                     <img
-                        src={asset.image}
+                        src={asset.url || asset.image}
                         alt={asset.name}
                         onLoad={handleImageLoad}
                         className="shadow-2xl pointer-events-none rounded-sm"

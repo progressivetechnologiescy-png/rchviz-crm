@@ -242,7 +242,7 @@ const ProjectManagement = () => {
                                             style={{ height: '140px', flexShrink: 0, width: '100%', borderRadius: '0.375rem', marginBottom: '1rem', overflow: 'hidden', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--glass-border)' }}
                                         >
                                             <img
-                                                src={projectImages[parseInt(p.id.replace(/\D/g, '') || 0) % projectImages.length]}
+                                                src={assets.find(a => a.projectId === p.id && (a.type === 'Render' || a.type === 'Image') && a.url)?.url || projectImages[parseInt(p.id.replace(/\D/g, '') || 0) % projectImages.length]}
                                                 alt="Project Thumbnail"
                                                 style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8, transition: 'opacity 0.3s' }}
                                                 onMouseOver={e => e.currentTarget.style.opacity = 1}
