@@ -18,7 +18,19 @@ const ProjectFolders = ({ projectId }) => {
     const [selectedFoldersForAction, setSelectedFoldersForAction] = useState([]);
     const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
-    const projectFolders = folders.filter(f => f.projectId === projectId);
+    const STANDARD_ORDER = ['Drafts 1', 'Drafts 2', 'AI', 'Client References', 'Final'];
+
+    const projectFolders = folders
+        .filter(f => f.projectId === projectId)
+        .sort((a, b) => {
+            const indexA = STANDARD_ORDER.indexOf(a.name);
+            const indexB = STANDARD_ORDER.indexOf(b.name);
+            
+            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+            if (indexA !== -1) return -1;
+            if (indexB !== -1) return 1;
+            return a.name.localeCompare(b.name);
+        });
     const projectAssets = assets.filter(a => a.projectId === projectId);
 
     const handleFolderClick = (folderId) => {
@@ -43,8 +55,7 @@ const ProjectFolders = ({ projectId }) => {
     };
 
     const handleCreateStandardFolders = () => {
-        const standardFolders = ['AI', 'Client References', 'Drafts 1', 'Drafts 2', 'Final'];
-        standardFolders.forEach(name => {
+        STANDARD_ORDER.forEach(name => {
             addFolder({ projectId, name });
         });
     };
