@@ -143,12 +143,16 @@ app.post('/api/scrape', async (req, res) => {
                     'gplazarou', 'contemporist.com', 'architectmagazine.com', 'limassolmarina.com',
                     'loopnet.com', 'korter.co.uk', 'toprated.london', 'boydmorison.co.uk', 'sothebysrealty.co.uk',
                     'benhams.com', 'archinect.com', 'designboom.com', 'issuu.com', 'firms.com',
-                    'cybo.com', 'cyprusarchitects.com'
+                    'cybo.com', 'cyprusarchitects.com', 'simpli.com', 'bloglines.com', 'reference.com', 'smarter.com'
                 ];
 
                 let isDirectory = excludedDomains.some(domain => url.toLowerCase().includes(domain.toLowerCase()));
 
                 if (title.toLowerCase() === 'more info' || title.toLowerCase() === 'ask.com' || title.toLowerCase().includes('search')) {
+                    isDirectory = true;
+                }
+
+                if (title.match(/\b(top |best |[0-9]+ best|[0-9]+ top|guide|how to|salary|directory|list of)\b/i)) {
                     isDirectory = true;
                 }
 
