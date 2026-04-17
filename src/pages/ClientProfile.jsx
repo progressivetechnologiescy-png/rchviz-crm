@@ -24,7 +24,17 @@ const ClientProfile = () => {
         // Find existing client data or derive from projects
         let baseClient = clients.find(c => c.name === decodedName);
 
-        const clientProjects = projects.filter(p => p.client === decodedName);
+        const clientProjects = projects.filter(p => {
+            // First try strict UUID matching
+            if (baseClient && p.clientId === baseClient.id) return true;
+            
+            // Fall back to string matching against the project's client name AND the project name itself
+            const cName = decodedName.trim().toLowerCase();
+            const pClientName = (p.client || '').trim().toLowerCase();
+            const pProjectName = (p.name || '').trim().toLowerCase();
+            
+            return cName === pClientName || cName === pProjectName;
+        });
 
         const totalValue = clientProjects.reduce((sum, p) => sum + (Number(p.totalAmount) || 0), 0);
         const totalDeposits = clientProjects.reduce((sum, p) => sum + (Number(p.deposit) || 0), 0);
