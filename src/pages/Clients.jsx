@@ -46,7 +46,7 @@ const Clients = () => {
     const [selectedClient, setSelectedClient] = useState(null);
     const [clientToDelete, setClientToDelete] = useState(null);
 
-    const [clientFilter, setClientFilter] = useState('All');
+    const [clientFilter, setClientFilter] = useState('Active');
 
     const navigate = useNavigate();
 
