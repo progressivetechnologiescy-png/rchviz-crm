@@ -144,7 +144,7 @@ const ProjectFolders = ({ projectId }) => {
                             : t('project_folders', 'Project Folders')}
                     </h2>
                 </div>
-                {!selectedFolder ? (
+                {!selectedFolder && (
                     <div className="flex items-center gap-2">
                         {selectedFoldersForAction.length > 0 && (
                             <button
@@ -161,6 +161,18 @@ const ProjectFolders = ({ projectId }) => {
                         >
                             <FolderPlus size={14} /> {t('add_standards', 'Add Standards')}
                         </button>
+                    </div>
+                )}
+                {selectedFolder && (
+                    <div className="flex items-center gap-2">
+                        {selectedAssetsForAction.length > 0 && (
+                            <button
+                                onClick={() => setAssetBulkDeleteConfirm(true)}
+                                className="text-xs font-medium bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors relative z-30"
+                            >
+                                <Trash2 size={14} /> {t('delete_selected', `Delete (${selectedAssetsForAction.length})`)}
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
@@ -186,23 +198,12 @@ const ProjectFolders = ({ projectId }) => {
                                         <button onClick={handleCreateStandardFolders} className="btn btn-primary shadow-lg shadow-cyan-500/20 px-6">
                                             {t('create_standard_folders', 'Create Standard Folders')}
                                         </button>
-                        <button onClick={handleAddFolder} className="btn btn-secondary px-6">
-                            {t('custom_folder', 'Custom Folder')}
-                        </button>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2">
-                        {selectedAssetsForAction.length > 0 && (
-                            <button
-                                onClick={() => setAssetBulkDeleteConfirm(true)}
-                                className="text-xs font-medium bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors relative z-30"
-                            >
-                                <Trash2 size={14} /> {t('delete_selected', `Delete (${selectedAssetsForAction.length})`)}
-                            </button>
-                        )}
-                    </div>
-                )}
-            </div>
+                                        <button onClick={handleAddFolder} className="btn btn-secondary px-6">
+                                            {t('custom_folder', 'Custom Folder')}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
                                 <>
                                     {projectFolders.map(folder => {
                                         const folderAssets = projectAssets.filter(a => a.folderId === folder.id);

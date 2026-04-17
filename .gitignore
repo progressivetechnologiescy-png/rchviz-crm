@@ -30,3 +30,4 @@ api/node_modules
 # Gemini tests
 browser_recordings/
 .gemini/
+api/.cache/
