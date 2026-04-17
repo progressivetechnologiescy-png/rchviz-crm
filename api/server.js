@@ -3,6 +3,7 @@ const cors = require('cors');
 const cheerio = require('cheerio');
 const path = require('path');
 const axios = require('axios');
+const nodemailer = require('nodemailer');
 
 // Removed Puppeteer imports
 
@@ -172,8 +173,15 @@ app.post('/api/scrape', async (req, res) => {
                 } catch (e) { }
 
                 if (!isDirectory && !isBanned && !isDeepLink) {
-                    const phoneMatch = snippet.match(/(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{2,4}\)?[\s.-]?)?\d{3,4}[\s.-]?\d{3,4}/);
-                    const realPhone = phoneMatch ? phoneMatch[0].trim() : 'Not provided';
+                    // Stricter phone match: Only matches lengths 8+ if they contain explicit +, or standard 2/3/4 digit groupings
+                    const phoneMatch = snippet.match(/(?:\+|Tel[ :]|Phone[ :]|Call[ :])?(\+?[0-9][0-9\s.-]{7,15}[0-9])/i);
+                    let realPhone = 'Not provided';
+                    if (phoneMatch && phoneMatch[1]) {
+                        const digits = phoneMatch[1].replace(/\D/g, '');
+                        if (digits.length >= 8 && digits.length <= 15 && !phoneMatch[0].includes('202') && !phoneMatch[0].includes('201')) {
+                            realPhone = phoneMatch[1].trim();
+                        }
+                    }
 
                     results.push({
                         id: `lead-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 5)}`,
@@ -238,12 +246,12 @@ app.post('/api/scrape', async (req, res) => {
                     lead.phone = telMatch[1].trim();
                 } else {
                     // Look for phone numbers with strict formatting boundaries to avoid IDs
-                    const strictRegexMatch = html.match(/(?:Tel|Phone|Call|Mobile)[\s:]*?(\+?\d{1,4}[\s.-]?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4})/i) ||
-                        html.match(/>[\s\n]*(\+?\d{1,3}[\s.-]?\(?\d{2,4}\)?[\s.-]?\d{3,4}[\s.-]?\d{3,4})[\s\n]*</);
+                    const strictRegexMatch = html.match(/(?:Tel|Phone|Call|Mobile)[\s:]*?(\+?[0-9][0-9\s.-]{7,15}[0-9])/i) ||
+                        html.match(/>[\s\n]*(\+?[0-9][0-9\s.-]{7,15}[0-9])[\s\n]*</);
 
                     if (strictRegexMatch && strictRegexMatch[1]) {
                         const digits = strictRegexMatch[1].replace(/\D/g, '');
-                        if (digits.length >= 8 && digits.length <= 15) {
+                        if (digits.length >= 8 && digits.length <= 15 && !strictRegexMatch[1].includes('202') && !strictRegexMatch[1].includes('201')) {
                             lead.phone = strictRegexMatch[1].trim();
                         }
                     }
