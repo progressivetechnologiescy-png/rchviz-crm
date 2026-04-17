@@ -239,15 +239,23 @@ const ProjectManagement = () => {
                                         style={{ padding: '1rem', minHeight: '260px' }}
                                     >
                                         <div
+                                            className="relative group cursor-pointer"
                                             style={{ height: '140px', flexShrink: 0, width: '100%', borderRadius: '0.375rem', marginBottom: '1rem', overflow: 'hidden', backgroundColor: 'var(--bg-tertiary)', border: '1px solid var(--glass-border)' }}
                                         >
-                                            <img
-                                                src={assets.find(a => a.projectId === p.id && (a.type === 'Render' || a.type === 'Image') && a.url)?.url || projectImages[parseInt(p.id.replace(/\D/g, '') || 0) % projectImages.length]}
-                                                alt="Project Thumbnail"
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8, transition: 'opacity 0.3s' }}
-                                                onMouseOver={e => e.currentTarget.style.opacity = 1}
-                                                onMouseOut={e => e.currentTarget.style.opacity = 0.8}
-                                            />
+                                            {(() => {
+                                                const pAssets = assets.filter(a => a.projectId === p.id && (a.type === 'Render' || a.type === 'Image') && a.url);
+                                                const thumbAsset = pAssets.find(a => a.comments?.some(c => c.type === 'cover')) || pAssets[0];
+                                                const imgSrc = thumbAsset?.url || projectImages[parseInt(p.id.replace(/\D/g, '') || 0) % projectImages.length];
+                                                return (
+                                                    <img
+                                                        src={imgSrc}
+                                                        alt="Project Thumbnail"
+                                                        style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.8, transition: 'opacity 0.3s' }}
+                                                        onMouseOver={e => e.currentTarget.style.opacity = 1}
+                                                        onMouseOut={e => e.currentTarget.style.opacity = 0.8}
+                                                    />
+                                                );
+                                            })()}
                                         </div>
                                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                                             <div>

@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 
 const ProjectFolders = ({ projectId }) => {
     const { t } = useTranslation();
-    const { folders, assets, currentUser, addFolder, addAsset, deleteFolder, deleteAsset } = useStore();
+    const { folders, assets, currentUser, addFolder, addAsset, deleteFolder, deleteAsset, setAssetAsCover } = useStore();
     const [selectedFolder, setSelectedFolder] = useState(null);
     const [annotatorAssetId, setAnnotatorAssetId] = useState(null);
     const [folderToDelete, setFolderToDelete] = useState(null);
@@ -82,19 +82,36 @@ const ProjectFolders = ({ projectId }) => {
                 }
             };
 
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+            const type = file.type.startsWith('image/') ? 'Image' : 'File';
+            
             reader.onloadend = () => {
-                addAsset({
-                    projectId,
-                    folderId: selectedFolder,
-                    name: file.name,
-                    type: 'Image',
-                    size: (file.size / (1024 * 1024)).toFixed(1) + ' MB',
-                    url: reader.result,
-                    comments: [],
-                    annotations: []
-                });
-                setIsUploading(false);
-                setUploadProgress(0);
+                const base64string = reader.result;
+                let simulatedProgress = 10;
+                
+                const interval = setInterval(() => {
+                    simulatedProgress += 15;
+                    if(simulatedProgress > 95) {
+                        clearInterval(interval);
+                        setUploadProgress(100);
+                        addAsset({
+                            projectId,
+                            folderId: selectedFolder,
+                            name: file.name,
+                            type: type,
+                            size: sizeInMB + ' MB',
+                            url: base64string,
+                            comments: [],
+                            annotations: []
+                        });
+                        setTimeout(() => {
+                            setIsUploading(false);
+                            setUploadProgress(0);
+                        }, 400);
+                    } else {
+                        setUploadProgress(simulatedProgress);
+                    }
+                }, 100);
             };
             reader.readAsDataURL(file);
         }
@@ -279,6 +296,20 @@ const ProjectFolders = ({ projectId }) => {
                                         >
                                             {selectedAssetsForAction.includes(asset.id) && <CheckCircle size={12} />}
                                         </div>
+
+                                        {/* Set Cover Button */}
+                                        {(asset.type === 'Render' || asset.type === 'Image') && (
+                                            <button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setAssetAsCover(projectId, asset.id);
+                                                }}
+                                                className={`absolute top-2 right-10 p-1.5 rounded-full shadow-md z-20 transition-opacity backdrop-blur-md ${asset.comments?.some(c=>c.type==='cover') ? 'text-yellow-400 bg-yellow-500/20 opacity-100' : 'text-white bg-black/40 hover:bg-black/60 opacity-0 group-hover:opacity-100'}`}
+                                                title={t('set_cover', 'Set as Thumbnail')}
+                                            >
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill={asset.comments?.some(c=>c.type==='cover') ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                            </button>
+                                        )}
 
                                         <button
                                             onClick={(e) => handleDeleteAsset(asset, e)}

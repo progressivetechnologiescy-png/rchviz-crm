@@ -1,0 +1,8 @@
+🚀 Automated Puppeteer Scraper running on port 3001
+[!] Search requested: Architects in Limassol (Target: 6 leads)
+[!] Searching for: "Architects" (Attempt 1, page 1)...
+[+] HTML length: 115333
+[+] Found 11 organic result elements in JSON
+[-] Found 11 new leads. Total: 11/6
+[!] Running deep scrape on 11 organic leads to find phone numbers...
+[✓] Finalized 6 high-quality organic agency leads with data enrichment.

@@ -1,15 +1,18 @@
-const puppeteer = require('puppeteer-extra');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth');
-puppeteer.use(StealthPlugin());
-
+const axios = require('axios');
+const cheerio = require('cheerio');
 (async () => {
-    const browser = await puppeteer.launch({ headless: 'new', args: ['--no-sandbox'] });
-    const page = await browser.newPage();
-    const query = encodeURIComponent(`site:twitter.com ("looking for" OR "hiring" OR "need") ("3D" OR "archviz" OR "render") -freelance`);
-    const searchUrl = `https://html.duckduckgo.com/html/?q=${query}&kl=wt-wt&df=m`;
-    console.log(searchUrl);
-    await page.goto(searchUrl, { waitUntil: 'domcontentloaded' });
-    const html = await page.content();
-    require('fs').writeFileSync('ddg_test.html', html);
-    await browser.close();
+    try {
+        const postData = 'q=' + encodeURIComponent('Architects in Limassol') + '&b=&kl=us-en';
+        const res = await axios.post('https://html.duckduckgo.com/html/', postData, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+        console.log('Status:', res.status);
+        const $ = cheerio.load(res.data);
+        console.log('Results:', $('.result').length);
+    } catch(err) {
+        console.error('Error:', err.message);
+    }
 })();

@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "22100d5c-ca70-4a22-a1d4-8506359bc685",
+      "name": "Pavlides Associates - Architects & Engineers in Cyprus",
+      "contact": "Eleni",
+      "email": "info@pavlidesarchitects.com",
+      "phone": "+357 25355227",
+      "createdAt": "2026-04-09T08:40:43.108Z",
+      "updatedAt": "2026-04-09T08:47:39.951Z"
+    },
+    {
+      "id": "83ac70ef-a814-44cc-90cc-072bb74140c1",
+      "name": "Code Architecture",
+      "contact": "Auto-Added",
+      "email": "code@yahoo.com",
+      "phone": "No Phone",
+      "createdAt": "2026-04-09T12:43:00.782Z",
+      "updatedAt": "2026-04-09T12:44:11.125Z"
+    }
+  ]
+}

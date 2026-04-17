@@ -689,6 +689,35 @@ export const useStore = create(
                     } catch(e){}
                 }
             },
+            setAssetAsCover: async (projectId, assetId) => {
+                set((state) => ({
+                    assets: state.assets.map(a => {
+                        if (a.projectId === projectId) {
+                            // Remove cover flag from all others
+                            let updatedComments = (a.comments || []).filter(c => c.type !== 'cover');
+                            if (a.id === assetId) {
+                                // Add cover flag to target
+                                updatedComments.push({ type: 'cover', id: `cover-${Date.now()}` });
+                            }
+                            return { ...a, comments: updatedComments };
+                        }
+                        return a;
+                    })
+                }));
+                // Try to persist to backend
+                const projectAssets = get().assets.filter(a => a.projectId === projectId);
+                for (const asset of projectAssets) {
+                    let newComments = (asset.comments || []).filter(c => c.type !== 'cover');
+                    if (asset.id === assetId) newComments.push({ type: 'cover', id: `cover-${Date.now()}` });
+                    try {
+                        await fetch(`${API_BASE}/api/v1/assets/${asset.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ comments: newComments })
+                        });
+                    } catch (e) { console.error('Failed to update cover', e); }
+                }
+            },
             addAnnotation: async (assetId, annotation) => {
                 const newAnn = { ...annotation, id: `ann-${Date.now()}`, timestamp: new Date().toISOString(), status: 'open' };
                 set((state) => ({

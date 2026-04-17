@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "data": [
+    {
+      "id": "22cc3527-df47-41e1-9136-282afb4525bc",
+      "name": "Code Architecture",
+      "clientId": null,
+      "clientName": "Michalis",
+      "reference": null,
+      "status": "Queue",
+      "progress": 0,
+      "assignee": "Peter",
+      "dueDate": null,
+      "totalAmount": 500,
+      "deposit": 0,
+      "revisionCount": 0,
+      "createdAt": "2026-04-09T12:43:00.770Z",
+      "updatedAt": "2026-04-15T09:19:38.980Z"
+    }
+  ]
+}
