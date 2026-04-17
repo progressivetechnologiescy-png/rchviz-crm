@@ -15,6 +15,8 @@ const ProjectFolders = ({ projectId }) => {
     const [assetToDelete, setAssetToDelete] = useState(null);
     const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
+    const [selectedFoldersForAction, setSelectedFoldersForAction] = useState([]);
+    const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
 
     const projectFolders = folders.filter(f => f.projectId === projectId);
     const projectAssets = assets.filter(a => a.projectId === projectId);
@@ -98,13 +100,23 @@ const ProjectFolders = ({ projectId }) => {
                     </h2>
                 </div>
                 {!selectedFolder && (
-                    <button
-                        onClick={handleCreateStandardFolders}
-                        className="text-xs font-medium bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors"
-                        title={t('quick_add_standard_folders', 'Quick-add standard folders')}
-                    >
-                        <FolderPlus size={14} /> {t('add_standards', 'Add Standards')}
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {selectedFoldersForAction.length > 0 && (
+                            <button
+                                onClick={() => setBulkDeleteConfirm(true)}
+                                className="text-xs font-medium bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors"
+                            >
+                                <Trash2 size={14} /> {t('delete_selected', `Delete (${selectedFoldersForAction.length})`)}
+                            </button>
+                        )}
+                        <button
+                            onClick={handleCreateStandardFolders}
+                            className="text-xs font-medium bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] border border-[var(--glass-border)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] px-3 py-1.5 rounded-full flex items-center gap-1.5 transition-colors"
+                            title={t('quick_add_standard_folders', 'Quick-add standard folders')}
+                        >
+                            <FolderPlus size={14} /> {t('add_standards', 'Add Standards')}
+                        </button>
+                    </div>
                 )}
             </div>
 
@@ -144,11 +156,24 @@ const ProjectFolders = ({ projectId }) => {
                                         return (
                                             <div
                                                 key={folder.id}
-                                                className="bg-[var(--bg-secondary)] border border-[var(--glass-border)] rounded-xl p-4 hover:bg-[var(--input-bg)] transition-colors cursor-pointer group flex flex-col items-center text-center shadow-sm hover:shadow relative"
+                                                className={`bg-[var(--bg-secondary)] border ${selectedFoldersForAction.includes(folder.id) ? 'border-accent-blue bg-blue-500/5' : 'border-[var(--glass-border)]'} rounded-xl p-4 hover:bg-[var(--input-bg)] transition-colors cursor-pointer group flex flex-col items-center text-center shadow-sm hover:shadow relative`}
                                                 onClick={() => handleFolderClick(folder.id)}
                                             >
+                                                {/* Selection Checkbox */}
+                                                <div 
+                                                    className={`absolute top-2 left-2 w-5 h-5 rounded flex items-center justify-center transition-all z-20 shadow-sm ${selectedFoldersForAction.includes(folder.id) ? 'bg-accent-blue text-white opacity-100' : 'bg-black/20 border border-white/20 text-[var(--text-tertiary)] opacity-0 group-hover:opacity-100 hover:bg-black/40'}`}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedFoldersForAction(prev => 
+                                                            prev.includes(folder.id) ? prev.filter(id => id !== folder.id) : [...prev, folder.id]
+                                                        );
+                                                    }}
+                                                >
+                                                    {selectedFoldersForAction.includes(folder.id) && <CheckCircle size={12} />}
+                                                </div>
+
                                                 {totalAnnotations > 0 && (
-                                                    <div className={`absolute top-2 left-2 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md z-10 flex items-center gap-1 backdrop-blur-md ${openAnnotations > 0 ? 'bg-accent-blue/90' : 'bg-green-500/90'}`}>
+                                                    <div className={`absolute top-2 left-9 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-md z-10 flex items-center gap-1 backdrop-blur-md ${openAnnotations > 0 ? 'bg-accent-blue/90' : 'bg-green-500/90'}`}>
                                                         {openAnnotations > 0 ? (
                                                             <><MessageSquare size={10} /> {openAnnotations}</>
                                                         ) : (
@@ -417,6 +442,55 @@ const ProjectFolders = ({ projectId }) => {
                                             onClick={() => {
                                                 deleteAsset(assetToDelete.id);
                                                 setAssetToDelete(null);
+                                            }}
+                                        >
+                                            {t('delete', 'Delete')}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Bulk Delete Modal */}
+                    <AnimatePresence>
+                        {bulkDeleteConfirm && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                                onClick={() => setBulkDeleteConfirm(false)}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.95, opacity: 0, y: 10 }}
+                                    animate={{ scale: 1, opacity: 1, y: 0 }}
+                                    exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                                    className="bg-[var(--bg-primary)] border border-[var(--glass-border)] rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+                                    onClick={e => e.stopPropagation()}
+                                >
+                                    <div className="flex items-center gap-3 text-red-500 mb-4">
+                                        <div className="p-3 bg-red-500/10 rounded-full">
+                                            <Trash2 size={24} />
+                                        </div>
+                                        <h3 className="text-lg font-semibold text-white">{t('delete_folders', 'Delete Folders')}</h3>
+                                    </div>
+                                    <p className="text-[var(--text-secondary)] mb-6 text-sm leading-relaxed">
+                                        {t('confirm_bulk_delete', 'Are you sure you want to delete ')}<span className="text-white font-medium">{selectedFoldersForAction.length}</span> {t('folders', 'folders')}? {t('cannot_be_undone_folder', 'This action cannot be undone and will remove all files inside.')}
+                                    </p>
+                                    <div className="flex gap-3 justify-end mt-2">
+                                        <button
+                                            className="px-4 py-2 hover:bg-[var(--hover-bg)] text-[var(--text-secondary)] hover:text-white rounded-lg transition-colors font-medium text-sm"
+                                            onClick={() => setBulkDeleteConfirm(false)}
+                                        >
+                                            {t('cancel', 'Cancel')}
+                                        </button>
+                                        <button
+                                            className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-lg shadow-red-500/20 font-medium text-sm"
+                                            onClick={() => {
+                                                selectedFoldersForAction.forEach(id => deleteFolder(id));
+                                                setSelectedFoldersForAction([]);
+                                                setBulkDeleteConfirm(false);
                                             }}
                                         >
                                             {t('delete', 'Delete')}
