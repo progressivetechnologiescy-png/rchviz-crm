@@ -445,6 +445,7 @@ export const useStore = create(
             addProject: async (project) => {
                 try {
                     const reqObj = {
+                        reference: project.reference || null,
                         name: project.name || 'Unnamed Project',
                         clientName: project.client || 'Unknown',
                         clientId: project.clientId || null,
