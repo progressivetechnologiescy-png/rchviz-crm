@@ -4,27 +4,6 @@
     gap: 2rem;
 }
 
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-}
-
-.page-title {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    background: linear-gradient(to right, var(--text-primary), var(--text-secondary));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.page-subtitle {
-    color: var(--text-tertiary);
-    font-size: 0.95rem;
-}
-
 /* Stats Grid */
 .stats-grid {
     display: grid;
@@ -240,6 +219,47 @@
     }
 }
 
+/* Base Responsive Grid for Draggable Widgets */
+.dashboard-widgets-grid {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .dashboard-widgets-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    .dashboard-widgets-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* Fluid Widget Spanning Classes */
+.widget-span-4 { grid-column: span 1; }
+.widget-span-3 { grid-column: span 1; }
+.widget-span-2 { grid-column: span 1; }
+.widget-span-1 { grid-column: span 1; }
+
+@media (min-width: 768px) {
+    .widget-span-4 { grid-column: span 2; }
+    .widget-span-3 { grid-column: span 2; }
+    .widget-span-2 { grid-column: span 2; }
+    .widget-span-1 { grid-column: span 1; }
+}
+
+@media (min-width: 1024px) {
+    .widget-span-4 { grid-column: span 4; }
+    .widget-span-3 { grid-column: span 3; }
+    .widget-span-2 { grid-column: span 2; }
+    .widget-span-1 { grid-column: span 1; }
+}
+
 /* Daily Tasks Widget */
 .daily-tasks-widget {
     display: flex;
@@ -432,6 +452,8 @@
     font-weight: 600;
     line-height: 1.25;
     color: var(--text-primary);
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .activity-date {
@@ -460,6 +482,8 @@
     font-size: 0.875rem;
     color: var(--text-secondary);
     line-height: 1.5;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 /* Analytics Section */

@@ -65,5 +65,7 @@
 @media (max-width: 1024px) {
     .layout-content {
         padding: 0.75rem;
+        padding-bottom: 5rem;
+        /* Mobile browser bottom safe area padding */
     }
 }

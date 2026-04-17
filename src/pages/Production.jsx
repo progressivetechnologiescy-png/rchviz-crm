@@ -51,7 +51,7 @@ const KanbanCard = ({ project, onDragStart }) => {
             <div className="flex justify-between items-end mt-auto pt-2 border-t border-[var(--glass-border)]">
                 <div className="flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors">
                     <MessageSquare size={14} />
-                    <span className="text-xs font-medium">{Math.floor(Math.random() * 5) + 1}</span>
+                    <span className="text-xs font-medium">{project.feedbackHistory?.length || 0}</span>
                 </div>
 
                 <div className="flex items-center">

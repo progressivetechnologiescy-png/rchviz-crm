@@ -715,14 +715,7 @@ const Dashboard = () => {
 
                     const renderListItems = (useReorder) => activeModules.map(moduleId => {
                         const content = renderModule(moduleId);
-
-                        // Use inline styles to bypass any potential Tailwind compiler misses
-                        let gridColumnStyle = { gridColumn: 'span 4' };
-                        if (moduleId === 'recent-projects') {
-                            gridColumnStyle = { gridColumn: 'span 3' };
-                        } else if (moduleId === 'activity-feed') {
-                            gridColumnStyle = { gridColumn: 'span 1' };
-                        }
+                        const spanClass = moduleId === 'recent-projects' ? 'widget-span-3' : moduleId === 'activity-feed' ? 'widget-span-1' : 'widget-span-4';
 
                         if (useReorder) {
                             return (
@@ -731,7 +724,6 @@ const Dashboard = () => {
                                     value={moduleId}
                                     drag="y"
                                     className="relative w-full cursor-grab"
-                                    style={isEditMode ? { width: '100%', minHeight: 'auto' } : gridColumnStyle}
                                 >
                                     <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-8 h-8 bg-[var(--glass-bg)] border border-[var(--glass-border)] rounded-full flex items-center justify-center cursor-grab text-[var(--text-primary)] z-20 shadow-lg hover:bg-[var(--hover-bg)] transition-colors" title="Drag to reorder module">
                                         <GripHorizontal size={14} />
@@ -744,14 +736,9 @@ const Dashboard = () => {
                         }
 
                         return (
-                            <motion.div
-                                key={moduleId}
-                                layout
-                                className="relative w-full h-full"
-                                style={gridColumnStyle}
-                            >
+                            <div key={moduleId} className={`relative w-full h-full ${spanClass}`}>
                                 {content}
-                            </motion.div>
+                            </div>
                         );
                     });
 
@@ -764,8 +751,7 @@ const Dashboard = () => {
                                     const hiddenModules = availableModules.filter(m => !activeModules.includes(m));
                                     updateDashboardModules([...newLayout, ...hiddenModules]);
                                 }}
-                                className="w-full gap-6 items-stretch"
-                                style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', listStyle: 'none', padding: 0, margin: 0 }}
+                                className="w-full flex flex-col gap-6 list-none p-0 m-0"
                             >
                                 {renderListItems(true)}
                             </Reorder.Group>
@@ -773,9 +759,11 @@ const Dashboard = () => {
                     }
 
                     return (
-                        <div className="w-full gap-6 items-stretch" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', gridAutoFlow: 'row dense', gap: '1.5rem' }}>
-                            {renderListItems(false)}
-                        </div>
+                        <SortableContext items={activeModules} strategy={rectSortingStrategy}>
+                            <div className="dashboard-widgets-grid w-full items-stretch">
+                                {renderListItems(false)}
+                            </div>
+                        </SortableContext>
                     );
                 })()}
             </div>

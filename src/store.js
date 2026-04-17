@@ -443,7 +443,7 @@ export const useStore = create(
                     const reqObj = {
                         name: project.name || 'Unnamed Project',
                         clientName: project.client || 'Unknown',
-                        clientId: null,
+                        clientId: project.clientId || null,
                         totalAmount: Number(project.totalAmount || 0),
                         deposit: Number(project.deposit || 0),
                         assignee: project.assignee || 'Unassigned',

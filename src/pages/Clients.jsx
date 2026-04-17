@@ -78,13 +78,24 @@ const Clients = () => {
 
         // 2. Cross-reference Projects to find matching clients
         projects.forEach(p => {
-            // Find if this project physically belongs to one of our registered clients by comparing names
             let registeredClientId = null;
-            map.forEach((clientData, clientId) => {
-                if (clientData.name.toLowerCase() === (p.client || '').toLowerCase()) {
-                    registeredClientId = clientId;
-                }
-            });
+            
+            if (p.clientId && map.has(p.clientId)) {
+                registeredClientId = p.clientId;
+            } else {
+                map.forEach((clientData, clientId) => {
+                    const cName = (clientData.name || '').trim().toLowerCase();
+                    const pClientName = (p.client || '').trim().toLowerCase();
+                    const pProjectName = (p.name || '').trim().toLowerCase();
+                    
+                    // Match if either the project's client name OR the project's actual name matches the Client's name exactly
+                    if (cName !== '') {
+                        if (cName === pClientName || cName === pProjectName) {
+                            registeredClientId = clientId;
+                        }
+                    }
+                });
+            }
 
             if (registeredClientId) {
                 const clientInfo = map.get(registeredClientId);

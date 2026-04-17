@@ -72,6 +72,7 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
             reference: formData.reference,
             name: formData.name,
             client: finalClientName,
+            clientId: formData.clientId === 'new' ? undefined : formData.clientId,
             priority: formData.priority,
             status: formData.stage,
             dueDate: formData.dueDate,
