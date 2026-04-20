@@ -283,14 +283,17 @@ const ProjectDetails = () => {
                                     <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--bg-secondary)]/50 transition-all">
                                         <div className="flex items-center justify-between">
                                             <span className={`font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'}`}>{svc.name}</span>
-                                            <label className="relative inline-flex items-center cursor-pointer">
-                                                <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
-                                                    const currentServices = project.services || {};
-                                                    const service = currentServices[svc.id] || { selected: false, notes: '' };
+                                            <div className="relative inline-flex items-center cursor-pointer" onClick={(e) => {
+                                                e.stopPropagation();
+                                                const currentServices = project.services || {};
+                                                const service = currentServices[svc.id] || { selected: false, notes: '' };
+                                                if (userRole !== 'client') {
                                                     updateProjectField(project.id, 'services', { ...currentServices, [svc.id]: { ...service, selected: !service.selected } });
-                                                }} disabled={userRole === 'client'} />
-                                                <div className="w-9 h-5 bg-[var(--glass-border-highlight)] border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
-                                            </label>
+                                                }
+                                            }}>
+                                                <input type="checkbox" className="sr-only peer" checked={current.selected} readOnly disabled={userRole === 'client'} />
+                                                <div className="w-9 h-5 bg-[var(--glass-border-highlight)] border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer pointer-events-none"></div>
+                                            </div>
                                         </div>
                                         {current.selected && (
                                             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2 flex flex-col gap-3">
