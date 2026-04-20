@@ -126,7 +126,7 @@ router.post('/invite', async (req, res) => {
             });
         } catch(e) { console.error('Failed to create mirror employee', e); }
 
-        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:5173';
         const setupLink = `${frontendUrl}/setup-password?token=${resetToken}&email=${encodeURIComponent(user.email)}`;
         
         console.log(`[!] User Invited: ${user.email} | Setup Link: ${setupLink}`);
