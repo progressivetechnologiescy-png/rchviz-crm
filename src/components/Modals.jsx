@@ -199,7 +199,8 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                                     <div key={svc.id} className="flex flex-col gap-2 p-4 rounded-lg border border-[var(--glass-border)] bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] transition-all h-max shadow-sm">
                                                         <div className="flex items-center justify-between">
                                                             <span className={`text-sm font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
-                                                            <div className="relative inline-flex items-center cursor-pointer shrink-0" onClick={(e) => {
+                                                            <div className="relative inline-flex items-center cursor-pointer shrink-0" onPointerDown={(e) => {
+                                                                e.preventDefault();
                                                                 e.stopPropagation();
                                                                 setFormData(prev => {
                                                                     const currentSvc = prev.services?.[svc.id] || { selected: false, notes: '', completed: false };
@@ -212,8 +213,8 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                                                     };
                                                                 });
                                                             }}>
-                                                                <input type="checkbox" className="sr-only peer" checked={current.selected} readOnly />
-                                                                <div className="bg-[var(--glass-border-highlight)] w-9 h-5 border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer pointer-events-none"></div>
+                                                                <input type="checkbox" className="sr-only peer pointer-events-none" checked={current.selected} readOnly tabIndex="-1" />
+                                                                <div className="bg-[var(--glass-border-highlight)] w-9 h-5 border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent pointer-events-none"></div>
                                                             </div>
                                                         </div>
                                                         {current.selected && (
