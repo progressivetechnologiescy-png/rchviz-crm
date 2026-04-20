@@ -7,6 +7,15 @@ import { ArrowLeft, Building, Upload, MessageSquare, Clock, CheckCircle, FileTex
 import ProjectFolders from '../components/ProjectFolders';
 import './ProjectDetails.css';
 
+const PREDEFINED_SERVICES = [
+    { id: 'ext_renders', name: 'Exterior Renders (Day and/or Night)' },
+    { id: 'int_renders', name: 'Interior Renders' },
+    { id: 'ext_anim', name: 'Exterior Animation' },
+    { id: 'int_anim', name: 'Interior Animation' },
+    { id: 'floor_3d', name: '3D Floorplans' },
+    { id: 'floor_2d', name: '2D Floorplans' }
+];
+
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -257,6 +266,49 @@ const ProjectDetails = () => {
                                     </div>
                                 </>
                             )}
+                        </div>
+                    </div>
+
+                    {/* Services & Deliverables */}
+                    <div className="dashboard-module glass-panel text-sm w-full mt-6">
+                        <div className="section-header">
+                            <h2 className="section-title">{t('services_deliverables', 'Services & Deliverables')}</h2>
+                        </div>
+                        <div className="space-y-4" style={{ padding: '1.5rem' }}>
+                            {PREDEFINED_SERVICES.map(svc => {
+                                const current = (project.services || {})[svc.id] || { selected: false, notes: '' };
+                                return (
+                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--bg-secondary)]/50 transition-all">
+                                        <div className="flex items-center justify-between">
+                                            <span className={`font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'}`}>{svc.name}</span>
+                                            <label className="relative inline-flex items-center cursor-pointer">
+                                                <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
+                                                    const currentServices = project.services || {};
+                                                    const service = currentServices[svc.id] || { selected: false, notes: '' };
+                                                    updateProjectField(project.id, 'services', { ...currentServices, [svc.id]: { ...service, selected: !service.selected } });
+                                                }} disabled={userRole === 'client'} />
+                                                <div className="w-9 h-5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
+                                            </label>
+                                        </div>
+                                        {current.selected && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2">
+                                                <textarea 
+                                                    className="w-full text-xs p-2 rounded bg-[var(--bg-primary)] border border-white/5 focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
+                                                    placeholder={t('add_notes_optional', 'Add notes for this service (optional)...')}
+                                                    rows="2"
+                                                    value={current.notes}
+                                                    onChange={e => {
+                                                        const currentServices = project.services || {};
+                                                        const service = currentServices[svc.id] || { selected: false, notes: '' };
+                                                        updateProjectField(project.id, 'services', { ...currentServices, [svc.id]: { ...service, notes: e.target.value } });
+                                                    }}
+                                                    disabled={userRole === 'client'}
+                                                />
+                                            </motion.div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

@@ -51,6 +51,7 @@ model Project {
   totalAmount     Float    @default(0)
   deposit         Float    @default(0)
   revisionCount   Int      @default(0)
+  services        Json     @default("[]")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
