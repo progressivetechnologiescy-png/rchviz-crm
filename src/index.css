@@ -70,6 +70,12 @@ body.light-theme {
   --text-secondary: #334155;
   --text-tertiary: #64748b;
 
+  /* Accents - Light Mode (High Contrast variants of Neon) */
+  --accent-cyan: #0284c7;
+  --accent-blue: #1d4ed8;
+  --accent-purple: #6d28d9;
+  --accent-glow: rgba(2, 132, 199, 0.15);
+
   /* Status Colors */
   --status-success: #059669;
   --status-warning: #d97706;
