@@ -110,27 +110,52 @@ export const useStore = create(
                     });
                 } catch(e) { console.error("API Error addMessage", e) }
             },
-            markMessagesAsRead: (channelId) => set(state => {
-                const hasUnread = state.messages.some(m =>
-                    m.channelId === channelId && m.sender !== state.currentUser?.name && !m.read
-                );
-                if (!hasUnread) return state; 
-                // Note: For a live environment, a batch PUT request should be emitted to `/api/v1/messages` but optimistic state is fine for now
-                return {
+            markMessagesAsRead: async (channelId) => {
+                const state = get();
+                const unreadMessages = state.messages.filter(m => m.channelId === channelId && m.sender !== state.currentUser?.name && !m.read);
+                if (unreadMessages.length === 0) return; 
+
+                set({
                     messages: state.messages.map(m =>
                         m.channelId === channelId && m.sender !== state.currentUser?.name && !m.read ? { ...m, read: true } : m
                     )
-                };
-            }),
-            markAllMessagesAsRead: () => set(state => {
-                const hasUnread = state.messages.some(m => m.sender !== state.currentUser?.name && !m.read);
-                if (!hasUnread) return state;
-                return {
+                });
+
+                try {
+                    await Promise.all(unreadMessages.map(m => 
+                        fetch(`${API_BASE}/api/v1/messages/${m.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ read: true })
+                        })
+                    ));
+                } catch(e) {
+                    console.error("Error marking messages as read:", e);
+                }
+            },
+            markAllMessagesAsRead: async () => {
+                const state = get();
+                const unreadMessages = state.messages.filter(m => m.sender !== state.currentUser?.name && !m.read);
+                if (unreadMessages.length === 0) return;
+
+                set({
                     messages: state.messages.map(m =>
                         m.sender !== state.currentUser?.name ? { ...m, read: true } : m
                     )
-                };
-            }),
+                });
+
+                try {
+                    await Promise.all(unreadMessages.map(m => 
+                        fetch(`${API_BASE}/api/v1/messages/${m.id}`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ read: true })
+                        })
+                    ));
+                } catch(e) {
+                    console.error("Error marking all messages as read:", e);
+                }
+            },
             addReaction: (messageId, emoji) => set(state => ({
                 messages: state.messages.map(m => {
                     if (m.id === messageId) {
