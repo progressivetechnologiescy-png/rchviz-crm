@@ -62,8 +62,8 @@ body.light-theme {
   --glow-opacity: 0.04;
 
   /* Solid base */
-  --bg-secondary: rgba(255, 255, 255, 0.6);
-  --bg-tertiary: rgba(241, 245, 249, 0.6);
+  --bg-secondary: rgba(255, 255, 255, 0.8);
+  --bg-tertiary: #ffffff;
 
   /* Text - Light Mode */
   --text-primary: #000000;
@@ -84,10 +84,10 @@ body.light-theme {
 
   /* Glassmorphism - Light Mode */
   --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(0, 0, 0, 0.08);
-  --glass-border-highlight: rgba(0, 0, 0, 0.15);
-  --input-bg: rgba(0, 0, 0, 0.03);
-  --input-bg-focus: rgba(0, 0, 0, 0.05);
+  --glass-border: rgba(0, 0, 0, 0.15);
+  --glass-border-highlight: rgba(0, 0, 0, 0.25);
+  --input-bg: #ffffff;
+  --input-bg-focus: rgba(255, 255, 255, 0.9);
   --hover-bg: rgba(0, 0, 0, 0.05);
 
   /* Shadows - Light Mode */
