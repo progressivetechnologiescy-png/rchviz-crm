@@ -106,11 +106,13 @@ function App() {
     }
   }, [currentUser, fetchProjects, fetchLeads, fetchClients, fetchTasks, fetchFolders, fetchAssets, fetchChannels, fetchMessages, fetchEmployees]);
 
+  // Render SetupPassword forcefully regardless of login state so admins can easily test invite links
+  if (window.location.pathname === '/setup-password') {
+    return <SetupPassword />;
+  }
+
   // Render auth outside of the layout and router when not logged in
   if (!currentUser) {
-    if (window.location.pathname === '/setup-password') {
-      return <SetupPassword />;
-    }
     return <Auth onLogin={() => { window.location.href = '/dashboard' }} />;
   }
 
