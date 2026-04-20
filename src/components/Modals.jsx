@@ -129,7 +129,7 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                         </select>
                                     </div>
                                     {formData.clientId === 'new' && (
-                                        <div className="flex flex-col gap-4" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px' }}>
+                                        <div className="flex flex-col gap-4 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--bg-tertiary)] opacity-90">
                                             <div className="form-group">
                                                 <label>{t('new_client_name', 'New Client Name')}</label>
                                                 <input type="text" className="modal-input" required={formData.clientId === 'new'}
@@ -191,24 +191,24 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                         <label className="flex items-center gap-2 mb-3">
                                             {t('services_deliverables', 'Services & Deliverables')}
                                         </label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl border border-[var(--glass-border)] bg-[#030a10]/40 flex-1">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl border border-[var(--glass-border)] bg-[var(--bg-tertiary)] flex-1">
                                             {PREDEFINED_SERVICES.map(svc => {
                                                 const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
                                                 return (
-                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-white/5 bg-[var(--bg-secondary)]/50 transition-all h-max">
+                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--bg-primary)] transition-all h-max shadow-sm">
                                                         <div className="flex items-center justify-between">
                                                             <span className={`text-[11px] leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
                                                             <label className="relative inline-flex items-center cursor-pointer shrink-0">
                                                                 <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
                                                                     setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
                                                                 }} />
-                                                                <div className="w-9 h-5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
+                                                                <div className="w-9 h-5 bg-[var(--bg-tertiary)] border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
                                                             </label>
                                                         </div>
                                                         {current.selected && (
                                                             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-1">
                                                                 <textarea 
-                                                                    className="w-full text-[11px] p-2 rounded bg-[var(--bg-primary)] border border-white/5 focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
+                                                                    className="w-full text-[11px] p-2 rounded bg-[var(--bg-tertiary)] border border-[var(--glass-border)] focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
                                                                     placeholder={t('add_notes_optional', 'Deliverable notes...')}
                                                                     rows="1"
                                                                     value={current.notes}
