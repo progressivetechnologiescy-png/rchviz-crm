@@ -73,6 +73,7 @@ const Sidebar = () => {
     const logout = useStore(state => state.logout);
     const messages = useStore(state => state.messages);
     const currentUser = useStore(state => state.currentUser);
+    const theme = useStore(state => state.theme);
     const mobileMenuOpen = useStore(state => state.mobileMenuOpen);
     const setMobileMenuOpen = useStore(state => state.setMobileMenuOpen);
 
