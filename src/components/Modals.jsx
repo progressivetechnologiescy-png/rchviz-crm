@@ -203,7 +203,7 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                                                 <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
                                                                     setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
                                                                 }} />
-                                                                <div className="toggle-track w-9 h-5 border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
+                                                                <div className="bg-[var(--glass-border-highlight)] w-9 h-5 border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
                                                             </label>
                                                         </div>
                                                         {current.selected && (
