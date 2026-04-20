@@ -110,7 +110,7 @@ const ProjectDetails = () => {
             <header className="project-header-container">
                 <div className="project-header-left">
                     <button
-                        className="back-btn"
+                        className="flex items-center gap-2 text-sm text-white bg-slate-800 border border-white/10 rounded-lg cursor-pointer px-4 py-2 hover:bg-slate-700 hover:border-white/20 transition-all self-start"
                         onClick={() => navigate('/assets')}
                     >
                         <ArrowLeft size={16} /> Back to Hub
