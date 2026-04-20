@@ -191,24 +191,24 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                         <label className="flex items-center gap-2 mb-3">
                                             {t('services_deliverables', 'Services & Deliverables')}
                                         </label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl border border-[var(--glass-border)] bg-[var(--bg-tertiary)] flex-1">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 content-start">
                                             {PREDEFINED_SERVICES.map(svc => {
                                                 const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
                                                 return (
-                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--bg-primary)] transition-all h-max shadow-sm">
+                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] transition-all h-max">
                                                         <div className="flex items-center justify-between">
                                                             <span className={`text-[11px] leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
                                                             <label className="relative inline-flex items-center cursor-pointer shrink-0">
                                                                 <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
                                                                     setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
                                                                 }} />
-                                                                <div className="w-9 h-5 bg-[var(--bg-tertiary)] border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
+                                                                <div className="w-9 h-5 bg-[var(--glass-border)] border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.2)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
                                                             </label>
                                                         </div>
                                                         {current.selected && (
                                                             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-1">
                                                                 <textarea 
-                                                                    className="w-full text-[11px] p-2 rounded bg-[var(--bg-tertiary)] border border-[var(--glass-border)] focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
+                                                                    className="w-full text-[11px] p-2 rounded-lg bg-[var(--input-bg)] border border-[var(--glass-border)] focus:border-[var(--accent-cyan)]/50 focus:bg-[var(--input-bg-focus)] text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all shadow-inner"
                                                                     placeholder={t('add_notes_optional', 'Deliverable notes...')}
                                                                     rows="1"
                                                                     value={current.notes}
