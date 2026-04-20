@@ -198,12 +198,12 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                         return (
                                             <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-white/5 bg-[var(--bg-secondary)]/50 transition-all">
                                                 <div className="flex items-center justify-between">
-                                                    <span className={`text-xs font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'}`}>{svc.name}</span>
-                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                    <span className={`text-[11px] leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
+                                                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
                                                         <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
                                                             setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
                                                         }} />
-                                                        <div className="w-8 h-4.5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-[14px] after:w-[14px] after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent"></div>
+                                                        <div className="w-9 h-5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
                                                     </label>
                                                 </div>
                                                 {current.selected && (
