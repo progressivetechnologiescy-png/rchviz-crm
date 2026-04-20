@@ -117,12 +117,14 @@ const ProjectDetails = () => {
                     </button>
                     <div>
                         <div className="project-title-row">
-                            {project.reference && (
-                                <span className="text-sm font-mono bg-[var(--accent-cyan)]/10 text-[var(--accent-cyan)] font-bold px-3 py-1 rounded-md border border-[var(--accent-cyan)]/20 flex items-center justify-center -ml-1 h-fit leading-none mt-1 box-border">
-                                    {project.reference}
-                                </span>
-                            )}
-                            <h1 className="project-title">{project.name}</h1>
+                            <h1 className="project-title flex items-baseline gap-3">
+                                {project.reference && (
+                                    <span className="text-[var(--accent-cyan)] font-bold">
+                                        {project.reference}
+                                    </span>
+                                )}
+                                <span>{project.name}</span>
+                            </h1>
                         </div>
                         <p className="project-subtitle flex items-center">
                             <Building size={14} />
