@@ -226,6 +226,7 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                     </div>
                                 </div>
                             </div>
+                            </div>
                             
                             <div className="modal-footer shrink-0 relative z-10 border-t border-[var(--glass-border)] mt-auto pt-4 pb-4">
                                 <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
