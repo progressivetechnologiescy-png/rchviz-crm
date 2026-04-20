@@ -225,10 +225,6 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
 
-                            <p className="text-secondary text-sm mt-2" style={{ fontStyle: 'italic' }}>
-                                {t('first_drafts_note', 'Note: First drafts typically require 7-10 days. The client will be notified.')}
-                            </p>
-
                             <div className="modal-footer mt-4">
                                 <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
                                 <button type="submit" className="btn btn-primary">{t('create_project', 'Create Project')}</button>
