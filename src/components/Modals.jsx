@@ -192,13 +192,13 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                         <label className="flex items-center gap-2 mb-3">
                                             {t('services_deliverables', 'Services & Deliverables')}
                                         </label>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 flex-1 content-start">
+                                        <div className="grid grid-cols-1 gap-3 flex-1 content-start">
                                             {PREDEFINED_SERVICES.map(svc => {
                                                 const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
                                                 return (
-                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] transition-all h-max shadow-sm">
+                                                    <div key={svc.id} className="flex flex-col gap-2 p-4 rounded-lg border border-[var(--glass-border)] bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] transition-all h-max shadow-sm">
                                                         <div className="flex items-center justify-between">
-                                                            <span className={`text-xs leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
+                                                            <span className={`text-sm font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
                                                             <label className="relative inline-flex items-center cursor-pointer shrink-0">
                                                                 <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
                                                                     setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
