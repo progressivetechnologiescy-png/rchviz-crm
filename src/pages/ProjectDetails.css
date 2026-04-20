@@ -58,9 +58,9 @@
     align-items: center;
     gap: 0.5rem;
     font-size: 0.875rem;
-    color: var(--text-primary);
-    background: var(--input-bg);
-    border: 1px solid var(--glass-border);
+    color: #ffffff;
+    background: #1e293b;
+    border: 1px solid rgba(255,255,255,0.1);
     border-radius: 8px;
     cursor: pointer;
     padding: 0.5rem 1rem;
@@ -69,8 +69,8 @@
 }
 
 .back-btn:hover {
-    background: var(--hover-bg);
-    border-color: var(--glass-border-highlight);
+    background: #334155;
+    border-color: rgba(255,255,255,0.2);
 }
 
 .content-grid {
