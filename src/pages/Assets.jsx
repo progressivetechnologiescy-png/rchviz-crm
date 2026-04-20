@@ -342,12 +342,14 @@ const ProjectManagement = () => {
                                 </button>
                                 <div>
                                     <div className="project-title-row">
-                                        {selectedProject.reference && (
-                                            <span className="text-[11px] font-mono bg-[#2A2D35] text-[var(--accent-cyan)] font-medium px-2 py-0.5 rounded border border-[#3A3D45] flex items-center justify-center -ml-1 h-fit leading-none mt-1 box-border">
-                                                {selectedProject.reference}
-                                            </span>
-                                        )}
-                                        <h1 className="project-title">{selectedProject.name} {selectedFolder && <span className="text-secondary font-normal mx-2">/ {selectedFolder.name}</span>}</h1>
+                                        <h1 className="project-title flex items-baseline gap-3">
+                                            {selectedProject.reference && (
+                                                <span className="text-[var(--accent-cyan)] font-bold">
+                                                    {selectedProject.reference}
+                                                </span>
+                                            )}
+                                            <span>{selectedProject.name} {selectedFolder && <span className="text-secondary font-normal mx-2">/ {selectedFolder.name}</span>}</span>
+                                        </h1>
                                     </div>
                                     <p className="project-subtitle">
                                         {selectedProject.client} • {t(`stage_${selectedProject.status.toLowerCase().replace(' ', '_')}`, selectedProject.status)}
