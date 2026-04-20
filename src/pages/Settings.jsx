@@ -15,7 +15,7 @@ const pageVariants = {
 
 const Settings = () => {
     const { t } = useTranslation();
-    const { userRole, currentUser, updateProfile, employees } = useStore();
+    const { userRole, currentUser, updateProfile, employees, updateEmployee, deleteEmployee } = useStore();
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [profileName, setProfileName] = useState(currentUser?.name || '');
@@ -200,19 +200,48 @@ const Settings = () => {
 
                         <div className="users-list space-y-4">
                             {employees.map(emp => (
-                                <div key={emp.id} className="user-row flex items-center justify-between p-4 rounded-lg border border-[var(--glass-border)] bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg)] transition-colors">
+                                <div key={emp.id} className={`user-row flex items-center justify-between p-4 rounded-lg border border-[var(--glass-border)] transition-colors ${emp.status === 'suspended' ? 'bg-red-500/5 opacity-75' : 'bg-[var(--bg-secondary)] hover:bg-[var(--hover-bg)]'}`}>
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 shrink-0 rounded-full bg-[var(--bg-tertiary)] border border-[var(--glass-border)] flex items-center justify-center text-secondary font-bold text-sm">
                                             {emp.initials}
                                         </div>
                                         <div>
-                                            <p className="font-semibold text-[var(--text-primary)]">{emp.name}</p>
+                                            <p className={`font-semibold ${emp.status === 'suspended' ? 'text-[var(--text-secondary)] line-through' : 'text-[var(--text-primary)]'}`}>{emp.name}</p>
                                             <p className="text-sm text-secondary mt-0.5 capitalize">{emp.role}</p>
                                         </div>
                                     </div>
-                                    {emp.role !== 'admin' && (
-                                        <div className="px-3 py-1 rounded-full bg-[var(--input-bg)] border border-[var(--glass-border)] text-xs font-medium text-secondary">
-                                            {t('active', 'Active')}
+                                    {emp.role !== 'admin' && emp.email !== currentUser?.email && (
+                                        <div className="flex items-center gap-2">
+                                            {emp.status === 'suspended' ? (
+                                                <button 
+                                                    className="px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-500 text-xs font-medium hover:bg-emerald-500/20 transition-colors"
+                                                    onClick={() => updateEmployee(emp.id, { status: 'active' })}
+                                                >
+                                                    {t('activate', 'Activate')}
+                                                </button>
+                                            ) : (
+                                                <button 
+                                                    className="px-3 py-1.5 rounded-lg bg-amber-500/10 text-amber-500 text-xs font-medium hover:bg-amber-500/20 transition-colors"
+                                                    onClick={() => {
+                                                        if(window.confirm(`Are you sure you want to suspend ${emp.name}? They will be immediately logged out.`)) {
+                                                            updateEmployee(emp.id, { status: 'suspended' });
+                                                        }
+                                                    }}
+                                                >
+                                                    {t('suspend', 'Suspend')}
+                                                </button>
+                                            )}
+                                            
+                                            <button 
+                                                className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 text-xs font-medium hover:bg-red-500/20 transition-colors"
+                                                onClick={() => {
+                                                    if(window.confirm(`Are you sure you want to completely delete ${emp.name}?`)) {
+                                                        deleteEmployee(emp.id);
+                                                    }
+                                                }}
+                                            >
+                                                {t('delete', 'Delete')}
+                                            </button>
                                         </div>
                                     )}
                                 </div>

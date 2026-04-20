@@ -64,8 +64,37 @@ router.delete('/messages/:id', (req, res) => sendResp(res, prisma.message.delete
 // --- EMPLOYEES ---
 router.get('/employees', (req, res) => sendResp(res, prisma.employee.findMany()));
 router.post('/employees', (req, res) => sendResp(res, prisma.employee.create({ data: req.body })));
-router.put('/employees/:id', (req, res) => sendResp(res, prisma.employee.update({ where: { id: req.params.id }, data: req.body })));
-router.delete('/employees/:id', (req, res) => sendResp(res, prisma.employee.delete({ where: { id: req.params.id } })));
+
+router.put('/employees/:id', async (req, res) => {
+    try {
+        const emp = await prisma.employee.update({ where: { id: req.params.id }, data: req.body });
+        // Cascade status to the User model if status was updated
+        if (req.body.status) {
+            await prisma.user.update({
+                where: { email: emp.email },
+                data: { status: req.body.status }
+            }).catch(e => console.log('Notice: No corresponding User account yet for this employee email.'));
+        }
+        res.json({ success: true, data: emp });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.delete('/employees/:id', async (req, res) => {
+    try {
+        const emp = await prisma.employee.delete({ where: { id: req.params.id } });
+        // Cascade deletion to the User model via email match
+        await prisma.user.delete({
+            where: { email: emp.email }
+        }).catch(e => console.log('Notice: No corresponding User account deleted.'));
+        res.json({ success: true, data: emp });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
 
 // --- USERS (PROFILE SYNC) ---
 router.get('/users/profile', async (req, res) => {

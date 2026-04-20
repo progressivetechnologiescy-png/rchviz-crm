@@ -283,26 +283,173 @@ app.post('/api/scrape', async (req, res) => {
     } catch (error) {
         console.error('[X] Scrape Cloud Firewall Error:', error.message);
         
-        const fallbackLeads = [];
-        const safeLimit = targetLimit ? Math.min(targetLimit, 50) : 10;
-        
-        const genericNames = ['Studio', 'Architects', 'Design', 'Group', 'Associates', 'Partners'];
-        const prefixes = ['Modern', 'Visionary', 'Apex', 'Core', 'Lumina', 'Urban'];
-        
-        for (let i = 0; i < safeLimit; i++) {
-            const companyName = `${prefixes[i % prefixes.length]} ${genericNames[i % genericNames.length]} Ltd`;
-            fallbackLeads.push({
-                id: `organic-fallback-${Date.now()}-${i}`,
-                name: companyName,
-                website: `https://www.${companyName.toLowerCase().replace(/[^a-z]/g, '')}.com`,
-                description: `Leading architectural and development firm specializing in luxury residential and commercial spaces.`,
-                intentScore: Math.floor(Math.random() * 20) + 75,
-                status: 'Discovered',
-                contactEmail: `hello@${companyName.toLowerCase().replace(/[^a-z]/g, '')}.com`,
-                source: 'Business Directory'
+        console.log(`[!] Initializing Ask.com Fallback Engine...`);
+        try {
+            const fallbackUrl = `https://www.ask.com/web?q=${encodeURIComponent(`${industry} in ${location}`)}`;
+            const askRes = await axios.get(fallbackUrl, {
+                headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' },
+                timeout: 8000
             });
+            
+            const match = askRes.data.match(/window\.MESON\.initialState\s*=\s*(\{.*?\});/);
+            if (!match) throw new Error("Ask.com JSON payload not found");
+            
+            const data = JSON.parse(match[1]);
+            const organicResults = data.search?.webResults?.results || [];
+            
+            const results = [];
+            organicResults.forEach((el, index) => {
+                let title = el.title ? el.title.trim() : '';
+                let url = el.url ? el.url.trim() : '';
+                const snippet = el.abstract ? el.abstract.trim() : '';
+
+                if (!title || !url) return;
+                if (url && !url.startsWith('http')) url = 'https://' + url;
+
+                if (url.includes('ask.com') || url.includes('.edu/') || url.endsWith('.edu') || url.includes('university') || url.includes('college')) {
+                    return;
+                }
+
+                const isBanned = banned.some(bannedUrl => {
+                    if (!bannedUrl || typeof bannedUrl !== 'string' || bannedUrl.trim() === '') return false;
+                    try {
+                        const currentHost = new URL(url).hostname.replace('www.', '').toLowerCase();
+                        const bannedHost = new URL(bannedUrl.startsWith('http') ? bannedUrl : `https://${bannedUrl}`).hostname.replace('www.', '').toLowerCase();
+                        if (currentHost === bannedHost || currentHost.includes(bannedHost) || bannedHost.includes(currentHost)) return true;
+                    } catch (e) { }
+                    return url.includes(bannedUrl) || bannedUrl.includes(url);
+                });
+
+                const excludedDomains = [
+                    'yelp.com', 'linkedin.com', 'facebook.com', 'yellowpages',
+                    'instagram.com', 'twitter.com', 'x.com', 'youtube.com', 'tiktok.com',
+                    'pinterest.com', 'houzz.com', 'archello.com', 'archdaily.com',
+                    'glassdoor.com', 'indeed.com', 'apollo.io', 'dnb.com', 'crunchbase.com',
+                    'zoominfo.com', 'cylex', 'cyprus.com', 'cyprusprofile', 'realtor.com',
+                    'zillow.com', 'rightmove', 'zoopla', 'realesigntrust', 'cyprusresaleproperties',
+                    'realting.com', 'aplaceinthesun.com', 'duckduckgo.com', 'tripadvisor',
+                    'b2bhint.com', 'companieshouse', 'bloomberg.com', 'trustpilot.com', 'foursquare.com',
+                    'cyprusmail', 'cyprus-mail', 'news', 'wikipedia.org', 'gov.cy', 'amazon', 'ebay',
+                    'cbn.com.cy', 'fastforward.com.cy', 'wn.com', 'cypr24.eu', 'cyprus-tourism.net',
+                    'yahoo', 'forbes', 'blob', 'dezeen.com', 'e-architect.com', 'weather',
+                    'guruwalk', 'aia.org', 'archisoup', 'booking.com', 'airbnb', 'trip.com',
+                    'agoda', 'expedia', 'architecturaldigest', 'architizer', 'admagazine',
+                    'gplazarou', 'contemporist.com', 'architectmagazine.com', 'limassolmarina.com',
+                    'loopnet.com', 'korter.co.uk', 'toprated.london', 'boydmorison.co.uk', 'sothebysrealty.co.uk',
+                    'benhams.com', 'archinect.com', 'designboom.com', 'issuu.com', 'firms.com',
+                    'cybo.com', 'cyprusarchitects.com', 'simpli.com', 'bloglines.com', 'reference.com', 'smarter.com'
+                ];
+
+                let isDirectory = excludedDomains.some(domain => url.toLowerCase().includes(domain.toLowerCase()));
+
+                if (title.toLowerCase() === 'more info' || title.toLowerCase() === 'ask.com' || title.toLowerCase().includes('search')) {
+                    isDirectory = true;
+                }
+
+                if (title.match(/\b(top |best |[0-9]+ best|[0-9]+ top|guide|how to|salary|directory|list of)\b/i)) {
+                    isDirectory = true;
+                }
+
+                const lowerUrl = url.toLowerCase();
+                if ((lowerUrl.includes('realestate') || lowerUrl.includes('estateagent') || lowerUrl.includes('propertyforsale')) &&
+                    !lowerUrl.includes('developer') && !lowerUrl.includes('architect')) {
+                    isDirectory = true;
+                }
+
+                let isDeepLink = false;
+                try {
+                    const parsed = new URL(url);
+                    if (url.includes('/article/') || url.includes('/news/') || url.includes('/blog/') || url.includes('/view') || url.match(/\/\d{4}\/\d{2}\//)) {
+                        isDeepLink = true;
+                    } else {
+                        url = parsed.origin;
+                    }
+                } catch (e) { }
+
+                if (!isDirectory && !isBanned && !isDeepLink) {
+                    const phoneMatch = snippet.match(/(?:\+|Tel[ :]|Phone[ :]|Call[ :])?(\+?[0-9][0-9\s.-]{7,15}[0-9])/i);
+                    let realPhone = 'Not provided';
+                    if (phoneMatch && phoneMatch[1]) {
+                        const digits = phoneMatch[1].replace(/\D/g, '');
+                        if (digits.length >= 8 && digits.length <= 15 && !phoneMatch[0].includes('202') && !phoneMatch[0].includes('201')) {
+                            realPhone = phoneMatch[1].trim();
+                        }
+                    }
+
+                    results.push({
+                        id: `lead-fallback-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 5)}`,
+                        company: title,
+                        website: url,
+                        email: `info@${new URL(url).hostname.replace('www.', '')}`,
+                        phone: realPhone,
+                        intentScore: Math.floor(Math.random() * 40) + 60,
+                        tags: snippet,
+                        status: 'Discovered',
+                    });
+                }
+            });
+
+            console.log(`[!] Running deep scrape on ${results.length} Ask.com leads...`);
+            const enrichedFallbackLeads = await Promise.all(results.map(async (lead) => {
+                if (lead.phone !== 'Not provided') return lead;
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const response = await fetch(lead.website, {
+                        signal: controller.signal,
+                        headers: { 'User-Agent': 'Mozilla/5.0' }
+                    });
+                    clearTimeout(timeoutId);
+                    const html = await response.text();
+                    
+                    const telMatch = html.match(/href=["']tel:([^"'>]+)["']/i);
+                    if (telMatch && telMatch[1].length > 5) {
+                        lead.phone = telMatch[1].trim();
+                    } else {
+                        const strictRegexMatch = html.match(/(?:Tel|Phone|Call|Mobile)[\s:]*?(\+?[0-9][0-9\s.-]{7,15}[0-9])/i) ||
+                            html.match(/>[\s\n]*(\+?[0-9][0-9\s.-]{7,15}[0-9])[\s\n]*</);
+                        if (strictRegexMatch && strictRegexMatch[1]) {
+                            const digits = strictRegexMatch[1].replace(/\D/g, '');
+                            if (digits.length >= 8 && digits.length <= 15 && !strictRegexMatch[1].includes('202') && !strictRegexMatch[1].includes('201')) {
+                                lead.phone = strictRegexMatch[1].trim();
+                            }
+                        }
+                    }
+                } catch (er) { }
+                return lead;
+            }));
+
+            const finalFallbackLeads = enrichedFallbackLeads.slice(0, targetLimit);
+            if (finalFallbackLeads.length > 0) {
+                console.log(`[✓] Finalized ${finalFallbackLeads.length} organic agency leads from Ask.com.`);
+                return res.json({ success: true, leads: finalFallbackLeads, _isFallback: true, _source: 'Ask.com' });
+            } else {
+                throw new Error("No leads found via Ask.com fallback.");
+            }
+        } catch (fallbackError) {
+            console.error('[X] Ask.com Fallback Engine Error:', fallbackError.message);
+            // --- LAST RESORT DUMMY DATA ---
+            const fallbackLeads = [];
+            const safeLimit = targetLimit ? Math.min(targetLimit, 50) : 10;
+            const genericNames = ['Studio', 'Architects', 'Design', 'Group', 'Associates', 'Partners'];
+            const prefixes = ['Modern', 'Visionary', 'Apex', 'Core', 'Lumina', 'Urban'];
+            
+            for (let i = 0; i < safeLimit; i++) {
+                const companyName = `${prefixes[i % prefixes.length]} ${genericNames[i % genericNames.length]} Ltd`;
+                fallbackLeads.push({
+                    id: `organic-dummy-${Date.now()}-${i}`,
+                    company: companyName, // fixed from "name"
+                    website: `https://www.${companyName.toLowerCase().replace(/[^a-z]/g, '')}.com`,
+                    tags: `Leading architectural and development firm specializing in luxury residential and commercial spaces.`, // fixed from "description"
+                    intentScore: Math.floor(Math.random() * 20) + 75,
+                    status: 'Discovered',
+                    email: `hello@${companyName.toLowerCase().replace(/[^a-z]/g, '')}.com`, // fixed from "contactEmail"
+                    phone: 'Not provided',
+                    source: 'Local Dummy' // renamed from "Business Directory" to be obvious
+                });
+            }
+            return res.json({ success: true, leads: fallbackLeads, _isFallback: true, _source: 'Dummy' });
         }
-        res.json({ success: true, leads: fallbackLeads, _isFallback: true });
     }
 });
 

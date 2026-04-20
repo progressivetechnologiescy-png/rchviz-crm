@@ -25,6 +25,7 @@ import Pipeline from './pages/Pipeline';
 import Production from './pages/Production';
 import Assets from './pages/Assets';
 import Auth from './pages/Auth';
+import SetupPassword from './pages/SetupPassword';
 import Clients from './pages/Clients';
 
 import ProjectDetails from './pages/ProjectDetails';
@@ -107,6 +108,9 @@ function App() {
 
   // Render auth outside of the layout and router when not logged in
   if (!currentUser) {
+    if (window.location.pathname === '/setup-password') {
+      return <SetupPassword />;
+    }
     return <Auth onLogin={() => { window.location.href = '/dashboard' }} />;
   }
 

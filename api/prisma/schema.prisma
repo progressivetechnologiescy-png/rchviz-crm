@@ -14,8 +14,11 @@ model User {
   id          String   @id @default(uuid())
   email       String   @unique
   password    String   // Hashed via bcrypt
-  name        String
+  name        String 
   role        String   @default("employee") // admin, employee, client
+  status      String   @default("active")   // active, suspended
+  resetToken  String?
+  resetTokenExpiry DateTime?
   clientId    String?  // If role is client, associate with a Client profile
   avatar      String?  // Base64 image data or URL for profile picture
   preferences Json?    // UI layout preferences, module configs, dashboard state

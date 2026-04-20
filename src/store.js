@@ -842,19 +842,22 @@ export const useStore = create(
             },
             addEmployee: async (employee) => {
                 try {
-                    const res = await fetch(`${API_BASE}/api/v1/employees`, {
+                    const res = await fetch(`${API_BASE}/api/auth/invite`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             name: employee.name,
                             email: employee.email,
-                            role: employee.role,
-                            status: employee.status || 'active',
-                            avatar: employee.avatar || null
+                            role: employee.role
                         })
                     });
                     const json = await res.json();
-                    if (json.success) set(state => ({ employees: [...state.employees, json.data] }));
+                    if (json.success) {
+                        // Optimistically re-fetch employees to get the mirrored Employee record
+                        get().fetchEmployees();
+                    } else {
+                        console.error("Failed to invite user:", json.error);
+                    }
                 } catch(e) { console.error(e); }
             },
             updateEmployee: async (id, updates) => {
@@ -865,6 +868,12 @@ export const useStore = create(
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(updates)
                     });
+                } catch(e) { console.error(e); }
+            },
+            deleteEmployee: async (id) => {
+                set((state) => ({ employees: state.employees.filter(e => e.id !== id) }));
+                try {
+                    await fetch(`${API_BASE}/api/v1/employees/${id}`, { method: 'DELETE' });
                 } catch(e) { console.error(e); }
             },
 
