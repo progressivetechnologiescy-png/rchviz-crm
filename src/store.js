@@ -286,12 +286,17 @@ export const useStore = create(
                         const res = await fetch(`${API_BASE}/api/v1/users/profile?email=${encodeURIComponent(state.currentUser.email)}`);
                         if(res.ok) {
                             const json = await res.json();
-                            if(json.success && json.data && json.data.preferences) {
-                                const prefs = json.data.preferences;
-                                set({
-                                    ...(prefs.layout ? { dashboardLayout: prefs.layout } : {}),
-                                    ...(prefs.modules ? { dashboardModules: prefs.modules } : {})
-                                });
+                            if(json.success && json.data) {
+                                set(state => ({
+                                    currentUser: { ...state.currentUser, name: json.data.name, avatar: json.data.avatar }
+                                }));
+                                if(json.data.preferences) {
+                                    const prefs = json.data.preferences;
+                                    set({
+                                        ...(prefs.layout ? { dashboardLayout: prefs.layout } : {}),
+                                        ...(prefs.modules ? { dashboardModules: prefs.modules } : {})
+                                    });
+                                }
                             }
                         }
                     } catch(e) { console.error("Failed to fetch preferences", e); }
