@@ -118,7 +118,7 @@ const ProjectDetails = () => {
                     <div>
                         <div className="project-title-row">
                             {project.reference && (
-                                <span className="text-[11px] font-mono bg-[#2A2D35] text-[var(--accent-cyan)] font-medium px-2 py-0.5 rounded border border-[#3A3D45] flex items-center justify-center -ml-1 h-fit leading-none mt-1 box-border">
+                                <span className="text-[11px] font-mono bg-[var(--accent-cyan)]/10 text-[var(--accent-cyan)] font-medium px-2 py-0.5 rounded border border-[var(--accent-cyan)]/20 flex items-center justify-center -ml-1 h-fit leading-none mt-1 box-border">
                                     {project.reference}
                                 </span>
                             )}
