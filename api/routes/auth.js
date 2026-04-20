@@ -141,11 +141,11 @@ router.post('/invite', async (req, res) => {
             });
 
             await transporter.sendMail({
-                from: `"ArchViz CRM" <${process.env.SMTP_USER || 'progressive.technologies.cy@gmail.com'}>`,
+                from: `"ProTech CRM" <${process.env.SMTP_USER || 'progressive.technologies.cy@gmail.com'}>`,
                 to: user.email,
-                subject: 'Welcome to ArchViz CRM - Set your Password',
+                subject: 'Welcome to ProTech CRM - Set your Password',
                 html: `
-                    <h2>Welcome to the ArchViz CRM!</h2>
+                    <h2>Welcome to the ProTech CRM!</h2>
                     <p>Hello ${user.name}, you have been invited to join the platform.</p>
                     <p>Please click the button below to set up your master password and activate your account:</p>
                     <a href="${setupLink}" style="display:inline-block;padding:10px 20px;background:#3b82f6;color:white;text-decoration:none;border-radius:5px;">Setup Password</a>
