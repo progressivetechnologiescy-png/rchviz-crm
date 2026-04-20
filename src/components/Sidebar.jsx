@@ -7,27 +7,27 @@ import { useStore } from '../store';
 
 const DotMatrixIcon = () => (
     <svg width="24" height="24" viewBox="0 0 7 7" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="1.5" cy="0.5" r="0.4" fill="#FF6B00" />
-        <circle cx="2.5" cy="0.5" r="0.4" fill="#FF6B00" />
-        <circle cx="3.5" cy="0.5" r="0.4" fill="#FF6B00" />
-        <circle cx="2.5" cy="1.5" r="0.4" fill="#FF6B00" />
-        <circle cx="3.5" cy="1.5" r="0.4" fill="#FF6B00" />
-        <circle cx="4.5" cy="1.5" r="0.4" fill="#FF6B00" />
-        <circle cx="3.5" cy="2.5" r="0.4" fill="#FF6B00" />
-        <circle cx="4.5" cy="2.5" r="0.4" fill="#FF6B00" />
-        <circle cx="5.5" cy="2.5" r="0.4" fill="#FF6B00" />
-        <circle cx="4.5" cy="3.5" r="0.4" fill="#FF6B00" />
-        <circle cx="5.5" cy="3.5" r="0.4" fill="#FF6B00" />
-        <circle cx="6.5" cy="3.5" r="0.4" fill="#FF6B00" />
-        <circle cx="3.5" cy="4.5" r="0.4" fill="#FF6B00" />
-        <circle cx="4.5" cy="4.5" r="0.4" fill="#FF6B00" />
-        <circle cx="5.5" cy="4.5" r="0.4" fill="#FF6B00" />
-        <circle cx="2.5" cy="5.5" r="0.4" fill="#FF6B00" />
-        <circle cx="3.5" cy="5.5" r="0.4" fill="#FF6B00" />
-        <circle cx="4.5" cy="5.5" r="0.4" fill="#FF6B00" />
-        <circle cx="1.5" cy="6.5" r="0.4" fill="#FF6B00" />
-        <circle cx="2.5" cy="6.5" r="0.4" fill="#FF6B00" />
-        <circle cx="3.5" cy="6.5" r="0.4" fill="#FF6B00" />
+        <circle cx="1.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="2.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="3.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="2.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="3.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="4.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="3.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="4.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="5.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="4.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="5.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="6.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="3.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="4.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="5.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="2.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="3.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="4.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="1.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="2.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="3.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
 
         {/* White dots */}
         <circle cx="0.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
