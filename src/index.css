@@ -90,11 +90,6 @@ body.light-theme {
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.05);
 }
 
-body.light-theme .brand-logo-img,
-body.light-theme .auth-brand-logo-img,
-body.light-theme .brand-logo-full {
-  filter: invert(0.65) hue-rotate(180deg) contrast(1.2);
-}
 
 * {
   box-sizing: border-box;

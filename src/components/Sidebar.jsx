@@ -132,7 +132,7 @@ const Sidebar = () => {
                 <NavLink to="/dashboard" className="block w-full h-full flex justify-center items-center">
                     <div className="brand-logo-container">
                         <img
-                            src="https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png"
+                            src={theme === 'light' ? "https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo.png" : "https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png"}
                             alt="Progressive Technologies"
                             className="brand-logo-full cursor-pointer"
                         />

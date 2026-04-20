@@ -15,6 +15,7 @@ const Auth = ({ onLogin }) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const login = useStore(state => state.login);
+    const theme = useStore(state => state.theme);
     const clients = useStore(state => state.clients);
 
     const toggleMode = () => {
@@ -73,7 +74,7 @@ const Auth = ({ onLogin }) => {
                 <div className="auth-header">
                     <div className="brand-logo mb-6">
                         <img
-                            src="https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png"
+                            src={theme === 'light' ? "https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo.png" : "https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png"}
                             alt="Progressive Technologies"
                             className="auth-brand-logo-img"
                         />

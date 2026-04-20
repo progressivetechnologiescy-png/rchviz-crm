@@ -28,6 +28,7 @@ const pageTransition = {
 const getDmId = (user1, user2) => [user1, user2].sort().join('-');
 
 const Messenger = () => {
+    const theme = useStore(state => state.theme);
     const { t } = useTranslation();
     const { messages, addMessage, currentUser, employees, markMessagesAsRead } = useStore();
     const [activeDmId, setActiveDmId] = useState(null);
@@ -140,7 +141,7 @@ const Messenger = () => {
                 <div className="sidebar-brand">
                     <NavLink to="/dashboard" className="block w-full h-full flex items-center justify-center">
                         <img
-                            src="https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png"
+                            src={theme === 'light' ? "https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo.png" : "https://progressivetechnologies.com.cy/wp-content/uploads/2024/03/progressivelogo-4.png"}
                             alt="Progressive Technologies"
                             className="brand-logo-img cursor-pointer"
                         />
