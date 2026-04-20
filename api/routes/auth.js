@@ -70,9 +70,6 @@ router.post('/login', async (req, res) => {
         res.status(500).json({ success: false, error: e.message || 'Internal Server Error' });
     }
 });
-
-});
-
 // User Invite (Admin or System)
 router.post('/invite', async (req, res) => {
     const { email, name, role } = req.body;
