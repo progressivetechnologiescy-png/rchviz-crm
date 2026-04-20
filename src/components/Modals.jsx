@@ -144,8 +144,9 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                     <label>{t('assign_artist', 'Assign Artist')}</label>
                                     <select className="modal-input" value={formData.assignee} onChange={e => setFormData({ ...formData, assignee: e.target.value })}>
                                         <option value="Unassigned">{t('unassigned', 'Unassigned')}</option>
-                                        <option value="Peter">Peter</option>
-                                        <option value="Mirek">Mirek</option>
+                                        {useStore.getState().employees.map(emp => (
+                                            <option key={emp.id} value={emp.name}>{emp.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="form-group flex-1">
@@ -599,10 +600,9 @@ export const EditTaskModal = ({ isOpen, onClose, task }) => {
                                     <label>{t('assignee', 'Assignee')}</label>
                                     <select className="modal-input" value={formData.assignee} onChange={e => setFormData({ ...formData, assignee: e.target.value })} disabled={userRole !== 'admin' && formData.assignee !== useStore.getState().currentUser?.name}>
                                         <option value="Unassigned">{t('unassigned', 'Unassigned')}</option>
-                                        <option value="Peter">Peter</option>
-                                        <option value="Mirek">Mirek</option>
-                                        <option value="Elena">Elena</option>
-                                        <option value="Koss">Koss</option>
+                                        {employees.map(emp => (
+                                            <option key={emp.id} value={emp.name}>{emp.name}</option>
+                                        ))}
                                     </select>
                                 </div>
                                 <div className="form-group flex-1">
