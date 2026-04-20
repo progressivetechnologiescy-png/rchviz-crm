@@ -331,3 +331,8 @@
         right: -50px; /* shift dropdown on mobile so it doesn't overflow */
     }
 }
+.avatar.has-image {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}

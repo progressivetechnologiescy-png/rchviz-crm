@@ -391,7 +391,7 @@ const Header = () => {
                 </div>
 
                 <div className="user-profile">
-                    <div className="avatar">
+                    <div className={`avatar ${currentUser?.avatar ? 'has-image' : ''}`}>
                         {currentUser?.avatar ? (
                             <img src={currentUser.avatar} alt="Profile Logo" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
                         ) : (
