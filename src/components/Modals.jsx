@@ -105,12 +105,13 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
         <AnimatePresence>
             {isOpen && (
                 <motion.div className="modal-overlay" variants={overlayVariants} initial="hidden" animate="visible" exit="hidden">
-                    <motion.div className="modal-card glass-panel" variants={modalVariants} style={{ maxWidth: 850, width: '100%' }}>
+                    <motion.div className="modal-card glass-panel" variants={modalVariants} style={{ maxWidth: 850, width: '100%', maxHeight: 'calc(100vh - 40px)' }}>
                         <div className="modal-header">
                             <h2 className="text-xl font-semibold">{t('new_project', 'New Project')}</h2>
                             <button className="btn-icon" type="button" onClick={onClose}><X size={20} /></button>
                         </div>
-                        <form className="modal-body overflow-y-auto custom-scrollbar" style={{ maxHeight: 'calc(100vh - 120px)' }} onSubmit={handleSubmit}>
+                        <form className="flex flex-col flex-1 overflow-hidden h-full" onSubmit={handleSubmit}>
+                            <div className="modal-body overflow-y-auto custom-scrollbar" style={{ flex: 1 }}>
                             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                                 {/* Left Column: Project Identity */}
                                 <div className="md:col-span-2 flex flex-col gap-4">
@@ -195,14 +196,14 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                             {PREDEFINED_SERVICES.map(svc => {
                                                 const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
                                                 return (
-                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] transition-all h-max">
+                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-[var(--glass-border)] bg-[var(--input-bg)] hover:bg-[var(--hover-bg)] transition-all h-max shadow-sm">
                                                         <div className="flex items-center justify-between">
-                                                            <span className={`text-[11px] leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
+                                                            <span className={`text-xs leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
                                                             <label className="relative inline-flex items-center cursor-pointer shrink-0">
                                                                 <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
                                                                     setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
                                                                 }} />
-                                                                <div className="w-9 h-5 bg-[var(--glass-border)] border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.2)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
+                                                                <div className="toggle-track w-9 h-5 border border-[var(--glass-border)] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-transparent after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:shadow-[0_1px_2px_rgba(0,0,0,0.3)] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
                                                             </label>
                                                         </div>
                                                         {current.selected && (
@@ -225,8 +226,8 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="modal-footer mt-6 pt-4 border-t border-[var(--glass-border)]">
+                            
+                            <div className="modal-footer shrink-0 relative z-10 bg-[var(--bg-secondary)] backdrop-blur-lg border-t border-[var(--glass-border)] mt-auto pt-4 pb-4">
                                 <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
                                 <button type="submit" className="btn btn-primary">{t('create_project', 'Create Project')}</button>
                             </div>
