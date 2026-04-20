@@ -153,7 +153,7 @@ const Header = () => {
         setShowResults(false);
         setSearchQuery('');
         if (result.resultType === 'project') {
-            navigate(`/dashboard?project=${result.id}`);
+            navigate(`/project/${result.id}`);
         } else {
             navigate('/clients');
         }
