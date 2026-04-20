@@ -11,7 +11,7 @@ export default {
                 'dark': '#0a0a0a',
                 'glass': 'rgba(255, 255, 255, 0.03)',
                 'glass-hover': 'rgba(255, 255, 255, 0.08)',
-                'accent-cyan': '#22d3ee',
+                'accent-cyan': 'var(--accent-cyan)',
                 "primary": "#11d4d4",
                 "background-light": "#f6f8f8",
                 "background-dark": "#102222",
