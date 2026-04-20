@@ -177,7 +177,7 @@ const ProjectFolders = ({ projectId }) => {
                 )}
             </div>
 
-            <div className="p-4 flex-1 overflow-y-auto">
+            <div className="p-4 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <AnimatePresence mode="wait">
                     {!selectedFolder ? (
                         <motion.div
