@@ -105,127 +105,128 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
         <AnimatePresence>
             {isOpen && (
                 <motion.div className="modal-overlay" variants={overlayVariants} initial="hidden" animate="visible" exit="hidden">
-                    <motion.div className="modal-card glass-panel" variants={modalVariants} style={{ maxWidth: 550 }}>
+                    <motion.div className="modal-card glass-panel" variants={modalVariants} style={{ maxWidth: 850, width: '100%' }}>
                         <div className="modal-header">
                             <h2 className="text-xl font-semibold">{t('new_project', 'New Project')}</h2>
-                            <button className="btn-icon" onClick={onClose}><X size={20} /></button>
+                            <button className="btn-icon" type="button" onClick={onClose}><X size={20} /></button>
                         </div>
-                        <form className="modal-body" onSubmit={handleSubmit}>
-                            <div className="form-row">
-                                <div className="form-group flex-1">
-                                    <label>{t('reference_pt_number', 'Reference (PT Number)')}</label>
-                                    <input type="text" className="modal-input text-secondary" required
-                                        value={formData.reference} onChange={e => setFormData({ ...formData, reference: e.target.value })} />
-                                </div>
-                                <div className="form-group flex-1">
-                                    <label>{t('client', 'Client')}</label>
-                                    <select className="modal-input" required
-                                        value={formData.clientId} onChange={e => setFormData({ ...formData, clientId: e.target.value })}>
-                                        <option value="" disabled>{t('select_client', 'Select a client...')}</option>
-                                        {clients.map(c => <option key={c.id} value={c.id}>{c.name || c.companyName}</option>)}
-                                        <option value="new">+ {t('create_new_client', 'Create New Client')}</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="form-group">
-                                <label>{t('project_name_label', 'Project Name')}</label>
-                                <input type="text" className="modal-input" required
-                                    style={{ fontSize: '1.05rem', padding: '0.8rem 1rem' }}
-                                    value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
-                            </div>
-
-                            {formData.clientId === 'new' && (
-                                <div className="form-row" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px' }}>
-                                    <div className="form-group flex-1">
-                                        <label>{t('new_client_name', 'New Client Name')}</label>
-                                        <input type="text" className="modal-input" required={formData.clientId === 'new'}
-                                            value={formData.newClientName} onChange={e => setFormData({ ...formData, newClientName: e.target.value })} />
+                        <form className="modal-body overflow-y-auto custom-scrollbar" style={{ maxHeight: 'calc(100vh - 120px)' }} onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                                {/* Left Column: Project Identity */}
+                                <div className="md:col-span-2 flex flex-col gap-4">
+                                    <div className="form-group">
+                                        <label>{t('reference_pt_number', 'Reference (PT Number)')}</label>
+                                        <input type="text" className="modal-input text-secondary" required
+                                            value={formData.reference} onChange={e => setFormData({ ...formData, reference: e.target.value })} />
                                     </div>
-                                    <div className="form-group flex-1">
-                                        <label>{t('client_email', 'Client Email')}</label>
-                                        <input type="email" className="modal-input" required={formData.clientId === 'new'}
-                                            value={formData.newClientEmail} onChange={e => setFormData({ ...formData, newClientEmail: e.target.value })} />
+                                    <div className="form-group">
+                                        <label>{t('client', 'Client')}</label>
+                                        <select className="modal-input" required
+                                            value={formData.clientId} onChange={e => setFormData({ ...formData, clientId: e.target.value })}>
+                                            <option value="" disabled>{t('select_client', 'Select a client...')}</option>
+                                            {clients.map(c => <option key={c.id} value={c.id}>{c.name || c.companyName}</option>)}
+                                            <option value="new">+ {t('create_new_client', 'Create New Client')}</option>
+                                        </select>
                                     </div>
-                                </div>
-                            )}
-
-                            <div className="form-row">
-                                <div className="form-group flex-1">
-                                    <label>{t('assign_artist', 'Assign Artist')}</label>
-                                    <select className="modal-input" value={formData.assignee} onChange={e => setFormData({ ...formData, assignee: e.target.value })}>
-                                        <option value="Unassigned">{t('unassigned', 'Unassigned')}</option>
-                                        {useStore.getState().employees.map(emp => (
-                                            <option key={emp.id} value={emp.name}>{emp.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                                <div className="form-group flex-1">
-                                    <label>{t('priority', 'Priority')}</label>
-                                    <select className="modal-input" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })}>
-                                        <option>{t('low', 'Low')}</option>
-                                        <option>{t('medium', 'Medium')}</option>
-                                        <option>{t('high', 'High')}</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="form-row">
-                                <div className="form-group flex-1">
-                                    <label>{t('total_price_eur', 'Total Price (€)')}</label>
-                                    <input type="number" min="0" className="modal-input" required
-                                        value={formData.totalAmount} onChange={e => setFormData({ ...formData, totalAmount: e.target.value })} />
-                                </div>
-                                <div className="form-group flex-1">
-                                    <label>{t('deposit_paid_eur', 'Deposit Paid (€)')}</label>
-                                    <input type="number" min="0" className="modal-input" required
-                                        value={formData.deposit} onChange={e => setFormData({ ...formData, deposit: e.target.value })} />
-                                </div>
-                                <div className="form-group flex-1">
-                                    <label>{t('due_date', 'Due Date')}</label>
-                                    <input type="date" className="modal-input" required
-                                        value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
-                                </div>
-                            </div>
-
-                            <div className="form-group mb-4">
-                                <label className="flex items-center gap-2 mb-3">
-                                    {t('services_deliverables', 'Services & Deliverables')}
-                                </label>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 rounded-xl border border-[var(--glass-border)] bg-[#030a10]/40">
-                                    {PREDEFINED_SERVICES.map(svc => {
-                                        const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
-                                        return (
-                                            <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-white/5 bg-[var(--bg-secondary)]/50 transition-all">
-                                                <div className="flex items-center justify-between">
-                                                    <span className={`text-[11px] leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
-                                                    <label className="relative inline-flex items-center cursor-pointer shrink-0">
-                                                        <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
-                                                            setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
-                                                        }} />
-                                                        <div className="w-9 h-5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
-                                                    </label>
-                                                </div>
-                                                {current.selected && (
-                                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-1">
-                                                        <textarea 
-                                                            className="w-full text-[11px] p-2 rounded bg-[var(--bg-primary)] border border-white/5 focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
-                                                            placeholder={t('add_notes_optional', 'Deliverable notes...')}
-                                                            rows="1"
-                                                            value={current.notes}
-                                                            onChange={e => {
-                                                                setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, notes: e.target.value } } });
-                                                            }}
-                                                        />
-                                                    </motion.div>
-                                                )}
+                                    {formData.clientId === 'new' && (
+                                        <div className="flex flex-col gap-4" style={{ backgroundColor: 'rgba(255,255,255,0.02)', padding: '10px', borderRadius: '8px' }}>
+                                            <div className="form-group">
+                                                <label>{t('new_client_name', 'New Client Name')}</label>
+                                                <input type="text" className="modal-input" required={formData.clientId === 'new'}
+                                                    value={formData.newClientName} onChange={e => setFormData({ ...formData, newClientName: e.target.value })} />
                                             </div>
-                                        );
-                                    })}
+                                            <div className="form-group">
+                                                <label>{t('client_email', 'Client Email')}</label>
+                                                <input type="email" className="modal-input" required={formData.clientId === 'new'}
+                                                    value={formData.newClientEmail} onChange={e => setFormData({ ...formData, newClientEmail: e.target.value })} />
+                                            </div>
+                                        </div>
+                                    )}
+                                    <div className="form-group">
+                                        <label>{t('project_name_label', 'Project Name')}</label>
+                                        <input type="text" className="modal-input" required
+                                            value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <div className="form-group flex-1">
+                                            <label>{t('assign_artist', 'Assign Artist')}</label>
+                                            <select className="modal-input" value={formData.assignee} onChange={e => setFormData({ ...formData, assignee: e.target.value })}>
+                                                <option value="Unassigned">{t('unassigned', 'Unassigned')}</option>
+                                                {useStore.getState().employees.map(emp => (
+                                                    <option key={emp.id} value={emp.name}>{emp.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="form-group flex-1">
+                                            <label>{t('priority', 'Priority')}</label>
+                                            <select className="modal-input" value={formData.priority} onChange={e => setFormData({ ...formData, priority: e.target.value })}>
+                                                <option>{t('low', 'Low')}</option>
+                                                <option>{t('medium', 'Medium')}</option>
+                                                <option>{t('high', 'High')}</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="flex gap-4 flex-wrap">
+                                        <div className="form-group flex-1 min-w-[120px]">
+                                            <label>{t('total_price_eur', 'Total Price (€)')}</label>
+                                            <input type="number" min="0" className="modal-input" required
+                                                value={formData.totalAmount} onChange={e => setFormData({ ...formData, totalAmount: e.target.value })} />
+                                        </div>
+                                        <div className="form-group flex-1 min-w-[120px]">
+                                            <label>{t('deposit_paid_eur', 'Deposit Paid (€)')}</label>
+                                            <input type="number" min="0" className="modal-input" required
+                                                value={formData.deposit} onChange={e => setFormData({ ...formData, deposit: e.target.value })} />
+                                        </div>
+                                        <div className="form-group flex-1 min-w-[130px]">
+                                            <label>{t('due_date', 'Due Date')}</label>
+                                            <input type="date" className="modal-input" required
+                                                value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Right Column: Services & Deliverables */}
+                                <div className="md:col-span-3 flex flex-col h-full">
+                                    <div className="form-group flex flex-col h-full">
+                                        <label className="flex items-center gap-2 mb-3">
+                                            {t('services_deliverables', 'Services & Deliverables')}
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-4 rounded-xl border border-[var(--glass-border)] bg-[#030a10]/40 flex-1">
+                                            {PREDEFINED_SERVICES.map(svc => {
+                                                const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
+                                                return (
+                                                    <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-white/5 bg-[var(--bg-secondary)]/50 transition-all h-max">
+                                                        <div className="flex items-center justify-between">
+                                                            <span className={`text-[11px] leading-tight font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'} flex-1 pr-2`}>{svc.name}</span>
+                                                            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                                                                <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
+                                                                    setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
+                                                                }} />
+                                                                <div className="w-9 h-5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent cursor-pointer"></div>
+                                                            </label>
+                                                        </div>
+                                                        {current.selected && (
+                                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-1">
+                                                                <textarea 
+                                                                    className="w-full text-[11px] p-2 rounded bg-[var(--bg-primary)] border border-white/5 focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
+                                                                    placeholder={t('add_notes_optional', 'Deliverable notes...')}
+                                                                    rows="1"
+                                                                    value={current.notes}
+                                                                    onChange={e => {
+                                                                        setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, notes: e.target.value } } });
+                                                                    }}
+                                                                />
+                                                            </motion.div>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="modal-footer mt-4">
+                            <div className="modal-footer mt-6 pt-4 border-t border-[var(--glass-border)]">
                                 <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
                                 <button type="submit" className="btn btn-primary">{t('create_project', 'Create Project')}</button>
                             </div>
