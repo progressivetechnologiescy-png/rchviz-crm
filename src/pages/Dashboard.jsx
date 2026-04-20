@@ -640,6 +640,8 @@ const Dashboard = () => {
                         assets.forEach(asset => {
                             if (asset.comments && asset.comments.length > 0) {
                                 asset.comments.forEach((c, idx) => {
+                                    if (c.type === 'cover') return; // Ignore purely metadata tags
+                                    
                                     timelineEvents.push({
                                         id: `asset-comment-${asset.id}-${idx}`,
                                         type: 'comment',
