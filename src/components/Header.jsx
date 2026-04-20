@@ -135,12 +135,16 @@ const Header = () => {
             (p.totalAmount && p.totalAmount.toString().includes(query))
         ).slice(0, 5).map(p => ({ ...p, resultType: 'project' }));
 
+        const projectNames = new Set(matchedProjects.map(p => p.name.toLowerCase()));
+
         const matchedClients = (clients || []).filter(c => 
-            c.name.toLowerCase().includes(query) || 
-            (c.email && c.email.toLowerCase().includes(query)) ||
-            (c.company && c.company.toLowerCase().includes(query)) ||
-            (c.phone && c.phone.toLowerCase().includes(query)) ||
-            (c.contact && c.contact.toLowerCase().includes(query))
+            !projectNames.has(c.name.toLowerCase()) && (
+                c.name.toLowerCase().includes(query) || 
+                (c.email && c.email.toLowerCase().includes(query)) ||
+                (c.company && c.company.toLowerCase().includes(query)) ||
+                (c.phone && c.phone.toLowerCase().includes(query)) ||
+                (c.contact && c.contact.toLowerCase().includes(query))
+            )
         ).slice(0, 5).map(c => ({ ...c, resultType: 'client' }));
 
         const combined = [...matchedProjects, ...matchedClients];
