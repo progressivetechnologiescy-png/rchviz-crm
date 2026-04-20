@@ -136,17 +136,15 @@ router.post('/invite', async (req, res) => {
 
         try {
             const transporter = nodemailer.createTransport({
-                host: process.env.SMTP_HOST || 'smtp.gmail.com',
-                port: process.env.SMTP_PORT || 587,
-                secure: process.env.SMTP_SECURE === 'true',
+                service: 'gmail',
                 auth: {
-                    user: process.env.SMTP_USER,
-                    pass: process.env.SMTP_PASS
+                    user: process.env.SMTP_USER || 'progressive.technologies.cy@gmail.com',
+                    pass: process.env.SMTP_PASS || 'uolfruzfwmuqgsjb'
                 }
             });
 
             await transporter.sendMail({
-                from: `"ArchViz CRM" <${process.env.SMTP_USER || 'no-reply@archviz.com'}>`,
+                from: `"ArchViz CRM" <${process.env.SMTP_USER || 'progressive.technologies.cy@gmail.com'}>`,
                 to: user.email,
                 subject: 'Welcome to ArchViz CRM - Set your Password',
                 html: `
