@@ -327,7 +327,7 @@ const ProjectManagement = () => {
                     <motion.div key="detail" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="project-detail-view">
                         <header className="project-header-container">
                             <div className="project-header-left">
-                                <button className="flex items-center gap-2 text-sm text-white bg-slate-800 border border-white/10 rounded-lg cursor-pointer px-4 py-2 hover:bg-slate-700 hover:border-white/20 transition-all self-start" onClick={() => {
+                                <button className="flex items-center gap-2 text-sm text-[var(--text-primary)] bg-[var(--input-bg)] border border-[var(--glass-border)] rounded-lg cursor-pointer px-4 py-2 hover:bg-[var(--hover-bg)] hover:border-[var(--glass-border-highlight)] transition-all self-start" onClick={() => {
                                     if (selectedFolder) {
                                         setSelectedFolder(null);
                                     } else {
