@@ -16,6 +16,15 @@ const modalVariants = {
     visible: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 30 } }
 };
 
+const PREDEFINED_SERVICES = [
+    { id: 'ext_renders', name: 'Exterior Renders (Day and/or Night)' },
+    { id: 'int_renders', name: 'Interior Renders' },
+    { id: 'ext_anim', name: 'Exterior Animation' },
+    { id: 'int_anim', name: 'Interior Animation' },
+    { id: 'floor_3d', name: '3D Floorplans' },
+    { id: 'floor_2d', name: '2D Floorplans' }
+];
+
 export const AddProjectModal = ({ isOpen, onClose }) => {
     const { t } = useTranslation();
     const { projects, addProject, clients, addClient } = useStore();
@@ -30,7 +39,8 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
         dueDate: '',
         assignee: 'Unassigned',
         totalAmount: '',
-        deposit: ''
+        deposit: '',
+        services: {}
     });
 
     React.useEffect(() => {
@@ -79,13 +89,14 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
             progress: 0,
             assignee: formData.assignee,
             totalAmount: Number(formData.totalAmount) || 0,
-            deposit: Number(formData.deposit) || 0
+            deposit: Number(formData.deposit) || 0,
+            services: formData.services
         });
 
         setFormData({
             reference: '', name: '', clientId: '', newClientName: '', newClientEmail: '',
             priority: 'Medium', stage: 'Queue', dueDate: '', assignee: 'Unassigned',
-            totalAmount: '', deposit: ''
+            totalAmount: '', deposit: '', services: {}
         });
         onClose();
     };
@@ -174,6 +185,43 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                     <label>{t('due_date', 'Due Date')}</label>
                                     <input type="date" className="modal-input" required
                                         value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} />
+                                </div>
+                            </div>
+
+                            <div className="form-group mb-4">
+                                <label className="flex items-center gap-2 mb-3">
+                                    {t('services_deliverables', 'Services & Deliverables')}
+                                </label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-4 rounded-xl border border-[var(--glass-border)] bg-[#030a10]/40">
+                                    {PREDEFINED_SERVICES.map(svc => {
+                                        const current = formData.services[svc.id] || { selected: false, notes: '', completed: false };
+                                        return (
+                                            <div key={svc.id} className="flex flex-col gap-2 p-3 rounded-lg border border-white/5 bg-[var(--bg-secondary)]/50 transition-all">
+                                                <div className="flex items-center justify-between">
+                                                    <span className={`text-xs font-medium ${current.selected ? 'text-[var(--accent-cyan)]' : 'text-[var(--text-secondary)]'}`}>{svc.name}</span>
+                                                    <label className="relative inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" className="sr-only peer" checked={current.selected} onChange={() => {
+                                                            setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, selected: !current.selected } } });
+                                                        }} />
+                                                        <div className="w-8 h-4.5 bg-[var(--bg-primary)] border border-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-[14px] after:w-[14px] after:transition-all peer-checked:bg-[var(--accent-cyan)] peer-checked:border-transparent"></div>
+                                                    </label>
+                                                </div>
+                                                {current.selected && (
+                                                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-1">
+                                                        <textarea 
+                                                            className="w-full text-[11px] p-2 rounded bg-[var(--bg-primary)] border border-white/5 focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
+                                                            placeholder={t('add_notes_optional', 'Deliverable notes...')}
+                                                            rows="1"
+                                                            value={current.notes}
+                                                            onChange={e => {
+                                                                setFormData({ ...formData, services: { ...formData.services, [svc.id]: { ...current, notes: e.target.value } } });
+                                                            }}
+                                                        />
+                                                    </motion.div>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
                             </div>
 
