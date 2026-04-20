@@ -130,15 +130,18 @@ const Header = () => {
         const matchedProjects = (projects || []).filter(p => 
             p.name.toLowerCase().includes(query) || 
             (p.client && p.client.toLowerCase().includes(query)) ||
-            (p.id && p.id.toLowerCase().includes(query)) ||
-            (p.reference && p.reference.toLowerCase().includes(query))
-        ).slice(0, 3).map(p => ({ ...p, resultType: 'project' }));
+            (p.clientName && p.clientName.toLowerCase().includes(query)) ||
+            (p.reference && p.reference.toLowerCase().includes(query)) ||
+            (p.totalAmount && p.totalAmount.toString().includes(query))
+        ).slice(0, 5).map(p => ({ ...p, resultType: 'project' }));
 
         const matchedClients = (clients || []).filter(c => 
             c.name.toLowerCase().includes(query) || 
             (c.email && c.email.toLowerCase().includes(query)) ||
-            (c.company && c.company.toLowerCase().includes(query))
-        ).slice(0, 3).map(c => ({ ...c, resultType: 'client' }));
+            (c.company && c.company.toLowerCase().includes(query)) ||
+            (c.phone && c.phone.toLowerCase().includes(query)) ||
+            (c.contact && c.contact.toLowerCase().includes(query))
+        ).slice(0, 5).map(c => ({ ...c, resultType: 'client' }));
 
         const combined = [...matchedProjects, ...matchedClients];
         setSearchResults(combined);
