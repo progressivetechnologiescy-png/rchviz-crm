@@ -89,6 +89,16 @@ function App() {
   const fetchChannels = useStore(state => state.fetchChannels);
   const fetchMessages = useStore(state => state.fetchMessages);
   const fetchEmployees = useStore(state => state.fetchEmployees);
+  const theme = useStore(state => state.theme);
+
+  // Sync theme to DOM on hydration
+  useEffect(() => {
+    if (theme === 'light') {
+      document.body.classList.add('light-theme');
+    } else {
+      document.body.classList.remove('light-theme');
+    }
+  }, [theme]);
 
   // Global Data Re-hydration
   // If the user refreshes the page, pull down fresh cloud data automatically.
