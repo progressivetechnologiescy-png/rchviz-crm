@@ -144,7 +144,7 @@
     top: calc(100% + 0.5rem);
     right: 0;
     width: 380px;
-    background: rgba(5, 11, 11, 0.95);
+    background: var(--bg-secondary);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
