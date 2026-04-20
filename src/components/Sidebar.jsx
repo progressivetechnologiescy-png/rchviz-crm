@@ -30,40 +30,40 @@ const DotMatrixIcon = () => (
         <circle cx="3.5" cy="6.5" r="0.4" fill="#FF6B00" />
 
         {/* White dots */}
-        <circle cx="0.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="4.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="5.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="6.5" cy="0.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="0.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="4.5" cy="0.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="5.5" cy="0.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="6.5" cy="0.5" r="0.4" fill="#B0B0B0" />
 
-        <circle cx="0.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="1.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="5.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="6.5" cy="1.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="1.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="1.5" cy="1.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="5.5" cy="1.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="6.5" cy="1.5" r="0.4" fill="#B0B0B0" />
 
-        <circle cx="0.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="1.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="2.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="6.5" cy="2.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="2.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="1.5" cy="2.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="2.5" cy="2.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="6.5" cy="2.5" r="0.4" fill="#B0B0B0" />
 
-        <circle cx="0.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="1.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="2.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="3.5" cy="3.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="3.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="1.5" cy="3.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="2.5" cy="3.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="3.5" cy="3.5" r="0.4" fill="#B0B0B0" />
 
-        <circle cx="0.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="1.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="2.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="6.5" cy="4.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="4.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="1.5" cy="4.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="2.5" cy="4.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="6.5" cy="4.5" r="0.4" fill="#B0B0B0" />
 
-        <circle cx="0.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="1.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="5.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="6.5" cy="5.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="5.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="1.5" cy="5.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="5.5" cy="5.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="6.5" cy="5.5" r="0.4" fill="#B0B0B0" />
 
-        <circle cx="0.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="4.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="5.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
-        <circle cx="6.5" cy="6.5" r="0.4" fill="var(--text-secondary)" />
+        <circle cx="0.5" cy="6.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="4.5" cy="6.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="5.5" cy="6.5" r="0.4" fill="#B0B0B0" />
+        <circle cx="6.5" cy="6.5" r="0.4" fill="#B0B0B0" />
     </svg>
 );
 
