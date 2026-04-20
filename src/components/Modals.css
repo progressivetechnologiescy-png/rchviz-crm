@@ -88,3 +88,9 @@ select.modal-input option {
     gap: 1rem;
     background: rgba(0, 0, 0, 0.1);
 }
+body.light-theme .modal-card {
+    background: #ffffff;
+}
+body.light-theme .modal-footer {
+    background: transparent;
+}

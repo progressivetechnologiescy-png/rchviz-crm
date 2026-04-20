@@ -105,13 +105,13 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
         <AnimatePresence>
             {isOpen && (
                 <motion.div className="modal-overlay" variants={overlayVariants} initial="hidden" animate="visible" exit="hidden">
-                    <motion.div className="modal-card glass-panel" variants={modalVariants} style={{ maxWidth: 850, width: '100%', maxHeight: 'calc(100vh - 40px)' }}>
+                    <motion.div className="modal-card glass-panel" variants={modalVariants} style={{ maxWidth: 850, width: '100%' }}>
                         <div className="modal-header">
                             <h2 className="text-xl font-semibold">{t('new_project', 'New Project')}</h2>
                             <button className="btn-icon" type="button" onClick={onClose}><X size={20} /></button>
                         </div>
-                        <form className="flex flex-col flex-1 overflow-hidden h-full" onSubmit={handleSubmit}>
-                            <div className="modal-body overflow-y-auto custom-scrollbar" style={{ flex: 1 }}>
+                        <form className="flex flex-col flex-1" onSubmit={handleSubmit}>
+                            <div className="modal-body flex-1">
                             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
                                 {/* Left Column: Project Identity */}
                                 <div className="md:col-span-2 flex flex-col gap-4">
@@ -227,7 +227,7 @@ export const AddProjectModal = ({ isOpen, onClose }) => {
                                 </div>
                             </div>
                             
-                            <div className="modal-footer shrink-0 relative z-10 bg-[var(--bg-secondary)] backdrop-blur-lg border-t border-[var(--glass-border)] mt-auto pt-4 pb-4">
+                            <div className="modal-footer shrink-0 relative z-10 border-t border-[var(--glass-border)] mt-auto pt-4 pb-4">
                                 <button type="button" className="btn btn-secondary" onClick={onClose}>{t('cancel', 'Cancel')}</button>
                                 <button type="submit" className="btn btn-primary">{t('create_project', 'Create Project')}</button>
                             </div>
