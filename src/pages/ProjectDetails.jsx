@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Building, Upload, MessageSquare, Clock, CheckCircle, FileText, X, Image as ImageIcon, Eye, FolderArchive, FileArchive, Download, Grid, List } from 'lucide-react';
+import { ArrowLeft, Building, Upload, MessageSquare, Clock, CheckCircle, Circle, FileText, X, Image as ImageIcon, Eye, FolderArchive, FileArchive, Download, Grid, List } from 'lucide-react';
 import ProjectFolders from '../components/ProjectFolders';
 import './ProjectDetails.css';
 
@@ -291,7 +291,7 @@ const ProjectDetails = () => {
                                             </label>
                                         </div>
                                         {current.selected && (
-                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2">
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="mt-2 flex flex-col gap-3">
                                                 <textarea 
                                                     className="w-full text-xs p-2 rounded bg-[var(--bg-primary)] border border-white/5 focus:border-[var(--accent-cyan)]/50 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] resize-none outline-none transition-all"
                                                     placeholder={t('add_notes_optional', 'Add notes for this service (optional)...')}
@@ -299,11 +299,28 @@ const ProjectDetails = () => {
                                                     value={current.notes}
                                                     onChange={e => {
                                                         const currentServices = project.services || {};
-                                                        const service = currentServices[svc.id] || { selected: false, notes: '' };
+                                                        const service = currentServices[svc.id] || { selected: false, notes: '', completed: false };
                                                         updateProjectField(project.id, 'services', { ...currentServices, [svc.id]: { ...service, notes: e.target.value } });
                                                     }}
                                                     disabled={userRole === 'client'}
                                                 />
+                                                <div className="flex items-center justify-between border-t border-white/5 pt-2">
+                                                    <span className={`text-[10px] uppercase font-bold tracking-wider ${current.completed ? 'text-emerald-400' : 'text-amber-400'}`}>
+                                                        {current.completed ? t('status_completed', 'STATUS: COMPLETED') : t('status_in_progress', 'STATUS: IN PROGRESS')}
+                                                    </span>
+                                                    <button 
+                                                        onClick={() => {
+                                                            const currentServices = project.services || {};
+                                                            const service = currentServices[svc.id] || { selected: false, notes: '', completed: false };
+                                                            updateProjectField(project.id, 'services', { ...currentServices, [svc.id]: { ...service, completed: !service.completed } });
+                                                        }}
+                                                        className={`flex items-center px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all ${current.completed ? 'bg-emerald-500/20 text-emerald-500 hover:bg-emerald-500/30' : 'bg-[var(--glass-border)] text-[var(--text-secondary)] hover:text-white hover:bg-[var(--bg-tertiary)]'}`}
+                                                        disabled={userRole === 'client'}
+                                                    >
+                                                        {current.completed ? <CheckCircle size={14} className="mr-1.5"/> : <Circle size={14} className="mr-1.5"/>}
+                                                        {current.completed ? t('completed', 'Completed') : t('mark_complete', 'Mark Complete')}
+                                                    </button>
+                                                </div>
                                             </motion.div>
                                         )}
                                     </div>
