@@ -10,7 +10,7 @@ import './ProjectDetails.css';
 const ProjectDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { projects, clients, userRole, currentUser, updateProjectStatus, addProjectFeedback, updateProjectField } = useStore();
+    const { projects, clients, employees, userRole, currentUser, updateProjectStatus, addProjectFeedback, updateProjectField } = useStore();
     const { t } = useTranslation();
     const [feedbackText, setFeedbackText] = useState('');
     const [attachments, setAttachments] = useState([]);
@@ -172,8 +172,8 @@ const ProjectDetails = () => {
                                         onChange={(e) => updateProjectField(project.id, 'assignee', e.target.value)}
                                     >
                                         <option value="">Unassigned</option>
-                                        {Array.from(new Set(projects.map(p => p.assignee).filter(Boolean))).map(emp => (
-                                            <option key={emp} value={emp} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{emp}</option>
+                                        {employees.map(emp => (
+                                            <option key={emp.id} value={emp.name} style={{ background: 'var(--bg-secondary)', color: 'var(--text-primary)' }}>{emp.name}</option>
                                         ))}
                                     </select>
                                 ) : (

@@ -837,7 +837,19 @@ export const useStore = create(
                 try {
                     const res = await fetch(`${API_BASE}/api/v1/employees`);
                     const json = await res.json();
-                    if (json.success) set({ employees: json.data });
+                    if (json.success) {
+                        const employeesWithInitials = json.data.map(emp => {
+                            const parts = (emp.name || '').trim().split(' ');
+                            let initials = parts[0]?.substring(0, 1)?.toUpperCase() || '';
+                            if (parts.length > 1) {
+                                initials += parts[parts.length - 1].substring(0, 1).toUpperCase();
+                            } else if (parts[0]?.length > 1) {
+                                initials += parts[0].substring(1, 2).toUpperCase();
+                            }
+                            return { ...emp, initials };
+                        });
+                        set({ employees: employeesWithInitials });
+                    }
                 } catch(e) { console.error(e); }
             },
             addEmployee: async (employee) => {
