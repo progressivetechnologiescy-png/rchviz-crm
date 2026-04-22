@@ -27,7 +27,6 @@ import Assets from './pages/Assets';
 import Auth from './pages/Auth';
 import SetupPassword from './pages/SetupPassword';
 import Clients from './pages/Clients';
-import Presentations from './pages/Presentations';
 
 import ProjectDetails from './pages/ProjectDetails';
 import ClientProfile from './pages/ClientProfile';

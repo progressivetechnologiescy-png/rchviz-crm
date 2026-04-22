@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, KanbanSquare, FolderKanban, Settings, LogOut, CheckSquare, DollarSign, MessageSquare, ChevronLeft, ChevronRight, Network, Magnet, MonitorPlay } from 'lucide-react';
+import { LayoutDashboard, Users, KanbanSquare, FolderKanban, Settings, LogOut, CheckSquare, DollarSign, MessageSquare, ChevronLeft, ChevronRight, Network, Magnet } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import './Sidebar.css';
 import { useStore } from '../store';
