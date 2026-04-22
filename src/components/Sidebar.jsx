@@ -86,7 +86,6 @@ const Sidebar = () => {
         { path: '/production', label: t('nav_production', 'Production Board'), icon: KanbanSquare },
         { path: '/financials', label: t('nav_financials', 'Financials'), icon: DollarSign },
         { path: '/assets', label: t('nav_assets', 'Project Hub'), icon: FolderKanban },
-        { path: '/presentations', label: t('nav_presentations', '3D Presentations'), icon: MonitorPlay },
         { path: '/messenger', label: t('nav_messenger', 'Messenger'), icon: MessageSquare },
     ];
 

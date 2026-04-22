@@ -60,7 +60,6 @@ const AnimatedRoutes = ({ role }) => {
             {role !== 'client' && <Route path="/messenger" element={<Messenger />} />}
             <Route path="/project/:id" element={<ProjectDetails />} />
             <Route path="/assets" element={<Assets />} />
-            <Route path="/presentations" element={<Presentations />} />
             <Route path="/leads" element={<LeadGenerator />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
