@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Users, KanbanSquare, FolderKanban, Settings, LogOut, CheckSquare, DollarSign, MessageSquare, ChevronLeft, ChevronRight, Network, Magnet } from 'lucide-react';
+import { LayoutDashboard, Users, KanbanSquare, FolderKanban, Settings, LogOut, CheckSquare, DollarSign, MessageSquare, ChevronLeft, ChevronRight, Network, Magnet, MonitorPlay } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import './Sidebar.css';
 import { useStore } from '../store';
@@ -86,6 +86,7 @@ const Sidebar = () => {
         { path: '/production', label: t('nav_production', 'Production Board'), icon: KanbanSquare },
         { path: '/financials', label: t('nav_financials', 'Financials'), icon: DollarSign },
         { path: '/assets', label: t('nav_assets', 'Project Hub'), icon: FolderKanban },
+        { path: '/presentations', label: t('nav_presentations', '3D Presentations'), icon: MonitorPlay },
         { path: '/messenger', label: t('nav_messenger', 'Messenger'), icon: MessageSquare },
     ];
 

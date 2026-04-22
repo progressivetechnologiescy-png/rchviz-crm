@@ -27,6 +27,7 @@ import Assets from './pages/Assets';
 import Auth from './pages/Auth';
 import SetupPassword from './pages/SetupPassword';
 import Clients from './pages/Clients';
+import Presentations from './pages/Presentations';
 
 import ProjectDetails from './pages/ProjectDetails';
 import ClientProfile from './pages/ClientProfile';
@@ -59,6 +60,7 @@ const AnimatedRoutes = ({ role }) => {
             {role !== 'client' && <Route path="/messenger" element={<Messenger />} />}
             <Route path="/project/:id" element={<ProjectDetails />} />
             <Route path="/assets" element={<Assets />} />
+            <Route path="/presentations" element={<Presentations />} />
             <Route path="/leads" element={<LeadGenerator />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/help" element={<Help />} />
